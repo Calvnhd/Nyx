@@ -4,6 +4,7 @@
 
 #include "CAttributeComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -15,11 +16,14 @@ ACPlayer::ACPlayer()
 
 	// Is this still going to be relevant to your camera needs?
 	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	//GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
+	
+	MeshComp->SetupAttachment(RootComponent);
 
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->bUsePawnControlRotation = true;

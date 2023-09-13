@@ -10,13 +10,14 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UStaticMeshComponent;
 class UCAttributeComponent;
 
 /*
  * The player-controlled character
  */
 UCLASS()
-class NYX_API ACPlayer : public ACharacter, public ICAttributeInterface
+class NYX_API ACPlayer : public APawn, public ICAttributeInterface
 {
 	GENERATED_BODY()
 
@@ -53,6 +54,8 @@ protected:
 	TObjectPtr<USpringArmComponent> SpringArmComp;
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UCAttributeComponent> AttributeComp;
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> MeshComp;
 	// UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	// TObjectPtr<UParticleSystem> EngineEffects;
 
