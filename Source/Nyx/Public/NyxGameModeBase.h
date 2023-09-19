@@ -13,4 +13,10 @@ UCLASS()
 class NYX_API ANyxGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+	ANyxGameModeBase();
+
+	// Doesn't have BeginPlay.  It's responsible for calling BeginPlay on everything else!
+	virtual void StartPlay() override;
 };
