@@ -15,27 +15,17 @@ UCAttributeComponent::UCAttributeComponent()
 	ThrustQuanta = ThrustMax * 0.01;
 }
 
-float UCAttributeComponent::GetThrust()
-{
-	return Thrust;
-}
-
 void UCAttributeComponent::IncreaseThrust()
-{
-	// todo
-}
-
-void UCAttributeComponent::DecreaseThrust()
-{
-	// todo
-}
-
-void UCAttributeComponent::SetThrustToMax()
 {
 	Thrust = ThrustMax;
 }
 
-void UCAttributeComponent::SetThrustToMin()
+void UCAttributeComponent::DecreaseThrust()
 {
 	Thrust = 0.0f;
+}
+
+float UCAttributeComponent::GetThrust()
+{
+	return Thrust;
 }

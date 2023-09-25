@@ -60,12 +60,12 @@ protected:
 	// TObjectPtr<UParticleSystem> EngineEffects;
 
 	// Movement
-	// void IncreaseThrust();
-	// void DecreaseThrust();
-	void SetThrustToMax();
-	void SetThrustToMin();
-	// void RotateRight();
-	// void RotateLeft();
+	UFUNCTION(BlueprintCallable)
+	float GetThrust();
+	void IncreaseThrust();
+	void DecreaseThrust();
+	// void YawRight();
+	// void YawLeft();
 	// void PitchUp();
 	// void PitchDown();
 

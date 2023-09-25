@@ -22,11 +22,12 @@ class NYX_API UCAttributeComponent : public UActorComponent
 public:
 	UCAttributeComponent();
 
-	float GetThrust();
+	// For now, increase and decrease will just set to max and min
 	void IncreaseThrust();
 	void DecreaseThrust();
-	void SetThrustToMax();
-	void SetThrustToMin();
+
+	UFUNCTION(BlueprintCallable)
+	float GetThrust();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")

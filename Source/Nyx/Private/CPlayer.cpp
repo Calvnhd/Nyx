@@ -53,20 +53,30 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	// Movement
-	PlayerInputComponent->BindAction("SetThrustToMax", IE_Pressed, this, &ACPlayer::SetThrustToMax);
-	PlayerInputComponent->BindAction("SetThrustToMin", IE_Pressed, this, &ACPlayer::SetThrustToMin);
+	PlayerInputComponent->BindAction("IncreaseThrust", IE_Pressed, this, &ACPlayer::IncreaseThrust);
+	PlayerInputComponent->BindAction("DecreaseThrust", IE_Pressed, this, &ACPlayer::DecreaseThrust);
+	//PlayerInputComponent->BindAction("KillThrust", IE_Pressed, this, &ACPlayer::KillThrust);
+	//PlayerInputComponent->BindAction("PitchUp", IE_Pressed, this, &ACPlayer::PitchUp);
+	//PlayerInputComponent->BindAction("PitchDown", IE_Pressed, this, &ACPlayer::PitchDown);
+	//PlayerInputComponent->BindAction("YawLeft", IE_Pressed, this, &ACPlayer::YawLeft);
+	//PlayerInputComponent->BindAction("YawRight", IE_Pressed, this, &ACPlayer::YawRight);
 }
-// void ACPlayer::IncreaseThrust() {}
-// void ACPlayer::DecreaseThrust() {}
-void ACPlayer::SetThrustToMax()
+float ACPlayer::GetThrust()
 {
-	AttributeComp->SetThrustToMax();
+	return AttributeComp->GetThrust();
 }
-void ACPlayer::SetThrustToMin()
+void ACPlayer::IncreaseThrust() 
 {
-	AttributeComp->SetThrustToMin();
+	// Currently this will set thrust to max
+	AttributeComp->IncreaseThrust();
 }
-// void ACPlayer::RotateRight() {}
-// void ACPlayer::RotateLeft() {}
+void ACPlayer::DecreaseThrust() 
+{
+	// Currently sets thrust to min
+	AttributeComp->DecreaseThrust();
+}
+
+// void ACPlayer::YawRight() {}
+// void ACPlayer::YawLeft() {}
 // void ACPlayer::PitchUp() {}
 // void ACPlayer::PitchDown() {}
