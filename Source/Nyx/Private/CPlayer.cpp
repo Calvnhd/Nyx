@@ -5,7 +5,7 @@
 #include "CAttributeComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+//#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -23,7 +23,8 @@ ACPlayer::ACPlayer()
 	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
 	
-	MeshComp->SetupAttachment(RootComponent);
+	SetRootComponent(MeshComp);
+	//MeshComp->SetupAttachment(RootComponent);
 
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->bUsePawnControlRotation = true;
