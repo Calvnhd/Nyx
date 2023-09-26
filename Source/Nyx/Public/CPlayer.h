@@ -61,11 +61,18 @@ protected:
 	// UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	// TObjectPtr<UParticleSystem> EngineEffects;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bIncreasingThrust;
+	UPROPERTY(BlueprintReadWrite)
+	bool bDecreasingThrust;
+
 	// Movement
 	UFUNCTION(BlueprintCallable)
 	float GetThrust();
-	void IncreaseThrust();
-	void DecreaseThrust();
+	UFUNCTION(BlueprintCallable)
+	void IncrementThrust();
+	UFUNCTION(BlueprintCallable)
+	void DecrementThrust();
 	// void YawRight();
 	// void YawLeft();
 	// void PitchUp();

@@ -22,12 +22,9 @@ class NYX_API UCAttributeComponent : public UActorComponent
 public:
 	UCAttributeComponent();
 
-	// For now, increase and decrease will just set to max and min
-	void IncreaseThrust();
-	void DecreaseThrust();
-
-	UFUNCTION(BlueprintCallable)
 	float GetThrust();
+	void IncrementThrust();
+	void DecrementThrust();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
@@ -35,10 +32,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
 	float HealthMax;
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
-	float Thrust;
+	float ThrustPercent;
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
 	float ThrustMax;
-	// Equal to 1% of maximum thrust, such that thrust can always be increased to full capacity in 100 increments
-	UPROPERTY(VisibleAnywhere, Category = "Attributes")
-	float ThrustQuanta;
 };
