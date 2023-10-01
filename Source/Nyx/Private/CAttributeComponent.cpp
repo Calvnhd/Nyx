@@ -21,18 +21,18 @@ float UCAttributeComponent::GetSpeed()
 	return (ThrustPercent / ThrustPercentMax) * SpeedMax;
 }
 
-	void UCAttributeComponent::IncrementThrust()
-	{
-		ThrustPercent++;
-		ThrustPercent = FMath::Clamp(ThrustPercent, 0, ThrustPercentMax);
-	}
-	void UCAttributeComponent::DecrementThrust()
-	{
-		ThrustPercent--;
-		ThrustPercent = FMath::Clamp(ThrustPercent, 0, ThrustPercentMax);
-	}
+void UCAttributeComponent::IncrementThrust()
+{
+	ThrustPercent++;
+	ThrustPercent = FMath::Clamp(ThrustPercent, 0, ThrustPercentMax);
+}
+void UCAttributeComponent::DecrementThrust()
+{
+	ThrustPercent--;
+	ThrustPercent = FMath::Clamp(ThrustPercent, 0, ThrustPercentMax);
+}
 
-	int UCAttributeComponent::GetThrust()
-	{
-		return ThrustPercent;
-	}
+int UCAttributeComponent::GetThrust()
+{
+	return ThrustPercent;
+}
