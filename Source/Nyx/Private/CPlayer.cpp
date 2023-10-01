@@ -4,7 +4,8 @@
 
 #include "CAttributeComponent.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/StaticMeshComponent.h"
+//#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -15,11 +16,14 @@ ACPlayer::ACPlayer()
 
 	// Is this still going to be relevant to your camera needs?
 	bUseControllerRotationYaw = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	//GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
+	
+	SetRootComponent(MeshComp);
 
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->bUsePawnControlRotation = true;
@@ -35,8 +39,7 @@ void ACPlayer::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	// Delegate bindings will go here e.g.
-	// AttributeComp->OnHealthChangedTrigger.AddDynamic(this, &ACPlayer::OnHealthChangedResponse);
+	// Delegate bindings will go here
 }
 // Called every frame
 void ACPlayer::Tick(float DeltaTime)
@@ -47,22 +50,20 @@ void ACPlayer::Tick(float DeltaTime)
 void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	// Movement
-	PlayerInputComponent->BindAction("SetThrustToMax", IE_Pressed, this, &ACPlayer::SetThrustToMax);
-	PlayerInputComponent->BindAction("SetThrustToMin", IE_Pressed, this, &ACPlayer::SetThrustToMin);
 }
-// void ACPlayer::IncreaseThrust() {}
-// void ACPlayer::DecreaseThrust() {}
-void ACPlayer::SetThrustToMax()
+float ACPlayer::GetSpeed()
 {
-	AttributeComp->SetThrustToMax();
+	return AttributeComp->GetSpeed();
 }
-void ACPlayer::SetThrustToMin()
+void ACPlayer::IncrementThrust()
 {
-	AttributeComp->SetThrustToMin();
+	AttributeComp->IncrementThrust();
 }
-// void ACPlayer::RotateRight() {}
-// void ACPlayer::RotateLeft() {}
-// void ACPlayer::PitchUp() {}
-// void ACPlayer::PitchDown() {}
+void ACPlayer::DecrementThrust()
+{
+	AttributeComp->DecrementThrust();
+}
+int ACPlayer::GetThrust()
+{
+	return AttributeComp->GetThrust();
+}

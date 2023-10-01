@@ -1,5 +1,6 @@
 # Visual Studio 2015 user specific files
 .vs/
+.vsconfig
 
 # Compiled Object files
 *.slo
@@ -82,4 +83,4 @@ Content/Developers/*
 Content/LevelPrototyping/*
 Content/StarterContent/*
 Content/ThirdPerson/*
-Source/Proto/TP_ThirdPerson/*
+Source/Nyx/TP_ThirdPerson/*

@@ -1,6 +1,7 @@
 // Copyright (C) 2023 - Calvin Davidson
 
 #include "CAttributeComponent.h"
+#include "Math/UnrealMathUtility.h"
 
 // Sets default values for this component's properties
 UCAttributeComponent::UCAttributeComponent()
@@ -10,32 +11,28 @@ UCAttributeComponent::UCAttributeComponent()
 	HealthMax = 1000.0f;
 	Health = HealthMax;
 
-	Thrust = 0.0f;
-	ThrustMax = 1000.0f;
-	ThrustQuanta = ThrustMax * 0.01;
+	ThrustPercent = 0;
+	ThrustPercentMax = 100;
+	SpeedMax = 5000;
 }
 
-float UCAttributeComponent::GetThrust()
+float UCAttributeComponent::GetSpeed()
 {
-	return Thrust;
+	return (ThrustPercent / ThrustPercentMax) * SpeedMax;
 }
 
-void UCAttributeComponent::IncreaseThrust()
-{
-	// todo
-}
+	void UCAttributeComponent::IncrementThrust()
+	{
+		ThrustPercent++;
+		ThrustPercent = FMath::Clamp(ThrustPercent, 0, ThrustPercentMax);
+	}
+	void UCAttributeComponent::DecrementThrust()
+	{
+		ThrustPercent--;
+		ThrustPercent = FMath::Clamp(ThrustPercent, 0, ThrustPercentMax);
+	}
 
-void UCAttributeComponent::DecreaseThrust()
-{
-	// todo
-}
-
-void UCAttributeComponent::SetThrustToMax()
-{
-	Thrust = ThrustMax;
-}
-
-void UCAttributeComponent::SetThrustToMin()
-{
-	Thrust = 0.0f;
-}
+	int UCAttributeComponent::GetThrust()
+	{
+		return ThrustPercent;
+	}

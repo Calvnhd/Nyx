@@ -10,13 +10,14 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UStaticMeshComponent;
 class UCAttributeComponent;
 
 /*
  * The player-controlled character
  */
 UCLASS()
-class NYX_API ACPlayer : public ACharacter, public ICAttributeInterface
+class NYX_API ACPlayer : public APawn, public ICAttributeInterface
 {
 	GENERATED_BODY()
 
@@ -53,18 +54,27 @@ protected:
 	TObjectPtr<USpringArmComponent> SpringArmComp;
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UCAttributeComponent> AttributeComp;
+
+	// Want BlueprintReadOnly so we can use it in BP. Going to add all our physics to this component.
+	UPROPERTY(BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> MeshComp;
 	// UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	// TObjectPtr<UParticleSystem> EngineEffects;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bIncreasingThrust;
+	UPROPERTY(BlueprintReadWrite)
+	bool bDecreasingThrust;
+
 	// Movement
-	// void IncreaseThrust();
-	// void DecreaseThrust();
-	void SetThrustToMax();
-	void SetThrustToMin();
-	// void RotateRight();
-	// void RotateLeft();
-	// void PitchUp();
-	// void PitchDown();
+	UFUNCTION(BlueprintCallable)
+	float GetSpeed();
+	UFUNCTION(BlueprintCallable)
+	void IncrementThrust();
+	UFUNCTION(BlueprintCallable)
+	void DecrementThrust();
+	UFUNCTION(BlueprintCallable)
+	int GetThrust();
 
 public:
 	// Called every frame
