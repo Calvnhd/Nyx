@@ -22,7 +22,8 @@ class NYX_API UCAttributeComponent : public UActorComponent
 public:
 	UCAttributeComponent();
 
-	float GetThrust();
+	float GetSpeed();
+	int GetThrust();
 	void IncrementThrust();
 	void DecrementThrust();
 
@@ -32,7 +33,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
 	float HealthMax;
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
-	float ThrustPercent;
+	int ThrustPercent;
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
-	float ThrustMax;
+	int ThrustPercentMax;
+	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
+	float SpeedMax;
 };

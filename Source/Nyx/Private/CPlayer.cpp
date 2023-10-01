@@ -24,7 +24,6 @@ ACPlayer::ACPlayer()
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
 	
 	SetRootComponent(MeshComp);
-	//MeshComp->SetupAttachment(RootComponent);
 
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->bUsePawnControlRotation = true;
@@ -40,8 +39,7 @@ void ACPlayer::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	// Delegate bindings will go here e.g.
-	// AttributeComp->OnHealthChangedTrigger.AddDynamic(this, &ACPlayer::OnHealthChangedResponse);
+	// Delegate bindings will go here
 }
 // Called every frame
 void ACPlayer::Tick(float DeltaTime)
@@ -52,19 +50,10 @@ void ACPlayer::Tick(float DeltaTime)
 void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	// Movement
-	//PlayerInputComponent->BindAction("DecreaseThrust", IE_Pressed, this, &ACPlayer::DecreaseThrust);
-	//PlayerInputComponent->BindAction("IncreaseThrust", IE_Pressed, this, &ACPlayer::IncreaseThrust);
-	//PlayerInputComponent->BindAction("KillThrust", IE_Pressed, this, &ACPlayer::KillThrust);
-	//PlayerInputComponent->BindAction("PitchUp", IE_Pressed, this, &ACPlayer::PitchUp);
-	//PlayerInputComponent->BindAction("PitchDown", IE_Pressed, this, &ACPlayer::PitchDown);
-	//PlayerInputComponent->BindAction("YawLeft", IE_Pressed, this, &ACPlayer::YawLeft);
-	//PlayerInputComponent->BindAction("YawRight", IE_Pressed, this, &ACPlayer::YawRight);
 }
-float ACPlayer::GetThrust()
+float ACPlayer::GetSpeed()
 {
-	return AttributeComp->GetThrust();
+	return AttributeComp->GetSpeed();
 }
 void ACPlayer::IncrementThrust()
 {
@@ -74,7 +63,7 @@ void ACPlayer::DecrementThrust()
 {
 	AttributeComp->DecrementThrust();
 }
-// void ACPlayer::YawRight() {}
-// void ACPlayer::YawLeft() {}
-// void ACPlayer::PitchUp() {}
-// void ACPlayer::PitchDown() {}
+int ACPlayer::GetThrust()
+{
+	return AttributeComp->GetThrust();
+}

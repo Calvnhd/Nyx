@@ -68,15 +68,13 @@ protected:
 
 	// Movement
 	UFUNCTION(BlueprintCallable)
-	float GetThrust();
+	float GetSpeed();
 	UFUNCTION(BlueprintCallable)
 	void IncrementThrust();
 	UFUNCTION(BlueprintCallable)
 	void DecrementThrust();
-	// void YawRight();
-	// void YawLeft();
-	// void PitchUp();
-	// void PitchDown();
+	UFUNCTION(BlueprintCallable)
+	int GetThrust();
 
 public:
 	// Called every frame

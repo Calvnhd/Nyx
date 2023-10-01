@@ -11,22 +11,28 @@ UCAttributeComponent::UCAttributeComponent()
 	HealthMax = 1000.0f;
 	Health = HealthMax;
 
-	ThrustPercent = 0.0f;
-	ThrustMax = 1000.0f;
+	ThrustPercent = 0;
+	ThrustPercentMax = 100;
+	SpeedMax = 5000;
 }
 
-float UCAttributeComponent::GetThrust()
+float UCAttributeComponent::GetSpeed()
 {
-	return (ThrustPercent / 100) * ThrustMax;
+	return (ThrustPercent / ThrustPercentMax) * SpeedMax;
 }
 
 	void UCAttributeComponent::IncrementThrust()
 	{
 		ThrustPercent++;
-		ThrustPercent = FMath::Clamp(ThrustPercent, 0.0f, 100.0f);
+		ThrustPercent = FMath::Clamp(ThrustPercent, 0, ThrustPercentMax);
 	}
 	void UCAttributeComponent::DecrementThrust()
 	{
 		ThrustPercent--;
-		ThrustPercent = FMath::Clamp(ThrustPercent, 0.0f, 100.0f);
+		ThrustPercent = FMath::Clamp(ThrustPercent, 0, ThrustPercentMax);
+	}
+
+	int UCAttributeComponent::GetThrust()
+	{
+		return ThrustPercent;
 	}
