@@ -33,9 +33,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
 	float HealthMax;
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
-	int ThrustPercent;
+	float ThrustPercent;
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
-	int ThrustPercentMax;
+	float ThrustPercentMax;
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
 	float SpeedMax;
 };
