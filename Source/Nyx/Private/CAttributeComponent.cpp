@@ -32,7 +32,7 @@ void UCAttributeComponent::DecrementThrust()
 	ThrustPercent = FMath::Clamp(ThrustPercent, 0, ThrustPercentMax);
 }
 
-int UCAttributeComponent::GetThrust()
+float UCAttributeComponent::GetThrust()
 {
 	return ThrustPercent;
 }

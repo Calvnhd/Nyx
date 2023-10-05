@@ -63,7 +63,7 @@ void ACPlayer::DecrementThrust()
 {
 	AttributeComp->DecrementThrust();
 }
-int ACPlayer::GetThrust()
+float ACPlayer::GetThrust()
 {
 	return AttributeComp->GetThrust();
 }

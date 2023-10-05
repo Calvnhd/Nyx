@@ -74,7 +74,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void DecrementThrust();
 	UFUNCTION(BlueprintCallable)
-	int GetThrust();
+	float GetThrust();
 
 public:
 	// Called every frame

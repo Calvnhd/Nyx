@@ -23,7 +23,7 @@ public:
 	UCAttributeComponent();
 
 	float GetSpeed();
-	int GetThrust();
+	float GetThrust();
 	void IncrementThrust();
 	void DecrementThrust();
 
