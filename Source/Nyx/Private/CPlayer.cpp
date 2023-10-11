@@ -26,6 +26,8 @@ ACPlayer::ACPlayer()
 	SetRootComponent(MeshComp);
 
 	SpringArmComp->SetupAttachment(RootComponent);
+
+	// Need this still?
 	SpringArmComp->bUsePawnControlRotation = true;
 
 	CameraComp->SetupAttachment(SpringArmComp);
@@ -66,4 +68,10 @@ void ACPlayer::DecrementThrust()
 float ACPlayer::GetThrust()
 {
 	return AttributeComp->GetThrust();
+}
+void ACPlayer::HandleRotationInput(float InputValue, FVector RotationAxis, float Alpha = 0.01)
+{
+	FVector Torque = AirControlConstant * InputValue * RotationAxis;
+	Torque = FMath::Lerp(FVector::ZeroVector, Torque, Alpha);
+	MeshComp->AddTorqueInDegrees(Torque, NAME_None, true);
 }
