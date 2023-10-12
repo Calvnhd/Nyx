@@ -65,7 +65,7 @@ protected:
 	bool bIncreasingThrust;
 	UPROPERTY(BlueprintReadWrite)
 	bool bDecreasingThrust;
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
 	float AirControlConstant;
 
 	// Movement
