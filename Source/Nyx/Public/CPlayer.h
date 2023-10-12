@@ -54,9 +54,9 @@ protected:
 	TObjectPtr<USpringArmComponent> SpringArmComp;
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UCAttributeComponent> AttributeComp;
-
-	// Want BlueprintReadOnly so we can use it in BP. Going to add all our physics to this component.
-	UPROPERTY(BlueprintReadOnly, Category = "Components")
+	// BlueprintReadOnly to use in BP event graph etc
+	// VisibleAnywhere lets me edit in BP details
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> MeshComp;
 	// UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	// TObjectPtr<UParticleSystem> EngineEffects;
@@ -65,6 +65,8 @@ protected:
 	bool bIncreasingThrust;
 	UPROPERTY(BlueprintReadWrite)
 	bool bDecreasingThrust;
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	float AirControlConstant;
 
 	// Movement
 	UFUNCTION(BlueprintCallable)
@@ -74,7 +76,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void DecrementThrust();
 	UFUNCTION(BlueprintCallable)
-	int GetThrust();
+	float GetThrust();
+	UFUNCTION(BlueprintCallable)
+	void HandleRotationInput(float InputValue, FVector RotationAxis, float Alpha);
 
 public:
 	// Called every frame

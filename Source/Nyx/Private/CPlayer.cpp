@@ -5,7 +5,7 @@
 #include "CAttributeComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
-//#include "GameFramework/CharacterMovementComponent.h"
+// #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
 // Sets default values
@@ -16,16 +16,18 @@ ACPlayer::ACPlayer()
 
 	// Is this still going to be relevant to your camera needs?
 	bUseControllerRotationYaw = false;
-	//GetCharacterMovement()->bOrientRotationToMovement = true;
+	// GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
-	
+
 	SetRootComponent(MeshComp);
 
 	SpringArmComp->SetupAttachment(RootComponent);
+
+	// Need this still?
 	SpringArmComp->bUsePawnControlRotation = true;
 
 	CameraComp->SetupAttachment(SpringArmComp);
@@ -63,7 +65,13 @@ void ACPlayer::DecrementThrust()
 {
 	AttributeComp->DecrementThrust();
 }
-int ACPlayer::GetThrust()
+float ACPlayer::GetThrust()
 {
 	return AttributeComp->GetThrust();
+}
+void ACPlayer::HandleRotationInput(float InputValue, FVector RotationAxis, float Alpha = 0.01)
+{
+	FVector Torque = AirControlConstant * InputValue * RotationAxis;
+	Torque = FMath::Lerp(FVector::ZeroVector, Torque, Alpha);
+	MeshComp->AddTorqueInDegrees(Torque, NAME_None, true);
 }
