@@ -54,18 +54,24 @@ protected:
 	TObjectPtr<USpringArmComponent> SpringArmComp;
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UCAttributeComponent> AttributeComp;
-	// BlueprintReadOnly to use in BP event graph etc
-	// VisibleAnywhere lets me edit in BP details
+	// BlueprintReadOnly to use in BP event graph etc, VisibleAnywhere lets me edit in BP details
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> MeshComp;
+	
 	// UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	// TObjectPtr<UParticleSystem> EngineEffects;
+
+	// TSubclassOf<> lets us assign some class in editor and edit it wherever
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	TSubclassOf<AActor> ProjectileClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	TObjectPtr<UParticleSystem> MuzzleFlash;
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bIncreasingThrust;
 	UPROPERTY(BlueprintReadWrite)
 	bool bDecreasingThrust;
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
 	float AirControlConstant;
 
 	// Movement
@@ -77,6 +83,10 @@ protected:
 	void DecrementThrust();
 	UFUNCTION(BlueprintCallable)
 	float GetThrust();
+	UFUNCTION(BlueprintCallable)
+	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn, const FTransform SpawnTM);
+
+	// Attack
 	UFUNCTION(BlueprintCallable)
 	void HandleRotationInput(float InputValue, FVector RotationAxis, float Alpha);
 

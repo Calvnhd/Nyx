@@ -75,3 +75,17 @@ void ACPlayer::HandleRotationInput(float InputValue, FVector RotationAxis, float
 	Torque = FMath::Lerp(FVector::ZeroVector, Torque, Alpha);
 	MeshComp->AddTorqueInDegrees(Torque, NAME_None, true);
 }
+void ACPlayer::SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn, const FTransform SpawnTM)
+{
+	// Make sure the projectile class is assigned in BP
+	if (ensureAlways(ClassToSpawn))
+	{
+		FActorSpawnParameters SpawnParams;
+		// Make sure the Projectile knows that it was spawned by the Player
+		SpawnParams.Instigator = this;
+		// Make projectile always spawn at desired location, regardless of collisions
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		// Spawn projectile
+		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
+	}
+}
