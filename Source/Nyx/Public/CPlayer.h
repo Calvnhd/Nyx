@@ -48,9 +48,9 @@ protected:
 
 	// Components
 	// Epic recommends TObjectPtr over raw pointers in header files with UPROPERTY for UE5
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<UCameraComponent> CameraComp;
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<USpringArmComponent> SpringArmComp;
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UCAttributeComponent> AttributeComp;
