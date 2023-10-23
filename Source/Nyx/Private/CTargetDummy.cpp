@@ -19,4 +19,3 @@ void ACTargetDummy::PostInitializeComponents()
 
 	// Delegate bindings will go here
 }
-

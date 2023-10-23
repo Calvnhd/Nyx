@@ -122,7 +122,8 @@ FTransform ACPlayer::GetCrosshairTargetTM()
 	// todo -- make a socket on the mesh and give it a name
 	FVector SpawnLocation = GetMuzzleLocation();
 	// and a rotation for that spawn location, looking in the direction of the target
-	// Target - SpawnLocation calculates the vector from SpawnLocation to Target. This vector points from SpawnLocation towards Target.
+	// Target - SpawnLocation calculates the vector from SpawnLocation to Target. This vector points from SpawnLocation
+	// towards Target.
 	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(Target - SpawnLocation);
 
 	// Debug info
@@ -138,6 +139,7 @@ FTransform ACPlayer::GetCrosshairTargetTM()
 FVector ACPlayer::GetMuzzleLocation()
 {
 	// Quick n dirty for now
-	// Eventually would want to have a socket on the mesh and call something like GetMesh()->GetSocketLocation(HandSocketName);
+	// Eventually would want to have a socket on the mesh and call something like
+	// GetMesh()->GetSocketLocation(HandSocketName);
 	return MeshComp->GetComponentLocation() + FVector(0, 0, MuzzleHeightOffset);
 }

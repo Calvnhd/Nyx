@@ -57,7 +57,7 @@ protected:
 	// BlueprintReadOnly to use in BP event graph etc, VisibleAnywhere lets me edit in BP details
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> MeshComp;
-	
+
 	// UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	// TObjectPtr<UParticleSystem> EngineEffects;
 

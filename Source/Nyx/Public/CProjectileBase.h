@@ -15,7 +15,7 @@ class UParticleSystemComponent;
  * Base projectile class for ranged attacks (both player and AI)
  */
 // ABSTRACT marks as incomplete, keeping this out of certain dropdown windows like SpawnActor in Unreal
-UCLASS(ABSTRACT) 
+UCLASS(ABSTRACT)
 class NYX_API ACProjectileBase : public AActor
 {
 	GENERATED_BODY()
@@ -41,13 +41,13 @@ protected:
 	TObjectPtr<UParticleSystem> ImpactVFX;
 
 	// Mark as BlueprintCallable as needed
-	//UFUNCTION()
-	//virtual void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	//							 FVector NormalImpulse, const FHitResult& Hit);
+	// UFUNCTION()
+	// virtual void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent*
+	// OtherComp, 							 FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION()
 	void Explode();
 
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	//float DamageAmount;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	// float DamageAmount;
 };

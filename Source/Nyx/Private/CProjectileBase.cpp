@@ -120,7 +120,7 @@ void ACProjectileBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings
-	//SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHit);
+	// SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHit);
 }
 
 // Called when the game starts or when spawned
