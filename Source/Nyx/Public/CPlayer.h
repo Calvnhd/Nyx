@@ -73,6 +73,8 @@ protected:
 	bool bDecreasingThrust;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
 	float AirControlConstant;
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	float MuzzleHeightOffset;
 
 	// Movement
 	UFUNCTION(BlueprintCallable)
@@ -84,11 +86,15 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	float GetThrust();
 	UFUNCTION(BlueprintCallable)
-	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn, const FTransform SpawnTM);
+	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn);
 
 	// Attack
 	UFUNCTION(BlueprintCallable)
 	void HandleRotationInput(float InputValue, FVector RotationAxis, float Alpha);
+	UFUNCTION(BlueprintCallable)
+	FTransform GetCrosshairTargetTM();
+
+	FVector GetMuzzleLocation();
 
 public:
 	// Called every frame

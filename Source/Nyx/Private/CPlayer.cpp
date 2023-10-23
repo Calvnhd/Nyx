@@ -5,8 +5,8 @@
 #include "CAttributeComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
-// #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ACPlayer::ACPlayer()
@@ -30,6 +30,8 @@ ACPlayer::ACPlayer()
 	SpringArmComp->bUsePawnControlRotation = true;
 
 	CameraComp->SetupAttachment(SpringArmComp);
+
+	MuzzleHeightOffset = 100.0f;
 }
 // Called when the game starts or when spawned
 void ACPlayer::BeginPlay()
@@ -74,7 +76,7 @@ void ACPlayer::HandleRotationInput(float InputValue, FVector RotationAxis, float
 	Torque = FMath::Lerp(FVector::ZeroVector, Torque, Alpha);
 	MeshComp->AddTorqueInDegrees(Torque, NAME_None, true);
 }
-void ACPlayer::SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn, const FTransform SpawnTM)
+void ACPlayer::SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn)
 {
 	// Make sure the projectile class is assigned in BP
 	if (ensureAlways(ClassToSpawn))
@@ -85,6 +87,57 @@ void ACPlayer::SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn, const FTr
 		// Make projectile always spawn at desired location, regardless of collisions
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		// Spawn projectile
-		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParams);
+		GetWorld()->SpawnActor<AActor>(ClassToSpawn, GetCrosshairTargetTM(), SpawnParams);
 	}
+}
+FTransform ACPlayer::GetCrosshairTargetTM()
+{
+	// You want to know where you're looking from
+	FVector CameraLocation = CameraComp->GetComponentLocation();
+	// What direction you're looking
+	FRotator CameraRotation = CameraComp->GetComponentRotation();
+	// What's your maximum view distance?
+	FVector ViewEnd = CameraLocation + (CameraRotation.Vector() * 10000);
+
+	// What do you see?
+	FHitResult ViewHit;
+	// This is a list of all the object types we're looking for
+	FCollisionObjectQueryParams ObjectQueryParams;
+	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+	ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
+	// This is the shape of the trace.  A sphere is more lenient than a line.
+	FCollisionShape Shape;
+	Shape.SetSphere(20.0f);
+	// Ignore player
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	// Create trace
+	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(ViewHit, CameraLocation, ViewEnd, FQuat::Identity,
+															ObjectQueryParams, Shape, Params);
+	// that will give you a target location
+	FVector Target = bBlockingHit ? ViewHit.ImpactPoint : ViewEnd;
+
+	// then you want a spawn location for the projectile
+	// todo -- make a socket on the mesh and give it a name
+	FVector SpawnLocation = GetMuzzleLocation();
+	// and a rotation for that spawn location, looking in the direction of the target
+	// Target - SpawnLocation calculates the vector from SpawnLocation to Target. This vector points from SpawnLocation towards Target.
+	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(Target - SpawnLocation);
+
+	// Debug info
+	FColor SightColor = bBlockingHit ? FColor::Green : FColor::Red;
+	DrawDebugLine(GetWorld(), CameraLocation, ViewEnd, SightColor, false, 2.0f, 0, 2.0f);
+	DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), FColor::Blue, false,
+				  2.0f, 0, 2.0f);
+
+	// A Transformation Matrix above the ship, looking at the target
+	return FTransform(SpawnRotation, SpawnLocation);
+}
+
+FVector ACPlayer::GetMuzzleLocation()
+{
+	// Quick n dirty for now
+	// Eventually would want to have a socket on the mesh and call something like GetMesh()->GetSocketLocation(HandSocketName);
+	return MeshComp->GetComponentLocation() + FVector(0, 0, MuzzleHeightOffset);
 }
