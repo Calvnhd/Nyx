@@ -16,7 +16,6 @@ ACPlayer::ACPlayer()
 
 	// Is this still going to be relevant to your camera needs?
 	bUseControllerRotationYaw = false;
-	// GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
