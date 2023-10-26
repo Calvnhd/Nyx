@@ -26,6 +26,9 @@ class UCAttributeInterface : public UInterface
  * e.g. Interact -- Implement this interface for any Actor that can be interacted with.  The instigator can call a
  * generic interact function, but the result will change depending on the object. An item could be picked up, a door
  * could be opened etc.
+ * 
+ * In this case, we will implement this interface for any pawn that has attributes that can be affected by external forces.
+ * 
  */
 class NYX_API ICAttributeInterface
 {
@@ -37,5 +40,5 @@ public:
 	// BlueprintNativeEvent means code expects a C++ implementation, but we can still implement it in BP if we want
 	// I think we omit the virtual keyword because BlueprintNativeEvent indicates that it's designed to be overridden.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void ApplyDamage(float DamageAmount);
+	void ApplyDamage(APawn* AttackingPawn, float DamageAmount);
 };
