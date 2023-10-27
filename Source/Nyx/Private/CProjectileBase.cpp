@@ -105,7 +105,32 @@ ACProjectileBase::ACProjectileBase()
 void ACProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 									   UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	// not really sure where this is going again
+	// do something on hit
+	float Radius = 50.0f;
+	float Segments = 32;
+	FColor LineColor = Hit.bBlockingHit ? FColor::Green : FColor::Red;
+	float Lifetime = 5.0f;
+	DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, Segments, LineColor, false, Lifetime);
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, LineColor, TEXT("Projectile Hit"));
+	}
+}
+
+void ACProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+												UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+												const FHitResult& SweepResult)
+{
+	// do something on overlap
+	float Radius = 60.0f;
+	float Segments = 32;
+	FColor LineColor = SweepResult.bBlockingHit ? FColor::Yellow : FColor::Blue;
+	float Lifetime = 5.0f;
+	DrawDebugSphere(GetWorld(), SweepResult.ImpactPoint, Radius, Segments, LineColor, false, Lifetime);
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, LineColor, TEXT("Projectile Overlap"));
+	}
 }
 
 void ACProjectileBase::Explode()
@@ -126,7 +151,8 @@ void ACProjectileBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings
-	// SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHit);
+	SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHit);
+	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ACProjectileBase::OnProjectileBeginOverlap);
 }
 
 // Called when the game starts or when spawned
