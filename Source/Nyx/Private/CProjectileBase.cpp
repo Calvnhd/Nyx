@@ -102,8 +102,9 @@ ACProjectileBase::ACProjectileBase()
 // 	}
 // }
 
-void ACProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-									   UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+											   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+											   const FHitResult& Hit)
 {
 	// do something on hit
 	float Radius = 50.0f;
@@ -117,9 +118,9 @@ void ACProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor
 	}
 }
 
-void ACProjectileBase::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-												UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-												const FHitResult& SweepResult)
+void ACProjectileBase::OnProjectileBeginOverlapResponse(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+														UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+														bool bFromSweep, const FHitResult& SweepResult)
 {
 	// do something on overlap
 	float Radius = 60.0f;
@@ -151,8 +152,8 @@ void ACProjectileBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings
-	SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHit);
-	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ACProjectileBase::OnProjectileBeginOverlap);
+	SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHitResponse);
+	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ACProjectileBase::OnProjectileBeginOverlapResponse);
 }
 
 // Called when the game starts or when spawned
