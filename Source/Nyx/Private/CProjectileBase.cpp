@@ -102,6 +102,12 @@ ACProjectileBase::ACProjectileBase()
 // 	}
 // }
 
+void ACProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+									   UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	// not really sure where this is going again
+}
+
 void ACProjectileBase::Explode()
 {
 	// todo: add ensure(IsValid(this)) to make sure we're valid and aren't already being destroyed

@@ -40,10 +40,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TObjectPtr<UParticleSystem> ImpactVFX;
 
-	// Mark as BlueprintCallable as needed
-	// UFUNCTION()
-	// virtual void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent*
-	// OtherComp, 							 FVector NormalImpulse, const FHitResult& Hit);
+	// The signature here comes from FComponentHitSignature in PrimitiveComponent.h
+	// There's also begin overlap instead?
+	UFUNCTION()
+	virtual void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+								 FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION()
 	void Explode();
