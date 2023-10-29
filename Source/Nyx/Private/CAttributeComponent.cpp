@@ -54,8 +54,7 @@ void UCAttributeComponent::ApplyHealthChange(float Delta)
 	}
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("ApplyHealthChange: %s"), Delta));
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("Health: %s"), Health));
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("Health changed by %f -- health now %f"), Delta, Health));
 	}
 }
 
