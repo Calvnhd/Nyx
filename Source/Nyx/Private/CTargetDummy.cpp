@@ -22,4 +22,14 @@ void ACTargetDummy::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings will go here
+	AttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACTargetDummy::OnHealthChangedResponse);
+}
+
+void ACTargetDummy::OnHealthChangedResponse(float Delta, float NewHealth) 
+{
+	if (NewHealth <= 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("TargetDummy destroyed"));
+		Destroy();
+	}
 }

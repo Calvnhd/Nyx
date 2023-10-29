@@ -29,4 +29,7 @@ protected:
 	TObjectPtr<UStaticMeshComponent> MeshComp;
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UCAttributeComponent> AttributeComp;
+
+	UFUNCTION()
+	void OnHealthChangedResponse(float Delta, float NewHealth);
 };

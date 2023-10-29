@@ -39,10 +39,16 @@ bool UCAttributeComponent::IsAlive()
 
 void UCAttributeComponent::ApplyHealthChange(float Delta) 
 {
+	if (Health == 0)
+	{
+		return;
+	}
+
 	float NewHealth = Health + Delta;
 	if (NewHealth <= 0)
 	{
 		Health = 0;
+		// fire a delegate?
 	}
 	else if (NewHealth >= HealthMax)
 	{
@@ -54,8 +60,9 @@ void UCAttributeComponent::ApplyHealthChange(float Delta)
 	}
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("Health changed by %f -- health now %f"), Delta, Health));
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Health changed by %f, health now %f"), Delta, Health));
 	}
+	OnHealthChangedDelegate.Broadcast(Delta, Health);
 }
 
 float UCAttributeComponent::GetThrust()
