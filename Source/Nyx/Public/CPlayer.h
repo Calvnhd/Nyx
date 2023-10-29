@@ -94,8 +94,6 @@ protected:
 	void HandleRotationInput(float InputValue, FVector RotationAxis, float Alpha);
 	UFUNCTION(BlueprintCallable)
 	FTransform GetCrosshairTargetTM();
-	UFUNCTION(BlueprintCallable)
-	FTransform GetFirstVisibleTargetTM();
 
 	FVector GetMuzzleLocation();
 	bool bIsAutoAimActive = true;
