@@ -17,7 +17,7 @@ class UCAttributeComponent;
  * The player-controlled character
  */
 UCLASS()
-class NYX_API ACPlayer : public APawn, public ICAttributeInterface
+class NYX_API ACPlayer : public APawn
 {
 	GENERATED_BODY()
 

@@ -1,14 +1,14 @@
 // Copyright (C) 2023 - Calvin Davidson
 
 #include "CTargetDummy.h"
-#include "CEnemyAttributeComponent.h"
+#include "CAttributeComponent.h"
 
 
 // Sets default values
 ACTargetDummy::ACTargetDummy()
 {
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
-	AttributeComp = CreateDefaultSubobject<UCEnemyAttributeComponent>("AttributeComp");
+	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
 
 	SetRootComponent(MeshComp);
 }
@@ -22,9 +22,4 @@ void ACTargetDummy::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings will go here
-}
-
-void ACTargetDummy::ApplyDamage_Implementation(APawn* AttackingPawn, float DamageAmount)
-{
-	AttributeComp->ApplyDamage(DamageAmount);
 }

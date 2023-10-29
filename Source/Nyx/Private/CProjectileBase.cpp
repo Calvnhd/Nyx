@@ -2,7 +2,7 @@
 
 #include "CProjectileBase.h"
 
-#include "CAttributeInterface.h"
+#include "CAttributeComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -26,7 +26,6 @@ ACProjectileBase::ACProjectileBase()
 
 	// Collision
 	SphereComp->SetCollisionProfileName("Projectile");
-	
 
 	// Movement
 	MovementComp->bRotationFollowsVelocity = true;
@@ -57,40 +56,15 @@ void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent
 	if (OtherActor && OtherActor != GetInstigator())
 	{
 		// Check if what we just hit has an AttributeComponent using casting -- Cast<ExpectedType>(ThingToCast)
-		// GetComponentByClass iterates through actor until it finds the first instance of specified class
-		// StaticClass() lets us easily pass around the class type
-
-		// Has the actor we've hit implemented an Attribute interface?
-		// Note the U prefix here
-		// if (OtherActor->Implements<UCAttributeInterface>())
-		//{
-		// Note the I prefix here
-		// Add Execute_ prefix to function call
-		// First argument is the object to call this function on, followed by the function params themselves
-		//	ICAttributeInterface::Execute_ApplyDamage(OtherActor, DamageAmount);
-		//}
-
-		Explode();
-	}
-}
-
-void ACProjectileBase::OnProjectileBeginOverlapResponse(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-														UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-														bool bFromSweep, const FHitResult& SweepResult)
-{
-	// do something on overlap
-	float Radius = 60.0f;
-	float Segments = 32;
-	FColor LineColor = SweepResult.bBlockingHit ? FColor::Yellow : FColor::Blue;
-	float Lifetime = 5.0f;
-	DrawDebugSphere(GetWorld(), SweepResult.ImpactPoint, Radius, Segments, LineColor, false, Lifetime);
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, LineColor, TEXT("Projectile Overlap"));
-	}
-
-	if (OtherActor && OtherActor != GetInstigator())
-	{
+		//
+		// GetComponentByClass iterates through actor until it finds the FIRST instance of specified class
+		// StaticClass() lets us easily pass around the class type.  Use this to see if the actor has a
+		// CAttributeComponent, and then call the desired function on it.
+		if (UCAttributeComponent* AttributeComp =
+				Cast<UCAttributeComponent>(OtherActor->GetComponentByClass(UCAttributeComponent::StaticClass())))
+		{
+			AttributeComp->ApplyHealthChange(-DamageAmount);
+		}
 		Explode();
 	}
 }
@@ -115,7 +89,6 @@ void ACProjectileBase::PostInitializeComponents()
 
 	// Delegate bindings
 	SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHitResponse);
-	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ACProjectileBase::OnProjectileBeginOverlapResponse);
 }
 
 // Called when the game starts or when spawned

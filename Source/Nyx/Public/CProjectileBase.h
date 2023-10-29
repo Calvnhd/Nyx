@@ -40,21 +40,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TObjectPtr<UParticleSystem> ImpactVFX;
 
-	// These signatures come from UPrimitiveComponent, which SphereComp inherits
-	//		FComponentHitSignature OnComponentHit and FComponentBeginOverlapSignature OnComponentBeginOverlap
+	// OnProjectileHitResponse signature comes from UPrimitiveComponent, which SphereComp inherits.
+	// FComponentHitSignature OnComponentHit
 	//
-	// We want the projectile (an AActor) to subscribe to hit and overlap events that SphereComp broadcasts
-	// Hits are blocking, overlaps are not.  Check docs for more info if (when) things get weird.
-
-	// Will subscribe to delegate SphereComp->OnComponentHit()
+	// We want the projectile (an AActor) to subscribe to hit events that SphereComp broadcasts
+	// Hits are blocking (overlaps are not)
+	//
+	// OnProjectileHitResponse will subscribe to delegate SphereComp->OnComponentHit()
 	UFUNCTION()
 	virtual void OnProjectileHitResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 										 UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-	// Will subscribe to delegate SphereComp->OnComponentBeginOverlap()
-	UFUNCTION()
-	virtual void OnProjectileBeginOverlapResponse(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-												  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-												  const FHitResult& SweepResult);
 
 	UFUNCTION()
 	void Explode();

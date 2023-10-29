@@ -32,6 +32,33 @@ void UCAttributeComponent::DecrementThrust()
 	ThrustPercent = FMath::Clamp(ThrustPercent, 0, ThrustPercentMax);
 }
 
+bool UCAttributeComponent::IsAlive()
+{
+	return (Health > 0);
+}
+
+void UCAttributeComponent::ApplyHealthChange(float Delta) 
+{
+	float NewHealth = Health + Delta;
+	if (NewHealth <= 0)
+	{
+		Health = 0;
+	}
+	else if (NewHealth >= HealthMax)
+	{
+		Health = HealthMax;
+	}
+	else
+	{
+		Health = NewHealth;
+	}
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("ApplyHealthChange: %s"), Delta));
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("Health: %s"), Health));
+	}
+}
+
 float UCAttributeComponent::GetThrust()
 {
 	return ThrustPercent;

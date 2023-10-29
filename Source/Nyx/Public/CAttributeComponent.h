@@ -26,6 +26,8 @@ public:
 	float GetThrust();
 	void IncrementThrust();
 	void DecrementThrust();
+	bool IsAlive();
+	void ApplyHealthChange(float Delta);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
