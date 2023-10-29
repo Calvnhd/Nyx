@@ -32,4 +32,7 @@ protected:
 
 	UFUNCTION()
 	void OnHealthChangedResponse(float Delta, float NewHealth);
+
+	UFUNCTION(BlueprintCallable)
+	float GetHealthPercent();
 };

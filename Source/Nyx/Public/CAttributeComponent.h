@@ -27,6 +27,9 @@ public:
 	void DecrementThrust();
 	bool IsAlive();
 	void ApplyHealthChange(float Delta);
+	float GetHealth();
+	float GetHealthMax();
+	float GetHealthPercent();
 
 	UPROPERTY(BlueprintAssignable, Category = "Attributes")
 	FOnHealthChangedSignature OnHealthChangedDelegate;

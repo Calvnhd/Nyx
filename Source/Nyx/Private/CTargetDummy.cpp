@@ -33,3 +33,8 @@ void ACTargetDummy::OnHealthChangedResponse(float Delta, float NewHealth)
 		Destroy();
 	}
 }
+
+float ACTargetDummy::GetHealthPercent()
+{
+	return AttributeComp->GetHealthPercent();
+}

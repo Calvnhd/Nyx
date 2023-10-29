@@ -65,6 +65,21 @@ void UCAttributeComponent::ApplyHealthChange(float Delta)
 	OnHealthChangedDelegate.Broadcast(Delta, Health);
 }
 
+float UCAttributeComponent::GetHealth()
+{
+	return Health;
+}
+
+float UCAttributeComponent::GetHealthMax()
+{
+	return HealthMax;
+}
+
+float UCAttributeComponent::GetHealthPercent()
+{
+	return (Health / HealthMax);
+}
+
 float UCAttributeComponent::GetThrust()
 {
 	return ThrustPercent;
