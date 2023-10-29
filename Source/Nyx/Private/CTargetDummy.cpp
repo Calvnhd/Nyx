@@ -2,7 +2,7 @@
 
 #include "CTargetDummy.h"
 #include "CAttributeComponent.h"
-
+#include "CCommonDefines.h"
 
 // Sets default values
 ACTargetDummy::ACTargetDummy()
@@ -11,6 +11,8 @@ ACTargetDummy::ACTargetDummy()
 	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
 
 	SetRootComponent(MeshComp);
+
+	MeshComp->SetCollisionObjectType(ECC_GameTraceChannel1);
 }
 // Called when the game starts or when spawned
 void ACTargetDummy::BeginPlay()
@@ -25,7 +27,7 @@ void ACTargetDummy::PostInitializeComponents()
 	AttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACTargetDummy::OnHealthChangedResponse);
 }
 
-void ACTargetDummy::OnHealthChangedResponse(float Delta, float NewHealth) 
+void ACTargetDummy::OnHealthChangedResponse(float Delta, float NewHealth)
 {
 	if (NewHealth <= 0)
 	{

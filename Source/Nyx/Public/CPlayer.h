@@ -74,6 +74,8 @@ protected:
 	float AirControlConstant;
 	UPROPERTY(EditDefaultsOnly, Category = "Attack")
 	float MuzzleHeightOffset;
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	float AutoAimSweepRadius = 100.0f;
 
 	// Movement
 	UFUNCTION(BlueprintCallable)
@@ -92,8 +94,11 @@ protected:
 	void HandleRotationInput(float InputValue, FVector RotationAxis, float Alpha);
 	UFUNCTION(BlueprintCallable)
 	FTransform GetCrosshairTargetTM();
+	UFUNCTION(BlueprintCallable)
+	FTransform GetFirstVisibleTargetTM();
 
 	FVector GetMuzzleLocation();
+	bool bIsAutoAimActive = true;
 
 public:
 	// Called every frame
