@@ -32,6 +32,54 @@ void UCAttributeComponent::DecrementThrust()
 	ThrustPercent = FMath::Clamp(ThrustPercent, 0, ThrustPercentMax);
 }
 
+bool UCAttributeComponent::IsAlive()
+{
+	return (Health > 0);
+}
+
+void UCAttributeComponent::ApplyHealthChange(float Delta) 
+{
+	if (Health == 0)
+	{
+		return;
+	}
+
+	float NewHealth = Health + Delta;
+	if (NewHealth <= 0)
+	{
+		Health = 0;
+		// fire a delegate?
+	}
+	else if (NewHealth >= HealthMax)
+	{
+		Health = HealthMax;
+	}
+	else
+	{
+		Health = NewHealth;
+	}
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Health changed by %f, health now %f"), Delta, Health));
+	}
+	OnHealthChangedDelegate.Broadcast(Delta, Health);
+}
+
+float UCAttributeComponent::GetHealth()
+{
+	return Health;
+}
+
+float UCAttributeComponent::GetHealthMax()
+{
+	return HealthMax;
+}
+
+float UCAttributeComponent::GetHealthPercent()
+{
+	return (Health / HealthMax);
+}
+
 float UCAttributeComponent::GetThrust()
 {
 	return ThrustPercent;

@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CAttributeInterface.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
@@ -17,7 +16,7 @@ class UCAttributeComponent;
  * The player-controlled character
  */
 UCLASS()
-class NYX_API ACPlayer : public APawn, public ICAttributeInterface
+class NYX_API ACPlayer : public APawn
 {
 	GENERATED_BODY()
 
@@ -57,7 +56,7 @@ protected:
 	// BlueprintReadOnly to use in BP event graph etc, VisibleAnywhere lets me edit in BP details
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> MeshComp;
-	
+
 	// UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	// TObjectPtr<UParticleSystem> EngineEffects;
 
@@ -73,6 +72,8 @@ protected:
 	bool bDecreasingThrust;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
 	float AirControlConstant;
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	float MuzzleHeightOffset;
 
 	// Movement
 	UFUNCTION(BlueprintCallable)
@@ -84,11 +85,15 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	float GetThrust();
 	UFUNCTION(BlueprintCallable)
-	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn, const FTransform SpawnTM);
+	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn);
 
 	// Attack
 	UFUNCTION(BlueprintCallable)
 	void HandleRotationInput(float InputValue, FVector RotationAxis, float Alpha);
+	UFUNCTION(BlueprintCallable)
+	FTransform GetCrosshairTargetTM();
+
+	FVector GetMuzzleLocation();
 
 public:
 	// Called every frame
