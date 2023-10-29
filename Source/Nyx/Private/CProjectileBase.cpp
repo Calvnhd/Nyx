@@ -42,7 +42,7 @@ void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent
 											   const FHitResult& Hit)
 {
 	// do something on hit
-	float Radius = 50.0f;
+	/*float Radius = 50.0f;
 	float Segments = 32;
 	FColor LineColor = Hit.bBlockingHit ? FColor::Green : FColor::Red;
 	float Lifetime = 5.0f;
@@ -50,7 +50,7 @@ void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, LineColor, TEXT("Projectile Hit"));
-	}
+	}*/
 
 	// Check there's a valid OtherActor and it's not the actor who spawned this projectile (no hitting ourselves)
 	if (OtherActor && OtherActor != GetInstigator())

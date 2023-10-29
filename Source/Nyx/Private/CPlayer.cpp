@@ -3,6 +3,7 @@
 #include "CPlayer.h"
 
 #include "CAttributeComponent.h"
+#include "CCommonDefines.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -11,6 +12,8 @@
 // Sets default values
 ACPlayer::ACPlayer()
 {
+	// IsAutoAimActive = true;
+
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -103,21 +106,36 @@ FTransform ACPlayer::GetCrosshairTargetTM()
 	FHitResult ViewHit;
 	// This is a list of all the object types we're looking for
 	FCollisionObjectQueryParams ObjectQueryParams;
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
+	if (!bIsAutoAimActive)
+	{
+		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
+	}
+	ObjectQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
+
 	// This is the shape of the trace.  A sphere is more lenient than a line.
-	FCollisionShape Shape;
-	Shape.SetSphere(20.0f);
+	FCollisionShape TraceShape;
+	float TraceRadius = bIsAutoAimActive ? AutoAimSweepRadius : 20.0f;
+	TraceShape.SetSphere(TraceRadius);
+
 	// Ignore player
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
+
 	// Create trace
 	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(ViewHit, CameraLocation, ViewEnd, FQuat::Identity,
-															ObjectQueryParams, Shape, Params);
+															ObjectQueryParams, TraceShape, Params);
 	// that will give you a target location
 	FVector Target = bBlockingHit ? ViewHit.ImpactPoint : ViewEnd;
 
+	if (bBlockingHit)
+	{
+		float Radius = 50.0f;
+		float Segments = 32;
+		float Lifetime = 5.0f;
+		DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false, Lifetime);
+	}
 	// then you want a spawn location for the projectile
 	// todo -- make a socket on the mesh and give it a name
 	FVector SpawnLocation = GetMuzzleLocation();
@@ -128,8 +146,7 @@ FTransform ACPlayer::GetCrosshairTargetTM()
 
 	// Debug info
 	FColor SightColor = bBlockingHit ? FColor::Green : FColor::Red;
-	DrawDebugLine(GetWorld(), CameraLocation, ViewEnd, SightColor, false, 2.0f, 0, 2.0f);
-	DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), FColor::Blue, false,
+	DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), SightColor, false,
 				  2.0f, 0, 2.0f);
 
 	// A Transformation Matrix above the ship, looking at the target
