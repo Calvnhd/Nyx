@@ -59,6 +59,6 @@ protected:
 	UFUNCTION()
 	void Explode();
 
-	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	// float DamageAmount;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float DamageAmount;
 };
