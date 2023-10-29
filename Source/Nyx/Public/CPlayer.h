@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "CAttributeInterface.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
