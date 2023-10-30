@@ -22,7 +22,7 @@ void ACEnemyBase::BeginPlay()
 void ACEnemyBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
+	
 	AttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACEnemyBase::OnHealthChangedResponse);
 }
 void ACEnemyBase::OnHealthChangedResponse(float Delta, float NewHealth) 
