@@ -2,9 +2,10 @@
 
 #pragma once
 
-#include "CEnemyBase.generated.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+
+#include "CEnemyBase.generated.h"
 
 class UStaticMeshComponent;
 class UCAttributeComponent;
