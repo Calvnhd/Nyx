@@ -7,25 +7,24 @@
 // Sets default values
 ACEnemyBase::ACEnemyBase()
 {
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
+	//PrimaryActorTick.bCanEverTick = true;
 	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
-
-	SetRootComponent(MeshComp);
-
-	MeshComp->SetCollisionObjectType(COLLISION_ENEMY);
 }
 void ACEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 void ACEnemyBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	
+
 	AttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACEnemyBase::OnHealthChangedResponse);
 }
-void ACEnemyBase::OnHealthChangedResponse(float Delta, float NewHealth) 
+//void ACEnemyBase::Tick(float DeltaTime)
+//{
+//	Super::Tick(DeltaTime);
+//}
+void ACEnemyBase::OnHealthChangedResponse(float Delta, float NewHealth)
 {
 	if (NewHealth <= 0)
 	{
@@ -37,4 +36,3 @@ float ACEnemyBase::GetHealthPercent()
 {
 	return AttributeComp->GetHealthPercent();
 }
-

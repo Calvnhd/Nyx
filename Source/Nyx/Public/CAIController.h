@@ -7,6 +7,8 @@
 
 #include "CAIController.generated.h"
 
+class UBehaviorTree;
+
 /**
  *
  */
@@ -19,5 +21,5 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	UBehaviorTree* EnemyBehaviourTree;
+	UBehaviorTree* EnemyBaseBehaviourTree;
 };

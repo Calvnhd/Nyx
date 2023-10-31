@@ -19,15 +19,15 @@ class NYX_API ACEnemyBase : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ACEnemyBase();
+
+	//virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
+
 	virtual void PostInitializeComponents() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UStaticMeshComponent> MeshComp;
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UCAttributeComponent> AttributeComp;
 
