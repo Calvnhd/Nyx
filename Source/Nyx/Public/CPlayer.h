@@ -88,6 +88,8 @@ protected:
 	float GetThrust();
 	UFUNCTION(BlueprintCallable)
 	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn);
+	UFUNCTION()
+	void OnHealthChangedResponse(float Delta, float NewHealth);
 
 	// Attack
 	UFUNCTION(BlueprintCallable)
