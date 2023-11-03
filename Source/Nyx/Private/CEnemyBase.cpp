@@ -1,14 +1,15 @@
 // Copyright (C) 2023 - Calvin Davidson
 
 #include "CEnemyBase.h"
-#include "CAttributeComponent.h"
 #include "CCommonDefines.h"
+#include "CEnemyAttributeComponent.h"
+#include <Components/CapsuleComponent.h>
 
 // Sets default values
 ACEnemyBase::ACEnemyBase()
 {
-	//PrimaryActorTick.bCanEverTick = true;
-	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
+	// PrimaryActorTick.bCanEverTick = true;
+	EnemyAttributeComp = CreateDefaultSubobject<UCEnemyAttributeComponent>("EnemyAttributeComp");
 }
 void ACEnemyBase::BeginPlay()
 {
@@ -18,12 +19,9 @@ void ACEnemyBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	AttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACEnemyBase::OnHealthChangedResponse);
+	EnemyAttributeComp->OnEnemyHealthChangedDelegate.AddDynamic(this, &ACEnemyBase::OnHealthChangedResponse);
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ACEnemyBase::OnCollisionResponse);
 }
-//void ACEnemyBase::Tick(float DeltaTime)
-//{
-//	Super::Tick(DeltaTime);
-//}
 void ACEnemyBase::OnHealthChangedResponse(float Delta, float NewHealth)
 {
 	if (NewHealth <= 0)
@@ -32,7 +30,10 @@ void ACEnemyBase::OnHealthChangedResponse(float Delta, float NewHealth)
 		Destroy();
 	}
 }
+void ACEnemyBase::OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+									  UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{}
 float ACEnemyBase::GetHealthPercent()
 {
-	return AttributeComp->GetHealthPercent();
+	return EnemyAttributeComp->GetHealthPercent();
 }

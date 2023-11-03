@@ -2,7 +2,7 @@
 
 #include "CProjectileBase.h"
 
-#include "CAttributeComponent.h"
+#include "CEnemyAttributeComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -55,13 +55,13 @@ void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent
 	// Check there's a valid OtherActor and it's not the actor who spawned this projectile (no hitting ourselves)
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		// Check if what we just hit has an AttributeComponent using casting -- Cast<ExpectedType>(ThingToCast)
+		// Check if what we just hit has an EnemyAttributeComponent using casting -- Cast<ExpectedType>(ThingToCast)
 		//
 		// GetComponentByClass iterates through actor until it finds the FIRST instance of specified class
 		// StaticClass() lets us easily pass around the class type.  Use this to see if the actor has a
-		// CAttributeComponent, and then call the desired function on it.
-		if (UCAttributeComponent* AttributeComp =
-				Cast<UCAttributeComponent>(OtherActor->GetComponentByClass(UCAttributeComponent::StaticClass())))
+		// CEnemyAttributeComponent, and then call the desired function on it.
+		if (UCEnemyAttributeComponent* AttributeComp =
+				Cast<UCEnemyAttributeComponent>(OtherActor->GetComponentByClass(UCEnemyAttributeComponent::StaticClass())))
 		{
 			AttributeComp->ApplyHealthChange(-DamageAmount);
 		}

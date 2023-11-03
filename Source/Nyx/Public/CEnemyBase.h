@@ -8,7 +8,7 @@
 #include "CEnemyBase.generated.h"
 
 class UStaticMeshComponent;
-class UCAttributeComponent;
+class UCEnemyAttributeComponent;
 
 /*
  * Basic enemy class
@@ -21,7 +21,7 @@ class NYX_API ACEnemyBase : public ACharacter
 public:
 	ACEnemyBase();
 
-	//virtual void Tick(float DeltaTime) override;
+	// virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -29,10 +29,14 @@ protected:
 	virtual void PostInitializeComponents() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	TObjectPtr<UCAttributeComponent> AttributeComp;
+	TObjectPtr<UCEnemyAttributeComponent> EnemyAttributeComp;
 
 	UFUNCTION()
 	void OnHealthChangedResponse(float Delta, float NewHealth);
+
+	UFUNCTION()
+	void OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+							 FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent();

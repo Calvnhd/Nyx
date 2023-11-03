@@ -62,7 +62,7 @@ void UCAttributeComponent::ApplyHealthChange(float Delta)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Health changed by %f, health now %f"), Delta, Health));
 	}
-	OnHealthChangedDelegate.Broadcast(Delta, Health);
+	OnPlayerHealthChangedDelegate.Broadcast(Delta, Health);
 }
 
 float UCAttributeComponent::GetHealth()

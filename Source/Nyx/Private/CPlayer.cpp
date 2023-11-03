@@ -45,7 +45,7 @@ void ACPlayer::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	AttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACPlayer::OnHealthChangedResponse);
+	AttributeComp->OnPlayerHealthChangedDelegate.AddDynamic(this, &ACPlayer::OnHealthChangedResponse);
 }
 // Called every frame
 void ACPlayer::Tick(float DeltaTime)
