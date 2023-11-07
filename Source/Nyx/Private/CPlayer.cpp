@@ -93,7 +93,8 @@ void ACPlayer::SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn)
 		GetWorld()->SpawnActor<AActor>(ClassToSpawn, GetCrosshairTargetTM(), SpawnParams);
 	}
 }
-void ACPlayer::OnHealthChangedResponse(float Delta, float NewHealth)
+void ACPlayer::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
+									   float NewHealth)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green,
 									 FString::Printf(TEXT("Health changed by %f, health now %f"), NewHealth));

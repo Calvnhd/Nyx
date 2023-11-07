@@ -27,7 +27,8 @@ void ACTargetDummy::PostInitializeComponents()
 	AttributeComp->OnPlayerHealthChangedDelegate.AddDynamic(this, &ACTargetDummy::OnHealthChangedResponse);
 }
 
-void ACTargetDummy::OnHealthChangedResponse(float Delta, float NewHealth)
+void ACTargetDummy::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
+											float NewHealth)
 {
 	if (NewHealth <= 0)
 	{

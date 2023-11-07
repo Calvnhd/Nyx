@@ -51,7 +51,7 @@ protected:
 	TObjectPtr<UCameraComponent> CameraComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<USpringArmComponent> SpringArmComp;
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UCAttributeComponent> AttributeComp;
 	// BlueprintReadOnly to use in BP event graph etc, VisibleAnywhere lets me edit in BP details
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -89,7 +89,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn);
 	UFUNCTION()
-	void OnHealthChangedResponse(float Delta, float NewHealth);
+	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
+								 float NewHealth);
 
 	// Attack
 	UFUNCTION(BlueprintCallable)
