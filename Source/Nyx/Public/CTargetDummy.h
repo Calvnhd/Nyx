@@ -31,7 +31,8 @@ protected:
 	TObjectPtr<UCAttributeComponent> AttributeComp;
 
 	UFUNCTION()
-	void OnHealthChangedResponse(float Delta, float NewHealth);
+	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
+								 float NewHealth);
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent();

@@ -39,7 +39,6 @@ void ACEnemyBase::OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor*
 		if (UCAttributeComponent* PlayerAttributeComp =
 				Cast<UCAttributeComponent>(OtherActor->GetComponentByClass(UCAttributeComponent::StaticClass())))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Player is taking collision damage"));
 			PlayerAttributeComp->ApplyHealthChange(-EnemyAttributeComp->GetCollisionDamageAmount());
 		}
 	}
