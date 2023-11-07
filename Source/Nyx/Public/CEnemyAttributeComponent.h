@@ -26,13 +26,16 @@ public:
 	float GetHealth();
 	float GetHealthMax();
 	float GetHealthPercent();
+	float GetCollisionDamageAmount();
 
 	UPROPERTY(BlueprintAssignable, Category = "EnemyAttributes")
 	FOnEnemyHealthChangedSignature OnEnemyHealthChangedDelegate;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "EnemyAttributes")
-	float Health;
+	float Health = 1000.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "EnemyAttributes")
 	float HealthMax;
+	UPROPERTY(EditDefaultsOnly, Category = "EnemyAttributes")
+	float CollisionDamageAmount = 100.0f;
 };

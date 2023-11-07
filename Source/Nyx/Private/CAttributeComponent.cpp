@@ -48,7 +48,6 @@ void UCAttributeComponent::ApplyHealthChange(float Delta)
 	if (NewHealth <= 0)
 	{
 		Health = 0;
-		// fire a delegate?
 	}
 	else if (NewHealth >= HealthMax)
 	{
@@ -60,7 +59,7 @@ void UCAttributeComponent::ApplyHealthChange(float Delta)
 	}
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Health changed by %f, health now %f"), Delta, Health));
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Player health changed by %f, health now %f"), Delta, Health));
 	}
 	OnPlayerHealthChangedDelegate.Broadcast(Delta, Health);
 }

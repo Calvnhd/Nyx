@@ -7,8 +7,6 @@
 UCEnemyAttributeComponent::UCEnemyAttributeComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
-	HealthMax = 1000.0f;
 	Health = HealthMax;
 }
 
@@ -57,4 +55,9 @@ float UCEnemyAttributeComponent::GetHealthMax()
 float UCEnemyAttributeComponent::GetHealthPercent()
 {
 	return (Health / HealthMax);
+}
+
+float UCEnemyAttributeComponent::GetCollisionDamageAmount()
+{
+	return CollisionDamageAmount;
 }
