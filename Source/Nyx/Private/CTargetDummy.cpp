@@ -24,7 +24,7 @@ void ACTargetDummy::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings will go here
-	AttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACTargetDummy::OnHealthChangedResponse);
+	AttributeComp->OnPlayerHealthChangedDelegate.AddDynamic(this, &ACTargetDummy::OnHealthChangedResponse);
 }
 
 void ACTargetDummy::OnHealthChangedResponse(float Delta, float NewHealth)

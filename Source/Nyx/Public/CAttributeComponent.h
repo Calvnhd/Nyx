@@ -8,7 +8,7 @@
 #include "CAttributeComponent.generated.h"
 
 // Dynamic allows BP assignment, Multicast allows multiple listeners
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedSignature, float, Delta, float, NewHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerHealthChangedSignature, float, Delta, float, NewHealth);
 
 /*
  * Contains and manages the player's attributes
@@ -32,7 +32,7 @@ public:
 	float GetHealthPercent();
 
 	UPROPERTY(BlueprintAssignable, Category = "Attributes")
-	FOnHealthChangedSignature OnHealthChangedDelegate;
+	FOnPlayerHealthChangedSignature OnPlayerHealthChangedDelegate;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")

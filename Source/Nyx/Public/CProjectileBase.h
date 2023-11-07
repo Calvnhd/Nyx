@@ -40,8 +40,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TObjectPtr<UParticleSystem> ImpactVFX;
 
-	// OnProjectileHitResponse signature comes from UPrimitiveComponent, which SphereComp inherits.
-	// FComponentHitSignature OnComponentHit
+	// OnProjectileHitResponse signature comes from UPrimitiveComponent's FComponentHitSignature OnComponentHit, which
+	// SphereComp inherits.
 	//
 	// We want the projectile (an AActor) to subscribe to hit events that SphereComp broadcasts
 	// Hits are blocking (overlaps are not)

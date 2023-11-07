@@ -45,7 +45,7 @@ void ACPlayer::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	// Delegate bindings will go here
+	AttributeComp->OnPlayerHealthChangedDelegate.AddDynamic(this, &ACPlayer::OnHealthChangedResponse);
 }
 // Called every frame
 void ACPlayer::Tick(float DeltaTime)
@@ -93,6 +93,19 @@ void ACPlayer::SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn)
 		GetWorld()->SpawnActor<AActor>(ClassToSpawn, GetCrosshairTargetTM(), SpawnParams);
 	}
 }
+void ACPlayer::OnHealthChangedResponse(float Delta, float NewHealth)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green,
+									 FString::Printf(TEXT("Health changed by %f, health now %f"), NewHealth));
+	if (NewHealth <= 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("YOU DIED"));
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		DisableInput(PlayerController);
+		// todo add death effect
+	}
+}
+
 FTransform ACPlayer::GetCrosshairTargetTM()
 {
 	// You want to know where you're looking from
