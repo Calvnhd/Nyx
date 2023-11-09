@@ -34,8 +34,15 @@ void UCBTS_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 					float DistanceTo = FVector::Distance(TargetActor->GetActorLocation(), AIPawn->GetActorLocation());
 					// can expose range to a variable
 					bool bWithinRange = DistanceTo < 2000.0f;
+					bool bHasLOS = false;
+					if (bWithinRange)
+					{
+						// Checks visibility channel
+						bHasLOS = MyController->LineOfSightTo(TargetActor);
+					}
+
 					// Blackboard is the memory for AI
-					BlackboardComp->SetValueAsBool(AttackRangeKey.SelectedKeyName, bWithinRange);
+					BlackboardComp->SetValueAsBool(AttackRangeKey.SelectedKeyName, (bWithinRange && bHasLOS));
 				}
 
 			}
