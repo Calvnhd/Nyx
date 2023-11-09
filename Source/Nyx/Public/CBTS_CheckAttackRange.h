@@ -16,7 +16,7 @@ class NYX_API UCBTS_CheckAttackRange : public UBTService
 
 protected:
 
-	// Handles some dropdown thing?
+	// Handles some dropdown thing
 	UPROPERTY(EditAnywhere, Category = "AI")
 	FBlackboardKeySelector AttackRangeKey;
 
