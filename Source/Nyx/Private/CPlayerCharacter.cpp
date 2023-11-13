@@ -14,19 +14,18 @@ ACPlayerCharacter::ACPlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Is this still going to be relevant to your camera needs?
-	bUseControllerRotationYaw = false;
-
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
 
 	SpringArmComp->SetupAttachment(RootComponent);
-
-	// Need this still?
-	SpringArmComp->bUsePawnControlRotation = true;
-
 	CameraComp->SetupAttachment(SpringArmComp);
+
+	// Some useful defaults
+	bUseControllerRotationYaw = false; // not sure about this one
+	SpringArmComp->bUsePawnControlRotation = false;
+	SpringArmComp->TargetArmLength = 500.0f;
+	SpringArmComp->SocketOffset = FVector(0, 0, 150.0f);
 }
 // Called when the game starts or when spawned
 void ACPlayerCharacter::BeginPlay()
@@ -37,7 +36,6 @@ void ACPlayerCharacter::BeginPlay()
 void ACPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
 	AttributeComp->OnPlayerHealthChangedDelegate.AddDynamic(this, &ACPlayerCharacter::OnHealthChangedResponse);
 }
 // Called every frame

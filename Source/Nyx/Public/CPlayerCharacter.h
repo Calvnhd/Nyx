@@ -61,7 +61,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attack")
 	float MuzzleHeightOffset = 100.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attack")
-	float AutoAimSweepRadius = 100.0f;
+	float AutoAimSweepRadius = 800.0f;
 
 	UFUNCTION(BlueprintCallable)
 	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn);
