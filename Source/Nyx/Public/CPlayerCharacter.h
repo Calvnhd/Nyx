@@ -9,10 +9,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
-class UStaticMeshComponent;
 class UCAttributeComponent;
-
-// The player-controlled character
 
 UCLASS()
 class NYX_API ACPlayerCharacter : public ACharacter
@@ -24,8 +21,25 @@ public:
 	ACPlayerCharacter();
 
 protected:
+	/*
+	 *
+	 * EditAnywhere - edit in BP editor and per-instance in level
+	 * VisibleAnywhere - 'read-only' in editor and level. (Use for components)
+	 * EditDefaultsOnly - hide variable per-instance, edit in BP editor only
+	 * VisibleDefaultsOnly - 'read-only' access for variable, only in BP editor (uncommon)
+	 * EditInstanceOnly - allow only editing of instance (e.g. when placed in a level)
+	 * --
+	 * BlueprintReadOnly - read-only in the Blueprint scripting (does not affect 'details' panel)
+	 * BlueprintReadWrite - read-write access in Blueprints
+	 * --
+	 * category = "" = display only for detail panels and blueprint context menu
+	 *
+	 */
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void PostInitializeComponents() override;
 
 	// Components
 	// Epic recommends TObjectPtr over raw pointers in header files with UPROPERTY for UE5
@@ -35,6 +49,8 @@ protected:
 	TObjectPtr<USpringArmComponent> SpringArmComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Nyx-Components")
 	TObjectPtr<UCAttributeComponent> AttributeComp;
+	// UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	// TObjectPtr<UParticleSystem> EngineEffects;
 
 	// TSubclassOf<> lets us assign some class in editor and edit it wherever
 	UPROPERTY(EditAnywhere, Category = "Nyx-Attack")
@@ -42,10 +58,28 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attack")
 	TObjectPtr<UParticleSystem> MuzzleFlash;
 
-public:
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attack")
+	float MuzzleHeightOffset = 100.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attack")
+	float AutoAimSweepRadius = 100.0f;
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn);
+	UFUNCTION()
+	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
+								 float NewHealth);
+	UFUNCTION(BlueprintCallable)
+	FTransform GetCrosshairTargetTM();
+
+	FVector GetMuzzleLocation();
+
+	bool bIsAutoAimActive = true;
+
+public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 };
