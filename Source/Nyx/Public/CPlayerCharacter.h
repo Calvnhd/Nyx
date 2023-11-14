@@ -62,6 +62,11 @@ protected:
 	float MuzzleHeightOffset = 100.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attack")
 	float AutoAimSweepRadius = 800.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Movement")
+	float MovementRotationRate = 500.0f;
+	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Movement")
+	float TurnRateGamepad = 50.0f;
 
 	UFUNCTION(BlueprintCallable)
 	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn);
@@ -75,11 +80,16 @@ protected:
 
 	bool bIsAutoAimActive = true;
 
-public:	
+	// Movement
+	void MoveForward(float Value);
+	void MoveRight(float Value);
+	void TurnAtRate(float Rate);
+	void LookUpAtRate(float Rate);
+
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 };
