@@ -31,9 +31,12 @@ ACPlayerCharacter::ACPlayerCharacter()
 
 	GetCapsuleComponent()->InitCapsuleSize(110.0f, 110.0f);
 
-	// Don't rotate when the controller rotates. Let that just affect the camera.
+	// Don't rotate when the controller rotates.
+	// Let that just affect the camera.
+	// Controller rotation usually IS the camera rotation
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
@@ -70,7 +73,12 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// Set up gameplay key bindings
+	/* Set up gameplay key bindings */
+
+	// Actions
+	PlayerInputComponent->BindAction("AttackPrimary", IE_Pressed, this, &ACPlayerCharacter::SpawnProjectile);
+
+	// Movement
 	PlayerInputComponent->BindAxis("MoveForwardBackward", this, &ACPlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRightLeft", this, &ACPlayerCharacter::MoveRight);
 
@@ -82,10 +90,10 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("LookMouse", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookGamepad", this, &ACPlayerCharacter::LookUpAtRate);
 }
-void ACPlayerCharacter::SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn)
+void ACPlayerCharacter::SpawnProjectile()
 {
 	// Make sure the projectile class is assigned in BP
-	if (ensureAlways(ClassToSpawn))
+	if (ensureAlways(ProjectileClass))
 	{
 		FActorSpawnParameters SpawnParams;
 		// Make sure the Projectile knows that it was spawned by the Player
@@ -93,7 +101,7 @@ void ACPlayerCharacter::SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn)
 		// Make projectile always spawn at desired location, regardless of collisions
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		// Spawn projectile
-		GetWorld()->SpawnActor<AActor>(ClassToSpawn, GetCrosshairTargetTM(), SpawnParams);
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
 	}
 }
 

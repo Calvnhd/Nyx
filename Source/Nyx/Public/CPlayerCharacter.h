@@ -67,9 +67,7 @@ protected:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Movement")
 	float TurnRateGamepad = 50.0f;
-
-	UFUNCTION(BlueprintCallable)
-	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn);
+	void SpawnProjectile();
 	UFUNCTION()
 	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
 								 float NewHealth);
