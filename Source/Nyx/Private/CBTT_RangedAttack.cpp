@@ -1,6 +1,7 @@
 // Copyright (C) 2023 - Calvin Davidson
 
 #include "CBTT_RangedAttack.h"
+
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"

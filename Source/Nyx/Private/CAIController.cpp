@@ -1,6 +1,7 @@
 // Copyright (C) 2023 - Calvin Davidson
 
 #include "CAIController.h"
+
 #include "BehaviorTree/BlackboardComponent.h"
 #include <Kismet/GameplayStatics.h>
 

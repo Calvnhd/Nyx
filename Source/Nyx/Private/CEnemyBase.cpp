@@ -1,10 +1,11 @@
 // Copyright (C) 2023 - Calvin Davidson
 
 #include "CEnemyBase.h"
+
+#include "CAttributeComponent.h"
 #include "CCommonDefines.h"
 #include "CEnemyAttributeComponent.h"
-#include <Components/CapsuleComponent.h>
-#include "CAttributeComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ACEnemyBase::ACEnemyBase()

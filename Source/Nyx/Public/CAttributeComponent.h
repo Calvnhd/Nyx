@@ -8,7 +8,8 @@
 #include "CAttributeComponent.generated.h"
 
 // Dynamic allows BP assignment, Multicast allows multiple listeners
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnPlayerHealthChangedSignature, AActor*, InstigatorActor, UCAttributeComponent*, OwningComp, float, Delta, float, NewHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnPlayerHealthChangedSignature, AActor*, InstigatorActor,
+											  UCAttributeComponent*, OwningComp, float, Delta, float, NewHealth);
 
 /*
  * Contains and manages the player's attributes
