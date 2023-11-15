@@ -1,6 +1,7 @@
 // Copyright (C) 2023 - Calvin Davidson
 
 #include "CBTS_CheckAttackRange.h"
+
 #include "BehaviorTree/BlackboardComponent.h"
 #include <AIModule/Classes/AIController.h>
 
@@ -44,9 +45,7 @@ void UCBTS_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 					// Blackboard is the memory for AI
 					BlackboardComp->SetValueAsBool(AttackRangeKey.SelectedKeyName, (bWithinRange && bHasLOS));
 				}
-
 			}
 		}
 	}
-
 }

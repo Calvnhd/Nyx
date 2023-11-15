@@ -2,12 +2,13 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "BehaviorTree/BTService.h"
+#include "CoreMinimal.h"
+
 #include "CBTS_CheckAttackRange.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class NYX_API UCBTS_CheckAttackRange : public UBTService
@@ -15,7 +16,6 @@ class NYX_API UCBTS_CheckAttackRange : public UBTService
 	GENERATED_BODY()
 
 protected:
-
 	// Handles some dropdown thing
 	UPROPERTY(EditAnywhere, Category = "AI")
 	FBlackboardKeySelector AttackRangeKey;
@@ -25,5 +25,4 @@ protected:
 	 * bNotifyTick must be set to true for this function to be called
 	 * Calling INIT_SERVICE_NODE_NOTIFY_FLAGS in the constructor of the service will set this flag automatically */
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
-	
 };

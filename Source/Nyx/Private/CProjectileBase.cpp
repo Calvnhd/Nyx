@@ -60,8 +60,8 @@ void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent
 		// GetComponentByClass iterates through actor until it finds the FIRST instance of specified class
 		// StaticClass() lets us easily pass around the class type.  Use this to see if the actor has a
 		// CEnemyAttributeComponent, and then call the desired function on it.
-		if (UCEnemyAttributeComponent* AttributeComp =
-				Cast<UCEnemyAttributeComponent>(OtherActor->GetComponentByClass(UCEnemyAttributeComponent::StaticClass())))
+		if (UCEnemyAttributeComponent* AttributeComp = Cast<UCEnemyAttributeComponent>(
+				OtherActor->GetComponentByClass(UCEnemyAttributeComponent::StaticClass())))
 		{
 			AttributeComp->ApplyHealthChange(-DamageAmount);
 		}

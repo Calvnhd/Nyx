@@ -1,6 +1,7 @@
 // Copyright (C) 2023 - Calvin Davidson
 
 #include "CAttributeComponent.h"
+
 #include "Math/UnrealMathUtility.h"
 
 // Sets default values for this component's properties
@@ -37,7 +38,7 @@ bool UCAttributeComponent::IsAlive()
 	return (Health > 0);
 }
 
-void UCAttributeComponent::ApplyHealthChange(float Delta) 
+void UCAttributeComponent::ApplyHealthChange(float Delta)
 {
 	if (Health == 0)
 	{
@@ -59,7 +60,9 @@ void UCAttributeComponent::ApplyHealthChange(float Delta)
 	}
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("Player health changed by %f, health now %f"), Delta, Health));
+		GEngine->AddOnScreenDebugMessage(
+			-1, 15.0f, FColor::Yellow,
+			FString::Printf(TEXT("Player health changed by %f, health now %f"), Delta, Health));
 	}
 	OnPlayerHealthChangedDelegate.Broadcast(nullptr, this, Delta, Health);
 }

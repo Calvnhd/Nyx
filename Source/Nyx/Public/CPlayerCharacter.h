@@ -5,24 +5,20 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
-#include "CPlayer.generated.h"
+#include "CPlayerCharacter.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
-class UStaticMeshComponent;
 class UCAttributeComponent;
 
-/*
- * The player-controlled character
- */
 UCLASS()
-class NYX_API ACPlayer : public APawn
+class NYX_API ACPlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this pawn's properties
-	ACPlayer();
+	// Sets default values for this character's properties
+	ACPlayerCharacter();
 
 protected:
 	/*
@@ -47,59 +43,46 @@ protected:
 
 	// Components
 	// Epic recommends TObjectPtr over raw pointers in header files with UPROPERTY for UE5
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
 	TObjectPtr<UCameraComponent> CameraComp;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
 	TObjectPtr<USpringArmComponent> SpringArmComp;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Nyx-Components")
 	TObjectPtr<UCAttributeComponent> AttributeComp;
-	// BlueprintReadOnly to use in BP event graph etc, VisibleAnywhere lets me edit in BP details
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UStaticMeshComponent> MeshComp;
-
 	// UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	// TObjectPtr<UParticleSystem> EngineEffects;
 
 	// TSubclassOf<> lets us assign some class in editor and edit it wherever
-	UPROPERTY(EditAnywhere, Category = "Attack")
+	UPROPERTY(EditAnywhere, Category = "Nyx-Attack")
 	TSubclassOf<AActor> ProjectileClass;
-	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attack")
 	TObjectPtr<UParticleSystem> MuzzleFlash;
 
-	UPROPERTY(BlueprintReadWrite)
-	bool bIncreasingThrust;
-	UPROPERTY(BlueprintReadWrite)
-	bool bDecreasingThrust;
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Movement")
-	float AirControlConstant;
-	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	float MuzzleHeightOffset;
-	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	float AutoAimSweepRadius = 100.0f;
-
-	// Movement
-	UFUNCTION(BlueprintCallable)
-	float GetSpeed();
-	UFUNCTION(BlueprintCallable)
-	void IncrementThrust();
-	UFUNCTION(BlueprintCallable)
-	void DecrementThrust();
-	UFUNCTION(BlueprintCallable)
-	float GetThrust();
-	UFUNCTION(BlueprintCallable)
-	void SpawnProjectile(const TSubclassOf<AActor> ClassToSpawn);
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attack")
+	float MuzzleHeightOffset = 100.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attack")
+	float AutoAimSweepRadius = 800.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Movement")
+	float MovementRotationRate = 500.0f;
+	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Movement")
+	float TurnRateGamepad = 50.0f;
+	void SpawnProjectile();
 	UFUNCTION()
 	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
 								 float NewHealth);
-
-	// Attack
-	UFUNCTION(BlueprintCallable)
-	void HandleRotationInput(float InputValue, FVector RotationAxis, float Alpha);
 	UFUNCTION(BlueprintCallable)
 	FTransform GetCrosshairTargetTM();
 
 	FVector GetMuzzleLocation();
+
 	bool bIsAutoAimActive = true;
+
+	// Movement
+	void MoveForward(float Value);
+	void MoveRight(float Value);
+	void TurnAtRate(float Rate);
+	void LookUpAtRate(float Rate);
 
 public:
 	// Called every frame
