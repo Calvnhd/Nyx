@@ -9,7 +9,12 @@ void ACAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	RunBehaviorTree(EnemyBaseBehaviourTree);
+	if (ensureMsgf(
+			EnemyBaseBehaviourTree,
+			TEXT("EnemyBaseBehaviourTree is nullptr! Please assign EnemyBaseBehaviourTree in your AI Controller")))
+	{
+		RunBehaviorTree(EnemyBaseBehaviourTree);
+	}
 
 	// if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0))
 	//{
