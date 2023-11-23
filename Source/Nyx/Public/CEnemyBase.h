@@ -34,7 +34,8 @@ protected:
 	TObjectPtr<UPawnSensingComponent> PawnSensingComp;
 
 	UFUNCTION()
-	void OnHealthChangedResponse(float Delta, float NewHealth);
+	void OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttributeComponent* OwningComp, float Delta,
+								 float NewHealth);
 
 	UFUNCTION()
 	void OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -45,4 +46,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent();
+
+	void SetTargetActor(AActor* NewTarget);
 };

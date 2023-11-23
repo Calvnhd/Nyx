@@ -63,7 +63,7 @@ void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent
 		if (UCEnemyAttributeComponent* AttributeComp = Cast<UCEnemyAttributeComponent>(
 				OtherActor->GetComponentByClass(UCEnemyAttributeComponent::StaticClass())))
 		{
-			AttributeComp->ApplyHealthChange(-DamageAmount);
+			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
 		}
 		Explode();
 	}

@@ -8,7 +8,8 @@
 #include "CEnemyAttributeComponent.generated.h"
 
 // Dynamic allows BP assignment, Multicast allows multiple listeners
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEnemyHealthChangedSignature, float, Delta, float, NewHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnEnemyHealthChangedSignature, AActor*, InstigatorActor,
+											 UCEnemyAttributeComponent*, OwningComp, float, Delta, float, NewHealth);
 
 /*
  * Contains and manages the player's EnemyAttributes
@@ -22,7 +23,7 @@ public:
 	UCEnemyAttributeComponent();
 
 	bool IsAlive();
-	void ApplyHealthChange(float Delta);
+	void ApplyHealthChange(AActor* InstigatorActor, float Delta);
 	float GetHealth();
 	float GetHealthMax();
 	float GetHealthPercent();

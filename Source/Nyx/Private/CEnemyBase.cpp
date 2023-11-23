@@ -2,13 +2,13 @@
 
 #include "CEnemyBase.h"
 
+#include "BehaviorTree/BlackboardComponent.h"
+#include "CAIController.h"
 #include "CAttributeComponent.h"
 #include "CCommonDefines.h"
 #include "CEnemyAttributeComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Perception/PawnSensingComponent.h"
-#include "CAIController.h"
-#include "BehaviorTree/BlackboardComponent.h"
 // this is a useful include to refer to again!
 #include "DrawDebugHelpers.h"
 
@@ -17,6 +17,8 @@ ACEnemyBase::ACEnemyBase()
 {
 	EnemyAttributeComp = CreateDefaultSubobject<UCEnemyAttributeComponent>("EnemyAttributeComp");
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("EnemySensingComp");
+
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 void ACEnemyBase::PostInitializeComponents()
 {
@@ -27,12 +29,38 @@ void ACEnemyBase::PostInitializeComponents()
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ACEnemyBase::OnCollisionResponse);
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &ACEnemyBase::OnPawnSeenResponse);
 }
-void ACEnemyBase::OnHealthChangedResponse(float Delta, float NewHealth)
+void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttributeComponent* OwningComp, float Delta,
+										  float NewHealth)
 {
-	if (NewHealth <= 0)
+	if (Delta < 0.0f)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Enemy destroyed"));
-		Destroy();
+		if (InstigatorActor != this)
+		{
+			SetTargetActor(InstigatorActor);
+		}
+
+		if (NewHealth <= 0.0f)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Enemy killed"));
+			Destroy();
+
+			// stop BT
+			// AAIController* AIC = Cast<AAIController>(GetController());
+			// if (AIC)
+			//{
+			//	// BrainComponent is base class for behaviour tree component
+			//	// Reason in StopLogic is just for debugging
+			//	AIC->GetBrainComponent()->StopLogic("Killed");
+			//}
+			//// Ragdoll
+			//// Skeletal mesh can simulate physics or use animation data
+			// GetMesh()->SetAllBodiesSimulatePhysics(true);
+			//// Ragdoll should hopefully be a physics preset
+			// GetMesh()->SetCollisionProfileName("Ragdoll");
+			//
+			//// set lifespan (how long until we call destroy actor on ourselves
+			// SetLifeSpan(10.0f);
+		}
 	}
 }
 void ACEnemyBase::OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor,
@@ -48,20 +76,21 @@ void ACEnemyBase::OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor*
 	}
 }
 
-
-void ACEnemyBase::OnPawnSeenResponse(APawn* Pawn) {
-	ACAIController* AIC = Cast<ACAIController>(GetController());
-	if (AIC)
-	{
-		UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
-		// To do, make this an FNAME instead of hard coding
-		BBComp->SetValueAsObject("TargetActor", Pawn);
-		DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.0f, true);
-	}
-
+void ACEnemyBase::OnPawnSeenResponse(APawn* Pawn)
+{
+	DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.0f, true);
+	SetTargetActor(Pawn);
 }
 
 float ACEnemyBase::GetHealthPercent()
 {
 	return EnemyAttributeComp->GetHealthPercent();
+}
+
+void ACEnemyBase::SetTargetActor(AActor* NewTarget)
+{
+	if (ACAIController* AIC = Cast<ACAIController>(GetController()))
+	{
+		AIC->GetBlackboardComponent()->SetValueAsObject("TargetActor", NewTarget);
+	}
 }
