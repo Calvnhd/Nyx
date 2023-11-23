@@ -42,7 +42,6 @@ void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttrib
 		if (NewHealth <= 0.0f)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Enemy killed"));
-			Destroy();
 
 			// stop BT
 			// AAIController* AIC = Cast<AAIController>(GetController());
@@ -52,14 +51,14 @@ void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttrib
 			//	// Reason in StopLogic is just for debugging
 			//	AIC->GetBrainComponent()->StopLogic("Killed");
 			//}
-			//// Ragdoll
-			//// Skeletal mesh can simulate physics or use animation data
-			// GetMesh()->SetAllBodiesSimulatePhysics(true);
-			//// Ragdoll should hopefully be a physics preset
+			// Ragdoll
+			// Skeletal mesh can simulate physics or use animation data
+			GetMesh()->SetAllBodiesSimulatePhysics(true);
+			// Ragdoll should hopefully be a physics preset
 			// GetMesh()->SetCollisionProfileName("Ragdoll");
 			//
-			//// set lifespan (how long until we call destroy actor on ourselves
-			// SetLifeSpan(10.0f);
+			// set lifespan (how long until we call destroy actor on ourselves
+			SetLifeSpan(1.0f);
 		}
 	}
 }
