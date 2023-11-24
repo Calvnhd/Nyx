@@ -1,6 +1,15 @@
 // Copyright (C) 2023 - Calvin Davidson
 
 #include "CGameModeBase.h"
+#include "CEnemyBase.h"
+#include "EngineUtils.h"
+#include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
+#include "EnvironmentQuery/EnvQueryManager.h"
+
+ACGameModeBase::ACGameModeBase()
+{
+	SpawnTimerInterval = 2.0f;
+}
 
 void ACGameModeBase::StartPlay()
 {
@@ -11,9 +20,52 @@ void ACGameModeBase::StartPlay()
 									SpawnTimerInterval, true);
 }
 
-ACGameModeBase::ACGameModeBase()
+void ACGameModeBase::SpawnBotTimerElapsed()
 {
-	SpawnTimerInterval = 2.0f;
+	// This is a bit weird in some ways because it's designed for BP
+	UEnvQueryInstanceBlueprintWrapper* QueryInstance =
+		UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
+	if (ensure(QueryInstance))
+	{
+		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ACGameModeBase::OnQueryCompletedResponse);
+	}
 }
 
-void ACGameModeBase::SpawnBotTimerElapsed() {}
+void ACGameModeBase::OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper* QueryInstance,
+											  EEnvQueryStatus::Type QueryStatus)
+{
+	if (QueryStatus != EEnvQueryStatus::Success)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spawn bot EQS Query failed!"))
+		return;
+	}
+
+	int32 NumAliveBots = 0;
+	// TActorIterator is like a better version of get actors of class
+	for (TActorIterator<ACEnemyBase> It(GetWorld()); It; ++It)
+	{
+		ACEnemyBase* Bot = *It;
+
+		if (Bot->IsAlive())
+		{
+			NumAliveBots++;
+		}
+	}
+	const float MaxBotCount = 10.0f;
+	if (DifficultyCurve)
+	{
+		// Expects a time.  Something for X axis.
+		DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);
+		// 25:44 for curve asset creation
+	}
+	if (NumAliveBots >= MaxBotCount)
+	{
+		return;
+	}
+
+	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
+	if (Locations.IsValidIndex(0))
+	{
+		GetWorld()->SpawnActor<AActor>(EnemyClass, Locations[0], FRotator::ZeroRotator);
+	}
+}

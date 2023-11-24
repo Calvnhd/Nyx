@@ -160,7 +160,7 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 		float Radius = 50.0f;
 		float Segments = 32;
 		float Lifetime = 5.0f;
-		DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false, Lifetime);
+		//DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false, Lifetime);
 	}
 	// then you want a spawn location for the projectile
 	// todo -- make a socket on the mesh and give it a name

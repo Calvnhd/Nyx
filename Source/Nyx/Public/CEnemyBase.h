@@ -48,4 +48,7 @@ protected:
 	float GetHealthPercent();
 
 	void SetTargetActor(AActor* NewTarget);
+
+public:
+	bool IsAlive();
 };

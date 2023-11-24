@@ -86,6 +86,11 @@ float ACEnemyBase::GetHealthPercent()
 	return EnemyAttributeComp->GetHealthPercent();
 }
 
+bool ACEnemyBase::IsAlive()
+{
+	return EnemyAttributeComp->IsAlive();
+}
+
 void ACEnemyBase::SetTargetActor(AActor* NewTarget)
 {
 	if (ACAIController* AIC = Cast<ACAIController>(GetController()))

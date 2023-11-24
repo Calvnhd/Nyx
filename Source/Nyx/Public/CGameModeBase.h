@@ -2,9 +2,15 @@
 
 #pragma once
 
-#include "CGameModeBase.generated.h"
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "EnvironmentQuery/EnvQueryTypes.h"
+
+#include "CGameModeBase.generated.h"
+
+class UEnvQuery;
+class UEnvQueryInstanceBlueprintWrapper;
+class UCurveFloat;
 
 /**
  *
@@ -20,12 +26,25 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx-AI")
 	float SpawnTimerInterval;
 
-public:
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-AI")
+	UEnvQuery* SpawnBotQuery;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-AI")
+	TSubclassOf<AActor> EnemyClass;
+
+	UFUNCTION()
+	void SpawnBotTimerElapsed();
+
+	UFUNCTION()
+	void OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-AI")
+	UCurveFloat* DifficultyCurve;
+
+public:
 	// Doesn't BeginPlay(). Responsible for calling BeginPlay()!
 	virtual void StartPlay() override;
 
 	ACGameModeBase();
 
-	void SpawnBotTimerElapsed();
 };
