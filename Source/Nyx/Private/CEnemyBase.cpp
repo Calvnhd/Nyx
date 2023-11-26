@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Perception/PawnSensingComponent.h"
 // this is a useful include to refer to again!
+#include "BrainComponent.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values
@@ -32,6 +33,7 @@ void ACEnemyBase::PostInitializeComponents()
 void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttributeComponent* OwningComp, float Delta,
 										  float NewHealth)
 {
+	// Damaged
 	if (Delta < 0.0f)
 	{
 		if (InstigatorActor != this)
@@ -44,21 +46,23 @@ void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttrib
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Enemy killed"));
 
 			// stop BT
-			// AAIController* AIC = Cast<AAIController>(GetController());
-			// if (AIC)
-			//{
-			//	// BrainComponent is base class for behaviour tree component
-			//	// Reason in StopLogic is just for debugging
-			//	AIC->GetBrainComponent()->StopLogic("Killed");
-			//}
+			// need the AI controller.  It's controlling everything!
+			AAIController* AIC = Cast<AAIController>(GetController());
+			if (AIC)
+			{
+				// BrainComponent is base class for behaviour tree component
+				// Reason in StopLogic is just for debugging
+				AIC->GetBrainComponent()->StopLogic("Killed");
+			}
 			// Ragdoll
 			// Skeletal mesh can simulate physics or use animation data
+			// Apply gravity and stuff
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			// Ragdoll should hopefully be a physics preset
-			// GetMesh()->SetCollisionProfileName("Ragdoll");
-			//
+			GetMesh()->SetCollisionProfileName("Ragdoll");
+
 			// set lifespan (how long until we call destroy actor on ourselves
-			SetLifeSpan(1.0f);
+			SetLifeSpan(10.0f);
 		}
 	}
 }

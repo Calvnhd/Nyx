@@ -5,12 +5,12 @@
 #include "EngineUtils.h"
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
+#include "DrawDebugHelpers.h"
 
 ACGameModeBase::ACGameModeBase()
 {
 	SpawnTimerInterval = 2.0f;
 }
-
 void ACGameModeBase::StartPlay()
 {
 	Super::StartPlay();
@@ -19,7 +19,6 @@ void ACGameModeBase::StartPlay()
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ACGameModeBase::SpawnBotTimerElapsed,
 									SpawnTimerInterval, true);
 }
-
 void ACGameModeBase::SpawnBotTimerElapsed()
 {
 	// This is a bit weird in some ways because it's designed for BP
@@ -30,7 +29,6 @@ void ACGameModeBase::SpawnBotTimerElapsed()
 		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ACGameModeBase::OnQueryCompletedResponse);
 	}
 }
-
 void ACGameModeBase::OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper* QueryInstance,
 											  EEnvQueryStatus::Type QueryStatus)
 {
@@ -42,6 +40,8 @@ void ACGameModeBase::OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper*
 
 	int32 NumAliveBots = 0;
 	// TActorIterator is like a better version of get actors of class
+	// It lets us grab any instance of a current class in the current level
+	// You can pass in whatever! And it'll return everything derived from that class
 	for (TActorIterator<ACEnemyBase> It(GetWorld()); It; ++It)
 	{
 		ACEnemyBase* Bot = *It;
@@ -51,21 +51,22 @@ void ACGameModeBase::OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper*
 			NumAliveBots++;
 		}
 	}
+	UE_LOG(LogTemp, Log, TEXT("Found %i alive bots"), NumAliveBots);
 	const float MaxBotCount = 10.0f;
 	if (DifficultyCurve)
 	{
 		// Expects a time.  Something for X axis.
 		DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);
-		// 25:44 for curve asset creation
 	}
 	if (NumAliveBots >= MaxBotCount)
 	{
+		UE_LOG(LogTemp, Log, TEXT("At maximum bot capacity.  Skipping bot spawn."))
 		return;
 	}
-
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
 	if (Locations.IsValidIndex(0))
 	{
 		GetWorld()->SpawnActor<AActor>(EnemyClass, Locations[0], FRotator::ZeroRotator);
+		DrawDebugSphere(GetWorld(), Locations[0], 50.0f, 20, FColor::Blue, false, 60.0f);
 	}
 }

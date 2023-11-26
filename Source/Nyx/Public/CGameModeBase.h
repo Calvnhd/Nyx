@@ -13,7 +13,7 @@ class UEnvQueryInstanceBlueprintWrapper;
 class UCurveFloat;
 
 /**
- *
+ * Think of this as the game's rules
  */
 UCLASS()
 class NYX_API ACGameModeBase : public AGameModeBase
