@@ -8,7 +8,7 @@
 #include "CEnemyAttributeComponent.generated.h"
 
 // Dynamic allows BP assignment, Multicast allows multiple listeners
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnEnemyHealthChangedSignature, AActor*, InstigatorActor,
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChangedSignature, AActor*, InstigatorActor,
 											 UCEnemyAttributeComponent*, OwningComp, float, Delta, float, NewHealth);
 
 /*
@@ -30,7 +30,7 @@ public:
 	float GetCollisionDamageAmount();
 
 	UPROPERTY(BlueprintAssignable, Category = "EnemyAttributes")
-	FOnEnemyHealthChangedSignature OnEnemyHealthChangedDelegate;
+	FOnHealthChangedSignature OnHealthChangedDelegate;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "EnemyAttributes")

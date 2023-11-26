@@ -17,6 +17,25 @@ UCAttributeComponent::UCAttributeComponent()
 	SpeedMax = 5000;
 }
 
+UCAttributeComponent* UCAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if (FromActor)
+	{
+		return Cast<UCAttributeComponent>(FromActor->GetComponentByClass(UCAttributeComponent::StaticClass()));
+	}
+	return nullptr;
+}
+
+bool UCAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	if (UCAttributeComponent* AttributeComp = GetAttributes(Actor))
+	{
+		return AttributeComp->IsAlive();
+	}
+	// This implies that having no attribute component is the equivalent of being dead
+	return false;
+}
+
 float UCAttributeComponent::GetSpeed()
 {
 	return (ThrustPercent / ThrustPercentMax) * SpeedMax;

@@ -21,23 +21,6 @@ void ACGameModeBase::StartPlay()
 }
 void ACGameModeBase::SpawnBotTimerElapsed()
 {
-	// This is a bit weird in some ways because it's designed for BP
-	UEnvQueryInstanceBlueprintWrapper* QueryInstance =
-		UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
-	if (ensure(QueryInstance))
-	{
-		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ACGameModeBase::OnQueryCompletedResponse);
-	}
-}
-void ACGameModeBase::OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper* QueryInstance,
-											  EEnvQueryStatus::Type QueryStatus)
-{
-	if (QueryStatus != EEnvQueryStatus::Success)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Spawn bot EQS Query failed!"))
-		return;
-	}
-
 	int32 NumAliveBots = 0;
 	// TActorIterator is like a better version of get actors of class
 	// It lets us grab any instance of a current class in the current level
@@ -46,6 +29,11 @@ void ACGameModeBase::OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper*
 	{
 		ACEnemyBase* Bot = *It;
 
+		/*
+			You could also go...
+			ACAttributeComp* AttributeComp = ACAttributeComp::GetAttributes(Bot);
+			if (ensure(AttributeComp) && ...) ...
+		*/
 		if (Bot->IsAlive())
 		{
 			NumAliveBots++;
@@ -63,6 +51,24 @@ void ACGameModeBase::OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper*
 		UE_LOG(LogTemp, Log, TEXT("At maximum bot capacity.  Skipping bot spawn."))
 		return;
 	}
+
+	// This is a bit weird in some ways because it's designed for BP
+	UEnvQueryInstanceBlueprintWrapper* QueryInstance =
+		UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
+	if (ensure(QueryInstance))
+	{
+		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ACGameModeBase::OnQueryCompletedResponse);
+	}
+}
+void ACGameModeBase::OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper* QueryInstance,
+											  EEnvQueryStatus::Type QueryStatus)
+{
+	if (QueryStatus != EEnvQueryStatus::Success)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spawn bot EQS Query failed!"))
+		return;
+	}
+
 	TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
 	if (Locations.IsValidIndex(0))
 	{

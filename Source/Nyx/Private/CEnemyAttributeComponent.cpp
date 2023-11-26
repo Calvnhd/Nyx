@@ -41,7 +41,7 @@ void UCEnemyAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow,
 										 FString::Printf(TEXT("Health changed by %f, health now %f"), Delta, Health));
 	}
-	OnEnemyHealthChangedDelegate.Broadcast(InstigatorActor, this, Delta, Health);
+	OnHealthChangedDelegate.Broadcast(InstigatorActor, this, Delta, Health);
 }
 
 float UCEnemyAttributeComponent::GetHealth()

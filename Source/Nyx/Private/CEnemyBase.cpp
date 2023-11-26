@@ -26,7 +26,7 @@ void ACEnemyBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings
-	EnemyAttributeComp->OnEnemyHealthChangedDelegate.AddDynamic(this, &ACEnemyBase::OnHealthChangedResponse);
+	EnemyAttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACEnemyBase::OnHealthChangedResponse);
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ACEnemyBase::OnCollisionResponse);
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &ACEnemyBase::OnPawnSeenResponse);
 }
@@ -58,7 +58,7 @@ void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttrib
 			// Skeletal mesh can simulate physics or use animation data
 			// Apply gravity and stuff
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
-			// Ragdoll should hopefully be a physics preset
+			// Ragdoll is an existing UE template
 			GetMesh()->SetCollisionProfileName("Ragdoll");
 
 			// set lifespan (how long until we call destroy actor on ourselves
@@ -71,8 +71,7 @@ void ACEnemyBase::OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor*
 {
 	if (OtherActor)
 	{
-		if (UCAttributeComponent* PlayerAttributeComp =
-				Cast<UCAttributeComponent>(OtherActor->GetComponentByClass(UCAttributeComponent::StaticClass())))
+		if (UCAttributeComponent* PlayerAttributeComp = UCAttributeComponent::GetAttributes(OtherActor))
 		{
 			PlayerAttributeComp->ApplyHealthChange(-EnemyAttributeComp->GetCollisionDamageAmount());
 		}
