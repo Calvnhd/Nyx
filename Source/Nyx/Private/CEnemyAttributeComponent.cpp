@@ -63,3 +63,23 @@ float UCEnemyAttributeComponent::GetCollisionDamageAmount()
 {
 	return CollisionDamageAmount;
 }
+
+UCEnemyAttributeComponent* UCEnemyAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if (FromActor)
+	{
+		return Cast<UCEnemyAttributeComponent>(
+			FromActor->GetComponentByClass(UCEnemyAttributeComponent::StaticClass()));
+	}
+	return nullptr;
+}
+
+bool UCEnemyAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	if (UCEnemyAttributeComponent* AttributeComp = GetAttributes(Actor))
+	{
+		return AttributeComp->IsAlive();
+	}
+	// This implies that having no attribute component is the equivalent of being dead
+	return false;
+}

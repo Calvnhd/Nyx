@@ -22,6 +22,12 @@ class NYX_API UCEnemyAttributeComponent : public UActorComponent
 public:
 	UCEnemyAttributeComponent();
 
+	// Static functions can be called anywhere, without an instance of the class
+	UFUNCTION(BlueprintCallable, Category = "Nyx-Attributes")
+	static UCEnemyAttributeComponent* GetAttributes(AActor* FromActor);
+	UFUNCTION(BlueprintCallable, Category = "Nyx-Attributes", meta = (DisplayName = "IsAlive"))
+	static bool IsActorAlive(AActor* Actor);
+
 	bool IsAlive();
 	void ApplyHealthChange(AActor* InstigatorActor, float Delta);
 	float GetHealth();
