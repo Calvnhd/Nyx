@@ -12,6 +12,8 @@ class UStaticMeshComponent;
 class UCEnemyAttributeComponent;
 // There is also AIPerception.  This is the older and simpler of the two.
 class UPawnSensingComponent;
+class UUserWidget;
+class UCWorldUserWidget;
 
 /*
  * Basic enemy class
@@ -25,6 +27,15 @@ public:
 	ACEnemyBase();
 
 protected:
+
+	UCWorldUserWidget* ActiveHealthBar;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-UI")
+	TSubclassOf<UUserWidget> HealthBarWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, Category = "Nyx-Effects")
+	FName TimeToHitParamName;
+
 	virtual void PostInitializeComponents() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Nyx-Components")

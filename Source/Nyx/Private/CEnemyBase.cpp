@@ -12,6 +12,7 @@
 // this is a useful include to refer to again!
 #include "BrainComponent.h"
 #include "DrawDebugHelpers.h"
+#include "CWorldUserWidget.h"
 
 // Sets default values
 ACEnemyBase::ACEnemyBase()
@@ -41,9 +42,26 @@ void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttrib
 			SetTargetActor(InstigatorActor);
 		}
 
+		if (ActiveHealthBar == nullptr)
+		{
+			// CreateWidget is available anywhere
+			// Owning object is expected to be the player (i.e. something related to the UI)
+			ActiveHealthBar = CreateWidget<UCWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+			if (ActiveHealthBar)
+			{
+				// need to add this before adding to viewport, because EventConstruct is called in BP like straight away
+				ActiveHealthBar->AttachedActor = this;
+				// Don't care about Z order for now
+				ActiveHealthBar->AddToViewport();
+			}
+		}
+
+		//todo -- hitflash. I've just copied this across without testing. Might just work.  Might not.
+		//GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
+
 		if (NewHealth <= 0.0f)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Enemy killed"));
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Enemy killed"));
 
 			// stop BT
 			// need the AI controller.  It's controlling everything!
