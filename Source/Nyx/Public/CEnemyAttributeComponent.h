@@ -30,8 +30,10 @@ public:
 
 	bool IsAlive();
 	void ApplyHealthChange(AActor* InstigatorActor, float Delta);
+	UFUNCTION(BlueprintCallable)
 	float GetHealth();
 	float GetHealthMax();
+	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent();
 	float GetCollisionDamageAmount();
 

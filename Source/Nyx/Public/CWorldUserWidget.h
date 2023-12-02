@@ -29,4 +29,7 @@ public:
 	// UPROPERTY is also good for reference counting. Will take care of cleaning up the pointer and stuff for us.
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx-UI")
 	AActor* AttachedActor;
+
+	UPROPERTY(EditAnywhere, Category = "Nyx-UI")
+	FVector WorldOffset;
 };
