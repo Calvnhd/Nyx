@@ -7,7 +7,7 @@
 #include "CTargetDummy.generated.h"
 
 class UStaticMeshComponent;
-class UCAttributeComponent;
+class UCEnemyAttributeComponent;
 
 /*
  * A target dummy, for figuring out enemy stuff
@@ -28,10 +28,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> MeshComp;
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	TObjectPtr<UCAttributeComponent> AttributeComp;
+	TObjectPtr<UCEnemyAttributeComponent> AttributeComp;
 
 	UFUNCTION()
-	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
+	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 								 float NewHealth);
 
 	UFUNCTION(BlueprintCallable)

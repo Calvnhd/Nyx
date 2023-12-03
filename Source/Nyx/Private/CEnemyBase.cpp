@@ -4,7 +4,7 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "CAIController.h"
-#include "CAttributeComponent.h"
+#include "CEnemyAttributeComponent.h"
 #include "CCommonDefines.h"
 #include "CEnemyAttributeComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -31,7 +31,7 @@ void ACEnemyBase::PostInitializeComponents()
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ACEnemyBase::OnCollisionResponse);
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &ACEnemyBase::OnPawnSeenResponse);
 }
-void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttributeComponent* OwningComp, float Delta,
+void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 										  float NewHealth)
 {
 	// Damaged
@@ -89,9 +89,10 @@ void ACEnemyBase::OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor*
 {
 	if (OtherActor)
 	{
-		if (UCAttributeComponent* PlayerAttributeComp = UCAttributeComponent::GetAttributes(OtherActor))
+		if (UCEnemyAttributeComponent* PlayerAttributeComp =
+				Cast<UCEnemyAttributeComponent>(UCAttributeComponentBase::GetAttributes(OtherActor)))
 		{
-			PlayerAttributeComp->ApplyHealthChange(-EnemyAttributeComp->GetCollisionDamageAmount());
+			PlayerAttributeComp->ApplyHealthChange(this, -EnemyAttributeComp->GetCollisionDamageAmount());
 		}
 	}
 }

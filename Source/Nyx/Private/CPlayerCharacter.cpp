@@ -2,7 +2,7 @@
 
 #include "CPlayerCharacter.h"
 
-#include "CAttributeComponent.h"
+#include "CPlayerAttributeComponent.h"
 #include "CCommonDefines.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -19,7 +19,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
-	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
+	AttributeComp = CreateDefaultSubobject<UCPlayerAttributeComponent>("AttributeComp");
 
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->TargetArmLength = 500.0f; // The camera follows at this distance behind the character
@@ -59,7 +59,7 @@ void ACPlayerCharacter::BeginPlay()
 void ACPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	AttributeComp->OnPlayerHealthChangedDelegate.AddDynamic(this, &ACPlayerCharacter::OnHealthChangedResponse);
+	AttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACPlayerCharacter::OnHealthChangedResponse);
 }
 // Called every frame
 void ACPlayerCharacter::Tick(float DeltaTime)
@@ -92,7 +92,7 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 }
 void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 {
-	AttributeComp->ApplyHealthChange(Amount);
+	AttributeComp->ApplyHealthChange(this, Amount);
 }
 void ACPlayerCharacter::SpawnProjectile()
 {
@@ -108,21 +108,15 @@ void ACPlayerCharacter::SpawnProjectile()
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
 	}
 }
-
-void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
-												float NewHealth)
+void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,	float NewHealth)
 {
-	// GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green,
-	//								 FString::Printf(TEXT("Health changed by %f, health now %f"), NewHealth));
 	if (NewHealth <= 0)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("YOU DIED"));
 		APlayerController* PlayerController = Cast<APlayerController>(GetController());
 		DisableInput(PlayerController);
-		// todo add death effect
 	}
 }
-
 FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 {
 	// You want to know where you're looking from
@@ -183,7 +177,6 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 	// A Transformation Matrix above the ship, looking at the target
 	return FTransform(SpawnRotation, SpawnLocation);
 }
-
 FVector ACPlayerCharacter::GetMuzzleLocation()
 {
 	// Quick n dirty for now
@@ -191,7 +184,6 @@ FVector ACPlayerCharacter::GetMuzzleLocation()
 	// GetMesh()->GetSocketLocation(HandSocketName);
 	return GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, MuzzleHeightOffset);
 }
-
 void ACPlayerCharacter::MoveForward(float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))

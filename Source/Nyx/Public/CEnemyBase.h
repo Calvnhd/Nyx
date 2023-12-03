@@ -45,7 +45,7 @@ protected:
 	TObjectPtr<UPawnSensingComponent> PawnSensingComp;
 
 	UFUNCTION()
-	void OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttributeComponent* OwningComp, float Delta,
+	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 								 float NewHealth);
 
 	UFUNCTION()

@@ -9,7 +9,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
-class UCAttributeComponent;
+class UCPlayerAttributeComponent;
 
 UCLASS()
 class NYX_API ACPlayerCharacter : public ACharacter
@@ -48,7 +48,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
 	TObjectPtr<USpringArmComponent> SpringArmComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Nyx-Components")
-	TObjectPtr<UCAttributeComponent> AttributeComp;
+	TObjectPtr<UCPlayerAttributeComponent> AttributeComp;
 	// UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	// TObjectPtr<UParticleSystem> EngineEffects;
 
@@ -69,7 +69,7 @@ protected:
 	float TurnRateGamepad = 50.0f;
 	void SpawnProjectile();
 	UFUNCTION()
-	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
+	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 								 float NewHealth);
 	UFUNCTION(BlueprintCallable)
 	FTransform GetCrosshairTargetTM();

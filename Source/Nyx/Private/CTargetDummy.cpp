@@ -1,14 +1,14 @@
 // Copyright (C) 2023 - Calvin Davidson
 
 #include "CTargetDummy.h"
-#include "CAttributeComponent.h"
+#include "CEnemyAttributeComponent.h"
 #include "CCommonDefines.h"
 
 // Sets default values
 ACTargetDummy::ACTargetDummy()
 {
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
-	AttributeComp = CreateDefaultSubobject<UCAttributeComponent>("AttributeComp");
+	AttributeComp = CreateDefaultSubobject<UCEnemyAttributeComponent>("AttributeComp");
 
 	SetRootComponent(MeshComp);
 
@@ -24,10 +24,10 @@ void ACTargetDummy::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings will go here
-	AttributeComp->OnPlayerHealthChangedDelegate.AddDynamic(this, &ACTargetDummy::OnHealthChangedResponse);
+	AttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACTargetDummy::OnHealthChangedResponse);
 }
 
-void ACTargetDummy::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
+void ACTargetDummy::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 											float NewHealth)
 {
 	if (NewHealth <= 0)
