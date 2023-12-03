@@ -33,6 +33,7 @@ public:
 	void IncrementThrust();
 	void DecrementThrust();
 	bool IsAlive();
+	// todo, add an instigator here
 	void ApplyHealthChange(float Delta);
 	UFUNCTION(BlueprintCallable)
 	float GetHealth();
@@ -43,6 +44,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Attributes")
 	FOnPlayerHealthChangedSignature OnPlayerHealthChangedDelegate;
+
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")

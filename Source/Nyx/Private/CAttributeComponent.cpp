@@ -57,8 +57,14 @@ bool UCAttributeComponent::IsAlive()
 	return (Health > 0);
 }
 
+// todo, should return bool?
 void UCAttributeComponent::ApplyHealthChange(float Delta)
 {
+	if (!GetOwner()->CanBeDamaged())
+	{
+		return;
+	}
+
 	if (Health == 0)
 	{
 		return;

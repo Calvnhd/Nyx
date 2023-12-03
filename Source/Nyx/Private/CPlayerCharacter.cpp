@@ -90,6 +90,10 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("LookMouse", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookGamepad", this, &ACPlayerCharacter::LookUpAtRate);
 }
+void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
+{
+	AttributeComp->ApplyHealthChange(Amount);
+}
 void ACPlayerCharacter::SpawnProjectile()
 {
 	// Make sure the projectile class is assigned in BP

@@ -47,4 +47,8 @@ public:
 
 	ACGameModeBase();
 
+	UFUNCTION(Exec)
+	void KillAll();
+
+
 };

@@ -6,10 +6,25 @@
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "DrawDebugHelpers.h"
+#include "CEnemyAttributeComponent.h"
 
 ACGameModeBase::ACGameModeBase()
 {
 	SpawnTimerInterval = 2.0f;
+}
+void ACGameModeBase::KillAll() {
+
+	for (TActorIterator<ACEnemyBase> It(GetWorld()); It; ++It)
+	{
+		ACEnemyBase* Bot = *It;
+
+		UCEnemyAttributeComponent* AttributeComp = UCEnemyAttributeComponent::GetAttributes(Bot);
+		if (Bot->IsAlive())
+		{
+			// Could also pass in player for kill credit?
+			AttributeComp->Kill(this);
+		}
+	}
 }
 void ACGameModeBase::StartPlay()
 {

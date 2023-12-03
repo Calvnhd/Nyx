@@ -37,6 +37,9 @@ public:
 	float GetHealthPercent();
 	float GetCollisionDamageAmount();
 
+	UFUNCTION(BlueprintCallable)
+	bool Kill(AActor* InstigatorActor);
+
 	UPROPERTY(BlueprintAssignable, Category = "EnemyAttributes")
 	FOnHealthChangedSignature OnHealthChangedDelegate;
 

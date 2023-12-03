@@ -64,6 +64,12 @@ float UCEnemyAttributeComponent::GetCollisionDamageAmount()
 	return CollisionDamageAmount;
 }
 
+bool UCEnemyAttributeComponent::Kill(AActor* InstigatorActor)
+{
+	ApplyHealthChange(InstigatorActor, -HealthMax);
+	return true;
+}
+
 UCEnemyAttributeComponent* UCEnemyAttributeComponent::GetAttributes(AActor* FromActor)
 {
 	if (FromActor)
