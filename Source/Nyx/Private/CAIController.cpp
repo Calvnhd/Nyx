@@ -9,11 +9,10 @@ void ACAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	RunBehaviorTree(EnemyBaseBehaviourTree);
-
-	if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0))
+	if (ensureMsgf(
+			EnemyBaseBehaviourTree,
+			TEXT("EnemyBaseBehaviourTree is nullptr! Please assign EnemyBaseBehaviourTree in your AI Controller")))
 	{
-		GetBlackboardComponent()->SetValueAsVector("MoveToLocation", PlayerPawn->GetActorLocation());
-		GetBlackboardComponent()->SetValueAsObject("TargetActor", PlayerPawn);
+		RunBehaviorTree(EnemyBaseBehaviourTree);
 	}
 }

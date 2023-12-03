@@ -63,7 +63,7 @@ void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent
 		if (UCEnemyAttributeComponent* AttributeComp = Cast<UCEnemyAttributeComponent>(
 				OtherActor->GetComponentByClass(UCEnemyAttributeComponent::StaticClass())))
 		{
-			AttributeComp->ApplyHealthChange(-DamageAmount);
+			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
 		}
 		Explode();
 	}
@@ -71,14 +71,13 @@ void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent
 
 void ACProjectileBase::Explode()
 {
-	// todo: add ensure(IsValid(this)) to make sure we're valid and aren't already being destroyed
 	if (ensure(IsValid(this)))
 	{
 		if (ImpactVFX)
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Projectile explode"));
+		// GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Projectile explode"));
 		Destroy();
 	}
 }

@@ -90,6 +90,10 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis("LookMouse", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookGamepad", this, &ACPlayerCharacter::LookUpAtRate);
 }
+void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
+{
+	AttributeComp->ApplyHealthChange(Amount);
+}
 void ACPlayerCharacter::SpawnProjectile()
 {
 	// Make sure the projectile class is assigned in BP
@@ -108,8 +112,8 @@ void ACPlayerCharacter::SpawnProjectile()
 void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponent* OwningComp, float Delta,
 												float NewHealth)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green,
-									 FString::Printf(TEXT("Health changed by %f, health now %f"), NewHealth));
+	// GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green,
+	//								 FString::Printf(TEXT("Health changed by %f, health now %f"), NewHealth));
 	if (NewHealth <= 0)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("YOU DIED"));
@@ -160,7 +164,8 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 		float Radius = 50.0f;
 		float Segments = 32;
 		float Lifetime = 5.0f;
-		DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false, Lifetime);
+		// DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false,
+		// Lifetime);
 	}
 	// then you want a spawn location for the projectile
 	// todo -- make a socket on the mesh and give it a name

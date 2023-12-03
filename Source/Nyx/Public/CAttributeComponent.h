@@ -22,11 +22,18 @@ class NYX_API UCAttributeComponent : public UActorComponent
 public:
 	UCAttributeComponent();
 
+	// Static functions can be called anywhere, without an instance of the class
+	UFUNCTION(BlueprintCallable, Category = "Nyx-Attributes")
+	static UCAttributeComponent* GetAttributes(AActor* FromActor);
+	UFUNCTION(BlueprintCallable, Category = "Nyx-Attributes", meta = (DisplayName = "IsAlive"))
+	static bool IsActorAlive(AActor* Actor);
+
 	float GetSpeed();
 	float GetThrust();
 	void IncrementThrust();
 	void DecrementThrust();
 	bool IsAlive();
+	// todo, add an instigator here
 	void ApplyHealthChange(float Delta);
 	UFUNCTION(BlueprintCallable)
 	float GetHealth();
@@ -37,6 +44,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Attributes")
 	FOnPlayerHealthChangedSignature OnPlayerHealthChangedDelegate;
+
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Attributes")
