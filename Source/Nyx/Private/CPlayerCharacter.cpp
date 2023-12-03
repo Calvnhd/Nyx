@@ -19,7 +19,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
-	AttributeComp = CreateDefaultSubobject<UCPlayerAttributeComponent>("AttributeComp");
+	PlayerAttributeComp = CreateDefaultSubobject<UCPlayerAttributeComponent>("PlayerAttributeComp");
 
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->TargetArmLength = 500.0f; // The camera follows at this distance behind the character
@@ -59,7 +59,8 @@ void ACPlayerCharacter::BeginPlay()
 void ACPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	AttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACPlayerCharacter::OnHealthChangedResponse);
+
+	PlayerAttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACPlayerCharacter::OnHealthChangedResponse);
 }
 // Called every frame
 void ACPlayerCharacter::Tick(float DeltaTime)
@@ -92,7 +93,7 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 }
 void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 {
-	AttributeComp->ApplyHealthChange(this, Amount);
+	PlayerAttributeComp->ApplyHealthChange(this, Amount);
 }
 void ACPlayerCharacter::SpawnProjectile()
 {

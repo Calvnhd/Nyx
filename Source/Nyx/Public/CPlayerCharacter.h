@@ -47,8 +47,8 @@ protected:
 	TObjectPtr<UCameraComponent> CameraComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
 	TObjectPtr<USpringArmComponent> SpringArmComp;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Nyx-Components")
-	TObjectPtr<UCPlayerAttributeComponent> AttributeComp;
+	UPROPERTY(VisibleAnywhere, Category = "Nyx-Components")
+	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
 	// UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	// TObjectPtr<UParticleSystem> EngineEffects;
 
