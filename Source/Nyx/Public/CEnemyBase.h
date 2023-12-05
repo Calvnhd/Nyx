@@ -7,8 +7,6 @@
 
 #include "CEnemyBase.generated.h"
 
-// todo -- get rid of this?  Are you still using it?
-class UStaticMeshComponent;
 class UCEnemyAttributeComponent;
 // There is also AIPerception.  This is the older and simpler of the two.
 class UPawnSensingComponent;
