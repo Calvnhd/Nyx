@@ -2,8 +2,8 @@
 
 #include "CPlayerCharacter.h"
 
-#include "CPlayerAttributeComponent.h"
 #include "CCommonDefines.h"
+#include "CPlayerAttributeComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -50,24 +50,12 @@ ACPlayerCharacter::ACPlayerCharacter()
 	// GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	// GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 }
-// Called when the game starts or when spawned
-void ACPlayerCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 void ACPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
 	PlayerAttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACPlayerCharacter::OnHealthChangedResponse);
 }
-// Called every frame
-void ACPlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-// Called to bind functionality to input
 void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	check(PlayerInputComponent);
@@ -77,7 +65,8 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	/* Set up gameplay key bindings */
 
 	// Actions
-	PlayerInputComponent->BindAction("AttackPrimary", IE_Pressed, this, &ACPlayerCharacter::SpawnProjectile);
+	PlayerInputComponent->BindAction("AttackPrimary", IE_Pressed, this, &ACPlayerCharacter::AttackPrimary);
+	PlayerInputComponent->BindAction("AttackSecondary", IE_Pressed, this, &ACPlayerCharacter::AttackSecondary);
 
 	// Movement
 	PlayerInputComponent->BindAxis("MoveForwardBackward", this, &ACPlayerCharacter::MoveForward);
@@ -95,21 +84,34 @@ void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 {
 	PlayerAttributeComp->ApplyHealthChange(this, Amount);
 }
-void ACPlayerCharacter::SpawnProjectile()
+void ACPlayerCharacter::AttackPrimary()
 {
 	// Make sure the projectile class is assigned in BP
-	if (ensureAlways(ProjectileClass))
+	if (ensureAlways(ProjectileClassPrimary))
 	{
-		FActorSpawnParameters SpawnParams;
-		// Make sure the Projectile knows that it was spawned by the Player
-		SpawnParams.Instigator = this;
-		// Make projectile always spawn at desired location, regardless of collisions
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		// Spawn projectile
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
+		SpawnProjectile(ProjectileClassPrimary);
 	}
 }
-void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,	float NewHealth)
+void ACPlayerCharacter::AttackSecondary()
+{
+	// Make sure the projectile class is assigned in BP
+	if (ensureAlways(ProjectileClassSecondary))
+	{
+		SpawnProjectile(ProjectileClassSecondary);
+	}
+}
+void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
+{
+	FActorSpawnParameters SpawnParams;
+	// Make sure the Projectile knows that it was spawned by the Player
+	SpawnParams.Instigator = this;
+	// Make projectile always spawn at desired location, regardless of collisions
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	// Spawn projectile
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
+}
+void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
+												float Delta, float NewHealth)
 {
 	if (NewHealth <= 0)
 	{
@@ -154,14 +156,14 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 	// that will give you a target location
 	FVector Target = bBlockingHit ? ViewHit.ImpactPoint : ViewEnd;
 
-	if (bBlockingHit)
-	{
-		float Radius = 50.0f;
-		float Segments = 32;
-		float Lifetime = 5.0f;
-		// DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false,
-		// Lifetime);
-	}
+	//if (bBlockingHit)
+	//{
+	//	float Radius = 50.0f;
+	//	float Segments = 32;
+	//	float Lifetime = 5.0f;
+	//	DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false, Lifetime);
+	//}
+	
 	// then you want a spawn location for the projectile
 	// todo -- make a socket on the mesh and give it a name
 	FVector SpawnLocation = GetMuzzleLocation();
