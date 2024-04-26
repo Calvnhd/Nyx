@@ -11,24 +11,11 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 
-// Sets default values
 ACPlayerCharacter::ACPlayerCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
-
-	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
-	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
-	PlayerAttributeComp = CreateDefaultSubobject<UCPlayerAttributeComponent>("PlayerAttributeComp");
-
-	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->TargetArmLength = 500.0f; // The camera follows at this distance behind the character
-	SpringArmComp->SocketOffset = FVector(0, 0, 150.0f); // with this offset
-	SpringArmComp->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-
-	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
-	CameraComp->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-
 	GetCapsuleComponent()->InitCapsuleSize(110.0f, 110.0f);
 
 	// Don't rotate when the controller rotates.
@@ -40,15 +27,19 @@ ACPlayerCharacter::ACPlayerCharacter()
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, MovementRotationRate, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
-	// This is taken from the third person example, left here as a reminder
-	// Find which variables you're using often and give them reasonable defaults
-	// GetCharacterMovement()->JumpZVelocity = 700.f;
-	// GetCharacterMovement()->AirControl = 0.35f;
-	// GetCharacterMovement()->MaxWalkSpeed = 500.f;
-	// GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
-	// GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = 500.0f; // The camera follows at this distance behind the character
+	CameraBoom->SocketOffset = FVector(0, 0, 150.0f); // with this offset
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	
+	PlayerAttributeComp = CreateDefaultSubobject<UCPlayerAttributeComponent>(TEXT("PlayerAttributeComp"));
 }
 void ACPlayerCharacter::PostInitializeComponents()
 {
@@ -59,26 +50,31 @@ void ACPlayerCharacter::PostInitializeComponents()
 void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	check(PlayerInputComponent);
-
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	// Set up action bindings
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Move);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Look);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("'%s' Failed to find an Enhanced Input component!"), *GetNameSafe(this));
+	}
+}
+void ACPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
 
-	/* Set up gameplay key bindings */
-
-	// Actions
-	PlayerInputComponent->BindAction("AttackPrimary", IE_Pressed, this, &ACPlayerCharacter::AttackPrimary);
-	PlayerInputComponent->BindAction("AttackSecondary", IE_Pressed, this, &ACPlayerCharacter::AttackSecondary);
-
-	// Movement
-	PlayerInputComponent->BindAxis("MoveForwardBackward", this, &ACPlayerCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRightLeft", this, &ACPlayerCharacter::MoveRight);
-
-	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
-	// "turn" handles devices that provide an absolute delta, such as a mouse.
-	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	PlayerInputComponent->BindAxis("TurnMouse", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("TurnGamepad", this, &ACPlayerCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookMouse", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookGamepad", this, &ACPlayerCharacter::LookUpAtRate);
+	// Add Input Mapping Context
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
 }
 void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 {
@@ -90,14 +86,6 @@ void ACPlayerCharacter::AttackPrimary()
 	if (ensureAlways(ProjectileClassPrimary))
 	{
 		SpawnProjectile(ProjectileClassPrimary);
-	}
-}
-void ACPlayerCharacter::AttackSecondary()
-{
-	// Make sure the projectile class is assigned in BP
-	if (ensureAlways(ProjectileClassSecondary))
-	{
-		SpawnProjectile(ProjectileClassSecondary);
 	}
 }
 void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
@@ -123,27 +111,27 @@ void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttri
 FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 {
 	// You want to know where you're looking from
-	FVector CameraLocation = CameraComp->GetComponentLocation();
+	FVector CameraLocation = FollowCamera->GetComponentLocation();
 	// What direction you're looking
-	FRotator CameraRotation = CameraComp->GetComponentRotation();
+	FRotator CameraRotation = FollowCamera->GetComponentRotation();
 	// What's your maximum view distance?
 	FVector ViewEnd = CameraLocation + (CameraRotation.Vector() * 10000);
-
 	// What do you see?
 	FHitResult ViewHit;
 	// This is a list of all the object types we're looking for
 	FCollisionObjectQueryParams ObjectQueryParams;
-	if (!bIsAutoAimActive)
-	{
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-		ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-	}
+	//if (!bIsAutoAimActive)
+	//{
+	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
+	//}
 	ObjectQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
 
 	// This is the shape of the trace.  A sphere is more lenient than a line.
 	FCollisionShape TraceShape;
-	float TraceRadius = bIsAutoAimActive ? AutoAimSweepRadius : 20.0f;
+	//float TraceRadius = bIsAutoAimActive ? AutoAimSweepRadius : 20.0f;
+	float TraceRadius = 20.0f;
 	TraceShape.SetSphere(TraceRadius);
 
 	// Ignore player
@@ -185,45 +173,39 @@ FVector ACPlayerCharacter::GetMuzzleLocation()
 	// Quick n dirty for now
 	// Eventually would want to have a socket on the mesh and call something like
 	// GetMesh()->GetSocketLocation(HandSocketName);
-	return GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, MuzzleHeightOffset);
+	return GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, 100);
 }
-void ACPlayerCharacter::MoveForward(float Value)
+void ACPlayerCharacter::Move(const FInputActionValue& Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f))
+	// input is a Vector2D
+	FVector2D MovementVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// get forward vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	
+		// get right vector 
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+		// add movement 
+		AddMovementInput(ForwardDirection, MovementVector.Y);
+		AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
-
-void ACPlayerCharacter::MoveRight(float Value)
+void ACPlayerCharacter::Look(const FInputActionValue& Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f))
+	// input is a Vector2D
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
 	{
-		// find out which way is right
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
-		// get right vector
-		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		// add yaw and pitch input to controller
+		AddControllerYawInput(LookAxisVector.X);
+		AddControllerPitchInput(LookAxisVector.Y);
 	}
-}
-
-void ACPlayerCharacter::TurnAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
-}
-
-void ACPlayerCharacter::LookUpAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * TurnRateGamepad * GetWorld()->GetDeltaSeconds());
 }

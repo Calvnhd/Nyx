@@ -86,3 +86,6 @@ Content/ThirdPerson/*
 Source/Nyx/TP_ThirdPerson/*
 Content/ParagonGideon/*
 Content/ParagonMinions/*
+
+# Something to do with Rider... idk
+.idea/*

@@ -10,6 +10,9 @@
 class UCameraComponent;
 class USpringArmComponent;
 class UCPlayerAttributeComponent;
+class UInputMappingContext;
+class UInputAction;
+struct FInputActionValue;
 
 UCLASS()
 class NYX_API ACPlayerCharacter : public ACharacter
@@ -36,58 +39,55 @@ protected:
 	 */
 
 	virtual void PostInitializeComponents() override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void BeginPlay() override;
 
 	/* Components */
+	
 	// Epic recommends TObjectPtr over raw pointers in header files with UPROPERTY for UE5
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
-	TObjectPtr<UCameraComponent> CameraComp;
+	TObjectPtr<USpringArmComponent> CameraBoom;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
-	TObjectPtr<USpringArmComponent> SpringArmComp;
+	TObjectPtr<UCameraComponent> FollowCamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
+	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
+	TObjectPtr<UInputAction> MoveAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
+	TObjectPtr<UInputAction> LookAction;
+	
 	UPROPERTY(VisibleAnywhere, Category = "Nyx-Components")
 	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
 
 	/* Abilities */
+
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+	void AttackPrimary();
+
+	/* Other stuff you need to re-organise */
+	
 	// TSubclassOf<> lets us assign some class in editor and edit it wherever
 	UPROPERTY(EditAnywhere, Category = "Nyx-Abilities")
 	TSubclassOf<AActor> ProjectileClassPrimary;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Abilities")
 	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
-	UPROPERTY(EditAnywhere, Category = "Nyx-Abilities")
-	TSubclassOf<AActor> ProjectileClassSecondary;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Abilities")
-	TObjectPtr<UParticleSystem> MuzzleFlashSecondary;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Abilities")
-	TObjectPtr<UParticleSystem> ShieldEffect;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Abilities")
-	float MuzzleHeightOffset = 100.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Abilities")
-	float AutoAimSweepRadius = 800.0f;
-	void AttackPrimary();
-	void AttackSecondary();
+
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass);
+
 	UFUNCTION(BlueprintCallable)
 	FTransform GetCrosshairTargetTM();
+
 	FVector GetMuzzleLocation();
-	bool bIsAutoAimActive = true;
-
-	/* Movement */
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Movement")
-	float MovementRotationRate = 500.0f;
-	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Movement")
-	float TurnRateGamepad = 50.0f;
-	void MoveForward(float Value);
-	void MoveRight(float Value);
-	void TurnAtRate(float Rate);
-	void LookUpAtRate(float Rate);
-
+	
 	UFUNCTION()
 	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 								 float NewHealth);
-
-public:
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// Exec turns it into a console command on a Character (or Player Controller, GameMode, Cheat Manager)
 	UFUNCTION(Exec)
