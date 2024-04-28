@@ -55,20 +55,37 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
-	TObjectPtr<UInputAction> MoveAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
-	TObjectPtr<UInputAction> LookAction;
-	
 	UPROPERTY(VisibleAnywhere, Category = "Nyx-Components")
 	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
 
-	/* Abilities */
+	/* Input Actions */
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	TObjectPtr<UInputAction> MoveAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	TObjectPtr<UInputAction> LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	TObjectPtr<UInputAction> AttackPrimaryAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	TObjectPtr<UInputAction> AttackSpecialAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	TObjectPtr<UInputAction> DashAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	TObjectPtr<UInputAction> ShieldAction;
+
+	/* Actions */
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void AttackPrimary();
+	void AttackPrimary(const FInputActionValue& Value);
+	void AttackSpecial(const FInputActionValue& Value);
+	void Dash(const FInputActionValue& Value);
+	void Shield(const FInputActionValue& Value);
 
 	/* Other stuff you need to re-organise */
 	
