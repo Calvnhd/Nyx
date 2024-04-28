@@ -7,12 +7,12 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 
 ACPlayerCharacter::ACPlayerCharacter()
 {
@@ -58,9 +58,9 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Triggered, this,
-		                                   &ACPlayerCharacter::AttackPrimary);
+										   &ACPlayerCharacter::AttackPrimary);
 		EnhancedInputComponent->BindAction(AttackSpecialAction, ETriggerEvent::Triggered, this,
-		                                   &ACPlayerCharacter::AttackSpecial);
+										   &ACPlayerCharacter::AttackSpecial);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Dash);
 		EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Shield);
 	}
@@ -77,8 +77,8 @@ void ACPlayerCharacter::BeginPlay()
 	// Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<
-			UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+				ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
@@ -99,10 +99,10 @@ void ACPlayerCharacter::Move(const FInputActionValue& Value)
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
-		// get right vector 
+		// get right vector
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// add movement 
+		// add movement
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
@@ -130,7 +130,6 @@ void ACPlayerCharacter::AttackPrimary(const FInputActionValue& Value)
 	}
 }
 
-
 void ACPlayerCharacter::AttackSpecial(const FInputActionValue& Value)
 {
 	// todo
@@ -147,7 +146,7 @@ void ACPlayerCharacter::Shield(const FInputActionValue& Value)
 }
 
 void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
-                                                float Delta, float NewHealth)
+												float Delta, float NewHealth)
 {
 	if (NewHealth <= 0)
 	{
@@ -163,11 +162,12 @@ void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
 	// Make sure the Projectile knows that it was spawned by the Player
 	SpawnParams.Instigator = this;
 	// Make projectile always spawn at desired location, regardless of collisions
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.SpawnCollisionHandlingOverride =
+
+		ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	// Spawn projectile
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
 }
-
 FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 {
 	// You want to know where you're looking from
@@ -180,17 +180,17 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 	FHitResult ViewHit;
 	// This is a list of all the object types we're looking for
 	FCollisionObjectQueryParams ObjectQueryParams;
-	//if (!bIsAutoAimActive)
+	// if (!bIsAutoAimActive)
 	//{
 	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
 	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-	//}
+	// }
 	ObjectQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
 
 	// This is the shape of the trace.  A sphere is more lenient than a line.
 	FCollisionShape TraceShape;
-	//float TraceRadius = bIsAutoAimActive ? AutoAimSweepRadius : 20.0f;
+	// float TraceRadius = bIsAutoAimActive ? AutoAimSweepRadius : 20.0f;
 	float TraceRadius = 20.0f;
 	TraceShape.SetSphere(TraceRadius);
 
@@ -200,17 +200,17 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 
 	// Create trace
 	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(ViewHit, CameraLocation, ViewEnd, FQuat::Identity,
-	                                                        ObjectQueryParams, TraceShape, Params);
+															ObjectQueryParams, TraceShape, Params);
 	// that will give you a target location
 	FVector Target = bBlockingHit ? ViewHit.ImpactPoint : ViewEnd;
 
-	//if (bBlockingHit)
+	// if (bBlockingHit)
 	//{
 	//	float Radius = 50.0f;
 	//	float Segments = 32;
 	//	float Lifetime = 5.0f;
 	//	DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false, Lifetime);
-	//}
+	// }
 
 	// then you want a spawn location for the projectile...
 	FVector SpawnLocation = GetMuzzleLocation();
@@ -220,14 +220,13 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(Target - SpawnLocation);
 
 	// Debug info
-	//FColor SightColor = bBlockingHit ? FColor::Green : FColor::Red;
-	//DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), SightColor, false,
+	// FColor SightColor = bBlockingHit ? FColor::Green : FColor::Red;
+	// DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), SightColor, false,
 	//              2.0f, 0, 2.0f);
 
 	// A Transformation Matrix above the ship, looking at the target
 	return FTransform(SpawnRotation, SpawnLocation);
 }
-
 FVector ACPlayerCharacter::GetMuzzleLocation()
 {
 	// Quick n dirty for now

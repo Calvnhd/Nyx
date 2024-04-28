@@ -43,9 +43,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	/* Components */
-	
+
 	// Epic recommends TObjectPtr over raw pointers in header files with UPROPERTY for UE5
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
 	TObjectPtr<USpringArmComponent> CameraBoom;
 
@@ -88,7 +88,7 @@ protected:
 	void Shield(const FInputActionValue& Value);
 
 	/* Other stuff you need to re-organise */
-	
+
 	// TSubclassOf<> lets us assign some class in editor and edit it wherever
 	UPROPERTY(EditAnywhere, Category = "Nyx-Abilities")
 	TSubclassOf<AActor> ProjectileClassPrimary;
@@ -101,7 +101,7 @@ protected:
 	FTransform GetCrosshairTargetTM();
 
 	FVector GetMuzzleLocation();
-	
+
 	UFUNCTION()
 	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 								 float NewHealth);
