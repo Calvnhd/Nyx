@@ -3,18 +3,15 @@
 #include "CEnemyBase.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BrainComponent.h"
 #include "CAIController.h"
-#include "CAttributeComponent.h"
 #include "CCommonDefines.h"
 #include "CEnemyAttributeComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "Perception/PawnSensingComponent.h"
-// this is a useful include to refer to again!
-#include "BrainComponent.h"
-#include "DrawDebugHelpers.h"
 #include "CWorldUserWidget.h"
+#include "Components/CapsuleComponent.h"
+#include "DrawDebugHelpers.h" // this is a useful include to refer to again!
+#include "Perception/PawnSensingComponent.h"
 
-// Sets default values
 ACEnemyBase::ACEnemyBase()
 {
 	EnemyAttributeComp = CreateDefaultSubobject<UCEnemyAttributeComponent>("EnemyAttributeComp");
@@ -31,17 +28,15 @@ void ACEnemyBase::PostInitializeComponents()
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ACEnemyBase::OnCollisionResponse);
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &ACEnemyBase::OnPawnSeenResponse);
 }
-void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttributeComponent* OwningComp, float Delta,
+void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 										  float NewHealth)
 {
-	// Damaged
 	if (Delta < 0.0f)
 	{
-		if (InstigatorActor != this)
+		if (InstigatorActor != this && InstigatorActor != nullptr)
 		{
 			SetTargetActor(InstigatorActor);
 		}
-
 		if (ActiveHealthBar == nullptr)
 		{
 			// CreateWidget is available anywhere
@@ -55,31 +50,20 @@ void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCEnemyAttrib
 				ActiveHealthBar->AddToViewport();
 			}
 		}
-
-		//todo -- hitflash. I've just copied this across without testing. Might just work.  Might not.
-		//GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
-
 		if (NewHealth <= 0.0f)
 		{
-			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Enemy killed"));
-
-			// stop BT
 			// need the AI controller.  It's controlling everything!
-			AAIController* AIC = Cast<AAIController>(GetController());
-			if (AIC)
+			if (AAIController* AIC = Cast<AAIController>(GetController()))
 			{
 				// BrainComponent is base class for behaviour tree component
-				// Reason in StopLogic is just for debugging
+				// Reason passed to StopLogic is just for debugging
 				AIC->GetBrainComponent()->StopLogic("Killed");
 			}
-			// Ragdoll
 			// Skeletal mesh can simulate physics or use animation data
-			// Apply gravity and stuff
 			GetMesh()->SetAllBodiesSimulatePhysics(true);
 			// Ragdoll is an existing UE template
 			GetMesh()->SetCollisionProfileName("Ragdoll");
-
-			// set lifespan (how long until we call destroy actor on ourselves
+			// set lifespan (how long until we call destroy actor on ourselves)
 			SetLifeSpan(10.0f);
 		}
 	}
@@ -89,29 +73,25 @@ void ACEnemyBase::OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor*
 {
 	if (OtherActor)
 	{
-		if (UCAttributeComponent* PlayerAttributeComp = UCAttributeComponent::GetAttributes(OtherActor))
+		if (UCAttributeComponentBase* PlayerAttributeComp = UCAttributeComponentBase::GetAttributes(OtherActor))
 		{
-			PlayerAttributeComp->ApplyHealthChange(-EnemyAttributeComp->GetCollisionDamageAmount());
+			PlayerAttributeComp->ApplyHealthChange(this, -EnemyAttributeComp->GetCollisionDamageAmount());
 		}
 	}
 }
-
 void ACEnemyBase::OnPawnSeenResponse(APawn* Pawn)
 {
-	DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.0f, true);
+	//DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.0f, true);
 	SetTargetActor(Pawn);
 }
-
 float ACEnemyBase::GetHealthPercent()
 {
 	return EnemyAttributeComp->GetHealthPercent();
 }
-
 bool ACEnemyBase::IsAlive()
 {
 	return EnemyAttributeComp->IsAlive();
 }
-
 void ACEnemyBase::SetTargetActor(AActor* NewTarget)
 {
 	if (ACAIController* AIC = Cast<ACAIController>(GetController()))

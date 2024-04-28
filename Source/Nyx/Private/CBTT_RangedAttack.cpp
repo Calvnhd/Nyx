@@ -5,7 +5,7 @@
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"
-#include "CAttributeComponent.h"
+#include "CAttributeComponentBase.h"
 
 EBTNodeResult::Type UCBTT_RangedAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -30,7 +30,7 @@ EBTNodeResult::Type UCBTT_RangedAttack::ExecuteTask(UBehaviorTreeComponent& Owne
 		}
 		// Fails entire behavior tree loop, early out
 		// Not our responsibility to deal with this any further
-		if (!UCAttributeComponent::IsActorAlive(TargetActor))
+		if (!UCAttributeComponentBase::IsActorAlive(TargetActor))
 		{
 			return EBTNodeResult::Failed;
 		}

@@ -4,50 +4,27 @@
 
 #include "Components/ActorComponent.h"
 #include "CoreMinimal.h"
+#include "CAttributeComponentBase.h"
 
 #include "CEnemyAttributeComponent.generated.h"
-
-// Dynamic allows BP assignment, Multicast allows multiple listeners
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChangedSignature, AActor*, InstigatorActor,
-											 UCEnemyAttributeComponent*, OwningComp, float, Delta, float, NewHealth);
 
 /*
  * Contains and manages the player's EnemyAttributes
  */
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class NYX_API UCEnemyAttributeComponent : public UActorComponent
+class NYX_API UCEnemyAttributeComponent : public UCAttributeComponentBase
 {
 	GENERATED_BODY()
 
 public:
 	UCEnemyAttributeComponent();
 
-	// Static functions can be called anywhere, without an instance of the class
-	UFUNCTION(BlueprintCallable, Category = "Nyx-Attributes")
-	static UCEnemyAttributeComponent* GetAttributes(AActor* FromActor);
-	UFUNCTION(BlueprintCallable, Category = "Nyx-Attributes", meta = (DisplayName = "IsAlive"))
-	static bool IsActorAlive(AActor* Actor);
-
-	bool IsAlive();
-	void ApplyHealthChange(AActor* InstigatorActor, float Delta);
-	UFUNCTION(BlueprintCallable)
-	float GetHealth();
-	float GetHealthMax();
-	UFUNCTION(BlueprintCallable)
-	float GetHealthPercent();
 	float GetCollisionDamageAmount();
 
 	UFUNCTION(BlueprintCallable)
 	bool Kill(AActor* InstigatorActor);
 
-	UPROPERTY(BlueprintAssignable, Category = "EnemyAttributes")
-	FOnHealthChangedSignature OnHealthChangedDelegate;
-
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "EnemyAttributes")
-	float Health = 1000.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "EnemyAttributes")
-	float HealthMax;
-	UPROPERTY(EditDefaultsOnly, Category = "EnemyAttributes")
-	float CollisionDamageAmount = 100.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx-EnemyAttributes")
+	float CollisionDamageAmount = 50.0f;
 };

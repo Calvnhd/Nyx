@@ -1,24 +1,25 @@
 // Copyright (C) 2023 - Calvin Davidson
 
 #include "CGameModeBase.h"
+#include "CEnemyAttributeComponent.h"
 #include "CEnemyBase.h"
+#include "DrawDebugHelpers.h"
 #include "EngineUtils.h"
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
-#include "DrawDebugHelpers.h"
-#include "CEnemyAttributeComponent.h"
 
 ACGameModeBase::ACGameModeBase()
 {
 	SpawnTimerInterval = 2.0f;
 }
-void ACGameModeBase::KillAll() {
-
+void ACGameModeBase::KillAll()
+{
 	for (TActorIterator<ACEnemyBase> It(GetWorld()); It; ++It)
 	{
 		ACEnemyBase* Bot = *It;
 
-		UCEnemyAttributeComponent* AttributeComp = UCEnemyAttributeComponent::GetAttributes(Bot);
+		UCEnemyAttributeComponent* AttributeComp =
+			Cast<UCEnemyAttributeComponent>(UCAttributeComponentBase::GetAttributes(Bot));
 		if (Bot->IsAlive())
 		{
 			// Could also pass in player for kill credit?
