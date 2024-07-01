@@ -3,7 +3,7 @@
 #include "CBTS_CheckAttackRange.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
-#include <AIModule/Classes/AIController.h>
+#include "AIController.h"
 
 void UCBTS_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
