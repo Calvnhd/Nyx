@@ -25,6 +25,6 @@ public:
 	bool Kill(AActor* InstigatorActor);
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-EnemyAttributes")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|EnemyAttributes")
 	float CollisionDamageAmount = 50.0f;
 };

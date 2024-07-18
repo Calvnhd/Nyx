@@ -46,36 +46,36 @@ protected:
 
 	// Epic recommends TObjectPtr over raw pointers in header files with UPROPERTY for UE5
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
 	TObjectPtr<USpringArmComponent> CameraBoom;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
 	TObjectPtr<UCameraComponent> FollowCamera;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
-	UPROPERTY(VisibleAnywhere, Category = "Nyx-Components")
+	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
 	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
 
 	/* Input Actions */
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> MoveAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> LookAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> AttackPrimaryAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> AttackSpecialAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> DashAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> ShieldAction;
 
 	/* Actions */
@@ -90,9 +90,9 @@ protected:
 	/* Other stuff you need to re-organise */
 
 	// TSubclassOf<> lets us assign some class in editor and edit it wherever
-	UPROPERTY(EditAnywhere, Category = "Nyx-Abilities")
+	UPROPERTY(EditAnywhere, Category = "Nyx|Abilities")
 	TSubclassOf<AActor> ProjectileClassPrimary;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
 	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
 
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass);

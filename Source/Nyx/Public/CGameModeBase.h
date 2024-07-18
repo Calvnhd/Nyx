@@ -23,13 +23,13 @@ class NYX_API ACGameModeBase : public AGameModeBase
 protected:
 	FTimerHandle TimerHandle_SpawnBots;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-AI")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AI")
 	float SpawnTimerInterval;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-AI")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AI")
 	UEnvQuery* SpawnBotQuery;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-AI")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AI")
 	TSubclassOf<AActor> EnemyClass;
 
 	UFUNCTION()
@@ -38,7 +38,7 @@ protected:
 	UFUNCTION()
 	void OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-AI")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AI")
 	UCurveFloat* DifficultyCurve;
 
 public:

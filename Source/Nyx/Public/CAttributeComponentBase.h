@@ -23,9 +23,9 @@ public:
 	UCAttributeComponentBase();
 
 	// Static functions can be called anywhere, without an instance of the class
-	UFUNCTION(BlueprintCallable, Category = "Nyx-Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes")
 	static UCAttributeComponentBase* GetAttributes(AActor* FromActor);
-	UFUNCTION(BlueprintCallable, Category = "Nyx-Attributes", meta = (DisplayName = "IsAlive"))
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes", meta = (DisplayName = "IsAlive"))
 	static bool IsActorAlive(AActor* Actor);
 
 	bool IsAlive();
@@ -37,18 +37,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent();
 
-	UPROPERTY(BlueprintAssignable, Category = "Nyx-Attributes")
+	UPROPERTY(BlueprintAssignable, Category = "Nyx|Attributes")
 	FOnHealthChangedSignature OnHealthChangedDelegate;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attributes")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
 	float Health;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attributes")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
 	float HealthMax;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attributes")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
 	float ThrustPercent;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attributes")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
 	float ThrustPercentMax;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Attributes")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
 	float SpeedMax;
 };
