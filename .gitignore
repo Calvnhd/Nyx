@@ -74,7 +74,7 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
-# Starter Content
+# Additional Content
 Content/__ExternalActors__/*
 Content/__ExternalObjects__/*
 Content/Characters/*
@@ -86,3 +86,7 @@ Content/ThirdPerson/*
 Source/Nyx/TP_ThirdPerson/*
 Content/ParagonGideon/*
 Content/ParagonMinions/*
+Content/Marketplace/*
+
+# Something to do with Rider... idk
+.idea/*
