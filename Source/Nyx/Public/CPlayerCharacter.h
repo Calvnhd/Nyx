@@ -80,12 +80,26 @@ protected:
 
 	/* Actions */
 
+	FTimerHandle AttackPrimaryTimerHandle;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	float AttackPrimaryFireRate = 1.0f;
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	void AttackPrimary(const FInputActionValue& Value);
+	void AttackPrimaryBegin();
+	void AttackPrimaryEnd();
+	void AttackPrimaryResetLoop();
+	void AttackPrimaryFireOnce();
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	void AttackSpecial(const FInputActionValue& Value);
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	void Dash(const FInputActionValue& Value);
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	void Shield(const FInputActionValue& Value);
+
+	void DoNothing();
 
 	/* Other stuff you need to re-organise */
 

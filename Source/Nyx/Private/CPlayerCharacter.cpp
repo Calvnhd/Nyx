@@ -121,26 +121,68 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void ACPlayerCharacter::AttackPrimary(const FInputActionValue& Value)
+void ACPlayerCharacter::AttackPrimary_Implementation(const FInputActionValue& Value)
 {
 	// Make sure the projectile class is assigned in BP
 	if (ensureAlways(ProjectileClassPrimary))
 	{
-		SpawnProjectile(ProjectileClassPrimary);
+		if (Value.Get<bool>())
+		{
+			AttackPrimaryBegin();
+		}
+		else
+		{
+			AttackPrimaryEnd();
+		}
 	}
 }
 
-void ACPlayerCharacter::AttackSpecial(const FInputActionValue& Value)
+void ACPlayerCharacter::AttackPrimaryBegin()
+{
+	if (!GetWorldTimerManager().IsTimerActive(AttackPrimaryTimerHandle))
+	{
+		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
+										AttackPrimaryFireRate,
+										true, 0);
+	}
+	else
+	{
+		float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
+		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryResetLoop,
+										TimeRemaining,false);
+	}
+}
+void ACPlayerCharacter::AttackPrimaryEnd()
+{
+	float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
+	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::DoNothing,
+									TimeRemaining, false);
+}
+
+
+void ACPlayerCharacter::AttackPrimaryResetLoop()
+{
+	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
+									AttackPrimaryFireRate,
+									true, 0);
+}
+
+void ACPlayerCharacter::AttackPrimaryFireOnce()
+{
+	SpawnProjectile(ProjectileClassPrimary);
+}
+
+void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Value)
 {
 	// todo
 }
 
-void ACPlayerCharacter::Dash(const FInputActionValue& Value)
+void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)
 {
 	// todo
 }
 
-void ACPlayerCharacter::Shield(const FInputActionValue& Value)
+void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
 {
 	// todo
 }
@@ -239,3 +281,4 @@ void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 {
 	PlayerAttributeComp->ApplyHealthChange(this, Amount);
 }
+void ACPlayerCharacter::DoNothing() {}
