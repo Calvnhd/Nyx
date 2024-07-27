@@ -142,29 +142,26 @@ void ACPlayerCharacter::AttackPrimaryBegin()
 	if (!GetWorldTimerManager().IsTimerActive(AttackPrimaryTimerHandle))
 	{
 		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
-										AttackPrimaryFireRate,
-										true, 0);
+										AttackPrimaryFireRate, true, 0);
 	}
 	else
 	{
 		float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
 		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryResetLoop,
-										TimeRemaining,false);
+										TimeRemaining, false);
 	}
 }
 void ACPlayerCharacter::AttackPrimaryEnd()
 {
 	float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
-	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::DoNothing,
-									TimeRemaining, false);
+	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::DoNothing, TimeRemaining,
+									false);
 }
-
 
 void ACPlayerCharacter::AttackPrimaryResetLoop()
 {
 	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
-									AttackPrimaryFireRate,
-									true, 0);
+									AttackPrimaryFireRate, true, 0);
 }
 
 void ACPlayerCharacter::AttackPrimaryFireOnce()
@@ -204,9 +201,7 @@ void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
 	// Make sure the Projectile knows that it was spawned by the Player
 	SpawnParams.Instigator = this;
 	// Make projectile always spawn at desired location, regardless of collisions
-	SpawnParams.SpawnCollisionHandlingOverride =
-
-		ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	// Spawn projectile
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
 }
@@ -257,8 +252,8 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 	// then you want a spawn location for the projectile...
 	FVector SpawnLocation = GetMuzzleLocation();
 	// ...and a rotation for that spawn location, looking in the direction of the target
-	// Target - SpawnLocation calculates the vector from SpawnLocation to Target. This vector points from SpawnLocation
-	// towards Target.
+	// Target - SpawnLocation calculates the vector from SpawnLocation to Target.
+	// This vector points from SpawnLocation towards Target.
 	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(Target - SpawnLocation);
 
 	// Debug info
@@ -269,10 +264,9 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 	// A Transformation Matrix above the ship, looking at the target
 	return FTransform(SpawnRotation, SpawnLocation);
 }
-FVector ACPlayerCharacter::GetMuzzleLocation()
+FVector ACPlayerCharacter::GetMuzzleLocation_Implementation()
 {
-	// Quick n dirty for now
-	// Eventually would want to have a socket on the mesh and call something like...
+	// Ideally would want a named socket on the mesh and call something like...
 	// GetMesh()->GetSocketLocation(HandSocketName);
 	return GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, 100);
 }

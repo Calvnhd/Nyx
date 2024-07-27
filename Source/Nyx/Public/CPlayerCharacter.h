@@ -111,9 +111,8 @@ protected:
 
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass);
 
-	UFUNCTION(BlueprintCallable)
 	FTransform GetCrosshairTargetTM();
-
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	FVector GetMuzzleLocation();
 
 	UFUNCTION()
