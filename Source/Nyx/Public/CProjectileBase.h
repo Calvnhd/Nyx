@@ -10,6 +10,7 @@
 class USphereComponent;
 class UProjectileMovementComponent;
 class UParticleSystemComponent;
+class URadialForceComponent;
 
 /*
  * Base projectile class for ranged attacks (both player and AI)
@@ -39,6 +40,8 @@ protected:
 	// Explosion effects on hit
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Projectile|Effects")
 	TObjectPtr<UParticleSystem> ImpactVFX;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|Projectile|Components")
+	TObjectPtr<URadialForceComponent> ForceComp;
 
 	// OnProjectileHitResponse signature comes from UPrimitiveComponent's FComponentHitSignature OnComponentHit, which
 	// SphereComp inherits.
@@ -48,10 +51,10 @@ protected:
 	//
 	// OnProjectileHitResponse will subscribe to delegate SphereComp->OnComponentHit()
 	UFUNCTION(Category = "Nyx|Projectile|Behaviour")
-	virtual void OnProjectileHitResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+	virtual void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 										 UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	UFUNCTION(Category = "Nyx|Projectile|Behaviour")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Projectile|Behaviour")
 	void Explode();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Projectile|Behaviour")

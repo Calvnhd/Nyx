@@ -8,6 +8,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicsEngine/RadialForceComponent.h"
+
 
 // Sets default values
 ACProjectileBase::ACProjectileBase()
@@ -19,13 +21,16 @@ ACProjectileBase::ACProjectileBase()
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComp");
+	ForceComp = CreateDefaultSubobject<URadialForceComponent>("RadialForceComp");
 
 	// Attachments and hierarchy
 	RootComponent = SphereComp;
 	EffectComp->SetupAttachment(SphereComp);
+	ForceComp->SetupAttachment(SphereComp);
 
 	// Collision
 	SphereComp->SetCollisionProfileName("Projectile");
+	SphereComp->SetSimulatePhysics(true);
 
 	// Movement
 	MovementComp->bRotationFollowsVelocity = true;
@@ -37,7 +42,7 @@ ACProjectileBase::ACProjectileBase()
 	DamageAmount = 10;
 }
 
-void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+void ACProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 											   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 											   const FHitResult& Hit)
 {
@@ -69,7 +74,7 @@ void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent
 	}
 }
 
-void ACProjectileBase::Explode()
+void ACProjectileBase::Explode_Implementation()
 {
 	if (ensure(IsValid(this)))
 	{
@@ -87,7 +92,7 @@ void ACProjectileBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings
-	SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHitResponse);
+	SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHit);
 }
 
 // Called when the game starts or when spawned
