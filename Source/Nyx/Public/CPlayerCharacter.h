@@ -92,7 +92,7 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	FVector GetViewTargetLocation() const;
+	FVector GetCameraTargetLocation() const;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Abilities")
 	float CalculateBarrelPitch() const;
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
@@ -100,6 +100,7 @@ protected:
 	void AttackPrimaryBegin();
 	void AttackPrimaryEnd();
 	void AttackPrimaryResetLoop();
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	void AttackPrimaryFireOnce();
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	void AttackSpecial(const FInputActionValue& Value);
@@ -121,8 +122,8 @@ protected:
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass);
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect);
 
-	FTransform GetCrosshairTargetTM();
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities") 
+	FTransform GetCrosshairTargetTM() const;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Abilities") 
 	FVector GetMuzzleLocation() const;
 
 	UFUNCTION()

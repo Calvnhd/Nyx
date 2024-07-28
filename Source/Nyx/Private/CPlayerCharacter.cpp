@@ -58,7 +58,9 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Look);
-		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Triggered, this,
+		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Started, this,
+										   &ACPlayerCharacter::AttackPrimary);
+		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Completed, this,
 										   &ACPlayerCharacter::AttackPrimary);
 		EnhancedInputComponent->BindAction(AttackSpecialAction, ETriggerEvent::Triggered, this,
 										   &ACPlayerCharacter::AttackSpecial);
@@ -122,7 +124,7 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-FVector ACPlayerCharacter::GetViewTargetLocation() const
+FVector ACPlayerCharacter::GetCameraTargetLocation() const
 {
 	// You want to know where you're looking from
 	FVector CameraLocation = FollowCamera->GetComponentLocation();
@@ -134,28 +136,16 @@ FVector ACPlayerCharacter::GetViewTargetLocation() const
 	FHitResult ViewHit;
 	// This is a list of all the object types we're looking for
 	FCollisionObjectQueryParams ObjectQueryParams;
-	// if (!bIsAutoAimActive)
-	//{
-	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-	// }
 	ObjectQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
-
 	// This is the shape of the trace.  A sphere is more lenient than a line.
 	FCollisionShape TraceShape;
-	// float TraceRadius = bIsAutoAimActive ? AutoAimSweepRadius : 20.0f;
-	float TraceRadius = 20.0f;
-	TraceShape.SetSphere(TraceRadius);
-
+	TraceShape.SetSphere(20.0f);
 	// Ignore player
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
-
 	// Create trace
 	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(ViewHit, CameraLocation, ViewEnd, FQuat::Identity,
 															ObjectQueryParams, TraceShape, Params);
-
 	// if (bBlockingHit)
 	//{
 	//	float Radius = 50.0f;
@@ -170,11 +160,21 @@ FVector ACPlayerCharacter::GetViewTargetLocation() const
 
 float ACPlayerCharacter::CalculateBarrelPitch() const
 {
-	FVector MuzzleToTargetVector = GetViewTargetLocation() - GetMuzzleLocation();
+	FVector MuzzleToTargetVector = GetCameraTargetLocation() - GetMuzzleLocation();
 	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(MuzzleToTargetVector);
 	return UKismetMathLibrary::Clamp(SpawnRotation.Pitch + NeutralBarrelPitch, MinBarrelPitch, MaxBarrelPitch);
 }
+FTransform ACPlayerCharacter::GetCrosshairTargetTM() const
+{
+	const FVector SpawnLocation = GetMuzzleLocation();
+	const FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, GetCameraTargetLocation());
 
+	// DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), FColor::Green,
+	// false, 			  2.0f, 0, 2.0f);
+
+	// A Transformation Matrix at the muzzle, looking at the target
+	return FTransform(SpawnRotation, SpawnLocation);
+}
 void ACPlayerCharacter::AttackPrimary_Implementation(const FInputActionValue& Value)
 {
 	if (Value.Get<bool>())
@@ -214,7 +214,7 @@ void ACPlayerCharacter::AttackPrimaryResetLoop()
 									AttackPrimaryFireRate, true, 0);
 }
 
-void ACPlayerCharacter::AttackPrimaryFireOnce()
+void ACPlayerCharacter::AttackPrimaryFireOnce_Implementation()
 {
 	if (ensureAlways(ProjectileClassPrimary) && ensureAlways(MuzzleFlashPrimary))
 	{
@@ -268,28 +268,9 @@ void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TOb
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
 	UGameplayStatics::SpawnEmitterAtLocation(
 		this, MuzzleEffect, GetMuzzleLocation(),
-		UKismetMathLibrary::MakeRotFromX(GetViewTargetLocation() - GetMuzzleLocation()));
+		UKismetMathLibrary::MakeRotFromX(GetCameraTargetLocation() - GetMuzzleLocation()));
 }
-FTransform ACPlayerCharacter::GetCrosshairTargetTM()
-{
-	FVector Target = GetViewTargetLocation();
 
-	// then you want a spawn location for the projectile...
-	FVector SpawnLocation = GetMuzzleLocation();
-	// ...and a rotation for that spawn location, looking in the direction of the target
-	// Target - SpawnLocation calculates the vector from SpawnLocation to Target.
-	// This vector points from SpawnLocation towards Target.
-	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(Target - SpawnLocation);
-
-	// Debug info
-	// FColor SightColor = bBlockingHit ? FColor::Green : FColor::Red;
-	// DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), SightColor,
-	// false,
-	//              2.0f, 0, 2.0f);
-
-	// A Transformation Matrix above the ship, looking at the target
-	return FTransform(SpawnRotation, SpawnLocation);
-}
 FVector ACPlayerCharacter::GetMuzzleLocation_Implementation() const
 {
 	// Ideally would want a named socket on the mesh and call something like...
