@@ -28,16 +28,16 @@ protected:
 	virtual void PostInitializeComponents() override;
 
 	// Root component for collisions (and everything else)
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Nyx|Projectile|Components")
 	TObjectPtr<USphereComponent> SphereComp;
 	// Movement
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Nyx|Projectile|Components")
 	TObjectPtr<UProjectileMovementComponent> MovementComp;
 	// Aesthetics
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Nyx|Projectile|Components")
 	TObjectPtr<UParticleSystemComponent> EffectComp;
 	// Explosion effects on hit
-	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Projectile|Effects")
 	TObjectPtr<UParticleSystem> ImpactVFX;
 
 	// OnProjectileHitResponse signature comes from UPrimitiveComponent's FComponentHitSignature OnComponentHit, which
@@ -47,13 +47,13 @@ protected:
 	// Hits are blocking (overlaps are not)
 	//
 	// OnProjectileHitResponse will subscribe to delegate SphereComp->OnComponentHit()
-	UFUNCTION()
+	UFUNCTION(Category = "Nyx|Projectile|Behaviour")
 	virtual void OnProjectileHitResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 										 UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	UFUNCTION()
+	UFUNCTION(Category = "Nyx|Projectile|Behaviour")
 	void Explode();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Projectile|Behaviour")
 	float DamageAmount;
 };
