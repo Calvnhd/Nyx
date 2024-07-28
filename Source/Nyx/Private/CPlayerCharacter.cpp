@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 ACPlayerCharacter::ACPlayerCharacter()
@@ -121,91 +122,7 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void ACPlayerCharacter::AttackPrimary_Implementation(const FInputActionValue& Value)
-{
-	// Make sure the projectile class is assigned in BP
-	if (ensureAlways(ProjectileClassPrimary))
-	{
-		if (Value.Get<bool>())
-		{
-			AttackPrimaryBegin();
-		}
-		else
-		{
-			AttackPrimaryEnd();
-		}
-	}
-}
-
-void ACPlayerCharacter::AttackPrimaryBegin()
-{
-	if (!GetWorldTimerManager().IsTimerActive(AttackPrimaryTimerHandle))
-	{
-		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
-										AttackPrimaryFireRate, true, 0);
-	}
-	else
-	{
-		float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
-		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryResetLoop,
-										TimeRemaining, false);
-	}
-}
-void ACPlayerCharacter::AttackPrimaryEnd()
-{
-	float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
-	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::DoNothing, TimeRemaining,
-									false);
-}
-
-void ACPlayerCharacter::AttackPrimaryResetLoop()
-{
-	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
-									AttackPrimaryFireRate, true, 0);
-}
-
-void ACPlayerCharacter::AttackPrimaryFireOnce()
-{
-	SpawnProjectile(ProjectileClassPrimary);
-}
-
-void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Value)
-{
-	// todo
-}
-
-void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)
-{
-	// todo
-}
-
-void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
-{
-	// todo
-}
-
-void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
-												float Delta, float NewHealth)
-{
-	if (NewHealth <= 0)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("YOU DIED"));
-		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		DisableInput(PlayerController);
-	}
-}
-
-void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
-{
-	FActorSpawnParameters SpawnParams;
-	// Make sure the Projectile knows that it was spawned by the Player
-	SpawnParams.Instigator = this;
-	// Make projectile always spawn at desired location, regardless of collisions
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	// Spawn projectile
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
-}
-FTransform ACPlayerCharacter::GetCrosshairTargetTM()
+FVector ACPlayerCharacter::GetViewTargetLocation() const
 {
 	// You want to know where you're looking from
 	FVector CameraLocation = FollowCamera->GetComponentLocation();
@@ -238,8 +155,6 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 	// Create trace
 	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(ViewHit, CameraLocation, ViewEnd, FQuat::Identity,
 															ObjectQueryParams, TraceShape, Params);
-	// that will give you a target location
-	FVector Target = bBlockingHit ? ViewHit.ImpactPoint : ViewEnd;
 
 	// if (bBlockingHit)
 	//{
@@ -248,6 +163,116 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 	//	float Lifetime = 5.0f;
 	//	DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false, Lifetime);
 	// }
+
+	// that will give you a target location
+	return bBlockingHit ? ViewHit.ImpactPoint : ViewEnd;
+}
+
+float ACPlayerCharacter::CalculateBarrelPitch() const
+{
+	FVector MuzzleToTargetVector = GetViewTargetLocation() - GetMuzzleLocation();
+	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(MuzzleToTargetVector);
+	return UKismetMathLibrary::Clamp(SpawnRotation.Pitch + NeutralBarrelPitch, MinBarrelPitch, MaxBarrelPitch);
+}
+
+void ACPlayerCharacter::AttackPrimary_Implementation(const FInputActionValue& Value)
+{
+	if (Value.Get<bool>())
+	{
+		AttackPrimaryBegin();
+	}
+	else
+	{
+		AttackPrimaryEnd();
+	}
+}
+
+void ACPlayerCharacter::AttackPrimaryBegin()
+{
+	if (!GetWorldTimerManager().IsTimerActive(AttackPrimaryTimerHandle))
+	{
+		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
+										AttackPrimaryFireRate, true, 0);
+	}
+	else
+	{
+		float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
+		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryResetLoop,
+										TimeRemaining, false);
+	}
+}
+void ACPlayerCharacter::AttackPrimaryEnd()
+{
+	float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
+	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::DoNothing, TimeRemaining,
+									false);
+}
+
+void ACPlayerCharacter::AttackPrimaryResetLoop()
+{
+	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
+									AttackPrimaryFireRate, true, 0);
+}
+
+void ACPlayerCharacter::AttackPrimaryFireOnce()
+{
+	if (ensureAlways(ProjectileClassPrimary) && ensureAlways(MuzzleFlashPrimary))
+	{
+		SpawnProjectile(ProjectileClassPrimary, MuzzleFlashPrimary);
+	}
+}
+
+void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Value)
+{
+	// todo
+}
+
+void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)
+{
+	// todo
+}
+
+void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
+{
+	// todo
+}
+
+void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
+												float Delta, float NewHealth)
+{
+	if (NewHealth <= 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("YOU DIED"));
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		DisableInput(PlayerController);
+	}
+}
+void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
+{
+	FActorSpawnParameters SpawnParams;
+	// Make sure the Projectile knows that it was spawned by the Player
+	SpawnParams.Instigator = this;
+	// Make projectile always spawn at desired location, regardless of collisions
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	// Spawn projectile
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
+}
+void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect)
+{
+	FActorSpawnParameters SpawnParams;
+	// Make sure the Projectile knows that it was spawned by the Player
+	SpawnParams.Instigator = this;
+	// Make projectile always spawn at desired location, regardless of collisions
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	// Spawn projectile
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
+	UGameplayStatics::SpawnEmitterAtLocation(
+		this, MuzzleEffect, GetMuzzleLocation(),
+		UKismetMathLibrary::MakeRotFromX(GetViewTargetLocation() - GetMuzzleLocation()));
+}
+FTransform ACPlayerCharacter::GetCrosshairTargetTM()
+{
+	FVector Target = GetViewTargetLocation();
 
 	// then you want a spawn location for the projectile...
 	FVector SpawnLocation = GetMuzzleLocation();
@@ -258,13 +283,14 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM()
 
 	// Debug info
 	// FColor SightColor = bBlockingHit ? FColor::Green : FColor::Red;
-	// DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), SightColor, false,
+	// DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), SightColor,
+	// false,
 	//              2.0f, 0, 2.0f);
 
 	// A Transformation Matrix above the ship, looking at the target
 	return FTransform(SpawnRotation, SpawnLocation);
 }
-FVector ACPlayerCharacter::GetMuzzleLocation_Implementation()
+FVector ACPlayerCharacter::GetMuzzleLocation_Implementation() const
 {
 	// Ideally would want a named socket on the mesh and call something like...
 	// GetMesh()->GetSocketLocation(HandSocketName);

@@ -83,9 +83,18 @@ protected:
 	FTimerHandle AttackPrimaryTimerHandle;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
 	float AttackPrimaryFireRate = 1.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	float MaxBarrelPitch = 160.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	float MinBarrelPitch = 80.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	float NeutralBarrelPitch = 90.0f;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	FVector GetViewTargetLocation() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Abilities")
+	float CalculateBarrelPitch() const;
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	void AttackPrimary(const FInputActionValue& Value);
 	void AttackPrimaryBegin();
@@ -110,10 +119,11 @@ protected:
 	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
 
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass);
+	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect);
 
 	FTransform GetCrosshairTargetTM();
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
-	FVector GetMuzzleLocation();
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities") 
+	FVector GetMuzzleLocation() const;
 
 	UFUNCTION()
 	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
