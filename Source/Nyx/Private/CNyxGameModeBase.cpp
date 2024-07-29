@@ -1,3 +1,3 @@
-// Copyright (C) 2023 - Calvin Davidson
+// Copyright (C) 2024 - Calvin Davidson
 
 #include "CNyxGameModeBase.h"
