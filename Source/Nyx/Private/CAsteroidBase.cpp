@@ -9,8 +9,4 @@
 ACAsteroidBase::ACAsteroidBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
-	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComp");
-	ForceComp = CreateDefaultSubobject<URadialForceComponent>("ForceComp");
-	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
 }
