@@ -12,22 +12,22 @@ ACAsteroidBase::ACAsteroidBase()
 	AttributeComp = CreateDefaultSubobject<UCAsteroidAttributeComponent>("AttributeComp");
 }
 
+void ACAsteroidBase::PreInitializeComponents()
+{
+	Super::PreInitializeComponents();
+	AttributeComp->InitializeAttributes();
+}
+
 void ACAsteroidBase::OnCollisionWithAsteroid() {}
 
 void ACAsteroidBase::OnCollisionWithPlayer() {}
 
-void ACAsteroidBase::CalculateTraits(EAsteroidSize InSize)
+void ACAsteroidBase::TakeDamage(float DamageTaken)
 {
-	AttributeComp->CalculateAttributes(InSize);
+	AttributeComp->TakeDamage(DamageTaken);
 }
 
-//void ACAsteroidBase::OnHealthLost()
-//{
-//	
-//}
-
-void ACAsteroidBase::TakeDamage(int32 DamageTaken) {}
-
-void ACAsteroidBase::IsAlive() {}
-
-void ACAsteroidBase::Death() {}
+bool ACAsteroidBase::IsAlive()
+{
+	return AttributeComp->IsAlive();
+}

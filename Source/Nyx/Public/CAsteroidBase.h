@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "CAsteroidAttributeComponent.h"
+#include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
 class UCAsteroidAttributeComponent;
@@ -31,7 +31,6 @@ Collision with ship weapon
 	- smallest ball has some percentage chance to drop an item
 */
 
-
 UCLASS()
 class NYX_API ACAsteroidBase : public AActor
 {
@@ -41,6 +40,7 @@ public:
 	ACAsteroidBase();
 
 protected:
+	virtual void PreInitializeComponents() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
 	TObjectPtr<UCAsteroidAttributeComponent> AttributeComp;
@@ -49,10 +49,6 @@ protected:
 	void OnCollisionWithPlayer();
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes")
 
-	void CalculateTraits(EAsteroidSize InSize);
-	//void OnHealthLost();
-	void TakeDamage(int32 DamageTaken);
-	void IsAlive();
-	void Death();
-
+	void TakeDamage(float DamageTaken);
+	bool IsAlive();
 };

@@ -31,29 +31,24 @@ public:
 	UCAsteroidAttributeComponent();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|Attributes")
+	TEnumAsByte<EAsteroidSize> Size;
 
-	virtual void PostInitProperties() override;
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Attributes")
-	TEnumAsByte<EAsteroidSize> Size = EAsteroidSize::Base;
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Attributes")
-	int32 SizeMultiplier = 1;
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Attributes")
-	int32 BaseHealth = 100;
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Attributes")
-	int32 BasePower = 100;
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Attributes")
-	int32 Health = 100;
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Attributes")
-	int32 Power = 100;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Nyx|Attributes")
+	float BaseHealth;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Nyx|Attributes")
+	float BasePower;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Attributes")
+	float SizeMultiplier;
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Attributes")
+	float Health;
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Attributes")
+	float Power;
 
 public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-							   FActorComponentTickFunction* ThisTickFunction) override;
-
-	void CalculateAttributes(EAsteroidSize InSize);
-
+	void InitializeAttributes();
+	void TakeDamage(float Damage);
+	bool IsAlive() const;
 
 };

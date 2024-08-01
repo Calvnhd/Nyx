@@ -5,44 +5,28 @@
 UCAsteroidAttributeComponent::UCAsteroidAttributeComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	BaseHealth = 100.0f;
+	BasePower = 100.0f;
+
+	// These default values will be overwritten on init based on BP values 
+	Size = EAsteroidSize::Base;
+	SizeMultiplier = 1.0f;
+	Health = -1.0f;
+	Power = -1.0f;
 }
 
-// Called when the game starts
-void UCAsteroidAttributeComponent::BeginPlay()
+void UCAsteroidAttributeComponent::InitializeAttributes()
 {
-	Super::BeginPlay();
-}
-
-void UCAsteroidAttributeComponent::PostInitProperties()
-{
-	Super::PostInitProperties();
-}
-
-// Called every frame
-void UCAsteroidAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-												 FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
-void UCAsteroidAttributeComponent::CalculateAttributes(EAsteroidSize InSize)
-{
-	Size = InSize;
-	switch (Size)
-	{
-		case EAsteroidSize::Base:
-			SizeMultiplier = 1;
-		case EAsteroidSize::Small:
-			SizeMultiplier = 2;
-		case EAsteroidSize::Medium:
-			SizeMultiplier = 5;
-		case EAsteroidSize::Large:
-			SizeMultiplier = 10;
-		case EAsteroidSize::Largest:
-			SizeMultiplier = 20;
-		default:
-			SizeMultiplier = 1;
-	}
+	SizeMultiplier = Size.GetIntValue();
 	Health = BaseHealth * SizeMultiplier;
 	Power = BasePower * SizeMultiplier;
+}
+void UCAsteroidAttributeComponent::TakeDamage(float Damage)
+{
+	Health -= Damage;
+}
+bool UCAsteroidAttributeComponent::IsAlive() const
+{
+	return Health > 0;
 }

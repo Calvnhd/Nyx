@@ -10,7 +10,6 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
-
 // Sets default values
 ACProjectileBase::ACProjectileBase()
 {
@@ -40,11 +39,12 @@ ACProjectileBase::ACProjectileBase()
 
 	// Other properties
 	DamageAmount = 10;
+	// Lifetime
+	MaximumLifetime = 1.0f;
 }
 
 void ACProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-											   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
-											   const FHitResult& Hit)
+									   UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	// do something on hit
 	/*float Radius = 50.0f;
@@ -102,4 +102,6 @@ void ACProjectileBase::BeginPlay()
 
 	// Don't hit yourself
 	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
+	// Don't live too long
+	GetWorldTimerManager().SetTimer(LifetimeTimerHandle, this, &ACProjectileBase::Explode, MaximumLifetime);
 }

@@ -59,4 +59,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Projectile|Behaviour")
 	float DamageAmount;
+
+	FTimerHandle LifetimeTimerHandle;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Projectile|Behaviour")
+	float MaximumLifetime;
 };
