@@ -7,9 +7,9 @@
 
 #include "CAsteroidAttributeComponent.generated.h"
 
-// Dynamic allows BP assignment, Multicast allows multiple listeners
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChangedSignature, AActor*, InstigatorActor,
-//											  UCAttributeComponentBase*, OwningComp, float, Delta, float, NewHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChangedDelegate, AActor*, InstigatorActor,
+											  UCAsteroidAttributeComponent*, OwningComp, float, Delta, float,
+											  NewHealth);
 
 UENUM()
 enum EAsteroidSize
@@ -30,6 +30,25 @@ public:
 	// Sets default values for this component's properties
 	UCAsteroidAttributeComponent();
 
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes")
+	static UCAsteroidAttributeComponent* GetAttributes(AActor* FromActor);
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes", meta = (DisplayName = "IsAlive"))
+	static bool IsAsteroidAlive(AActor* Actor);
+
+	void InitializeAttributes();
+	bool IsAlive() const;
+	UFUNCTION(BlueprintCallable)
+	float GetHealth() const;
+	UFUNCTION(BlueprintCallable)
+	float GetHealthPercent() const;
+	UFUNCTION(BlueprintCallable)
+	float GetPower() const;
+
+	UPROPERTY(BlueprintAssignable, Category = "Nyx|Attributes")
+	FOnHealthChangedDelegate OnHealthChanged;
+
+	void ApplyHealthChange(AActor* InstigatorActor, float Delta);
+
 protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|Attributes")
 	TEnumAsByte<EAsteroidSize> Size;
@@ -45,10 +64,6 @@ protected:
 	float Health;
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Attributes")
 	float Power;
-
-public:
-	void InitializeAttributes();
-	void TakeDamage(float Damage);
-	bool IsAlive() const;
-
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Attributes")
+	float HealthMax;
 };

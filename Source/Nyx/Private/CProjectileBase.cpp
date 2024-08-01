@@ -2,6 +2,7 @@
 
 #include "CProjectileBase.h"
 
+#include "CAsteroidAttributeComponent.h"
 #include "CEnemyAttributeComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -60,6 +61,8 @@ void ACProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor
 	// Check there's a valid OtherActor and it's not the actor who spawned this projectile (no hitting ourselves)
 	if (OtherActor && OtherActor != GetInstigator())
 	{
+		// todo: refactor atrribute components
+
 		// Check if what we just hit has an EnemyAttributeComponent using casting -- Cast<ExpectedType>(ThingToCast)
 		//
 		// GetComponentByClass iterates through actor until it finds the FIRST instance of specified class
@@ -69,6 +72,11 @@ void ACProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor
 				OtherActor->GetComponentByClass(UCEnemyAttributeComponent::StaticClass())))
 		{
 			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
+		}
+		else if (UCAsteroidAttributeComponent* AsteroidAttributeComp = Cast<UCAsteroidAttributeComponent>(
+					 OtherActor->GetComponentByClass(UCAsteroidAttributeComponent::StaticClass())))
+		{
+			AsteroidAttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
 		}
 		Explode();
 	}
@@ -103,5 +111,5 @@ void ACProjectileBase::BeginPlay()
 	// Don't hit yourself
 	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
 	// Don't live too long
-	GetWorldTimerManager().SetTimer(LifetimeTimerHandle, this, &ACProjectileBase::Explode, MaximumLifetime);
+	SetLifeSpan(MaximumLifetime);
 }

@@ -17,8 +17,6 @@
 
 ACPlayerCharacter::ACPlayerCharacter()
 {
-	GetCapsuleComponent()->InitCapsuleSize(110.0f, 110.0f);
-
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	// Controller rotation usually IS the camera rotation
 	bUseControllerRotationPitch = false;

@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+class UCAttributeComponentBase;
 class UCAsteroidAttributeComponent;
 
 #include "CAsteroidBase.generated.h"
@@ -41,14 +42,28 @@ public:
 
 protected:
 	virtual void PreInitializeComponents() override;
+	virtual void PostInitializeComponents() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
 	TObjectPtr<UCAsteroidAttributeComponent> AttributeComp;
+
+	UFUNCTION()
+	void HealthChangedHandler(AActor* InstigatorActor, UCAsteroidAttributeComponent* OwningComp, float Delta,
+						 float NewHealth);
+
+	UFUNCTION(BlueprintCallable)
+	float GetHealthPercent();
+
+	UFUNCTION()
+	void OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+					 FVector NormalImpulse, const FHitResult& Hit);
 
 	void OnCollisionWithAsteroid();
 	void OnCollisionWithPlayer();
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes")
 
-	void TakeDamage(float DamageTaken);
 	bool IsAlive();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Projectile|Behaviour")
+	void Explode();
 };
