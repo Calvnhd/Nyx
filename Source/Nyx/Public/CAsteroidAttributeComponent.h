@@ -70,19 +70,4 @@ protected:
 	float Power;
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float HealthMax;
-
-	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
-	TSubclassOf<AActor> AsteroidClass_Base;
-	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
-	TSubclassOf<AActor> AsteroidClass_Small;
-	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
-	TSubclassOf<AActor> AsteroidClass_Medium;
-	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
-	TSubclassOf<AActor> AsteroidClass_Large;
-	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
-	TSubclassOf<AActor> AsteroidClass_Largest;
-	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
-	TSubclassOf<AActor> ItemDropClass;
-
-
 };

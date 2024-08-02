@@ -54,7 +54,7 @@ bool ACAsteroidBase::IsAlive()
 
 void ACAsteroidBase::SpawnSmallerAsteroids()
 {
-	TSubclassOf<AActor> AsteroidClass = AttributeComp->GetAsteroidClassToSpawn();
+	TSubclassOf<AActor> AsteroidClass = GetAsteroidClassToSpawn();
 	if (!ensureAlways(AsteroidClass))
 	{
 		return;
@@ -65,6 +65,25 @@ void ACAsteroidBase::SpawnSmallerAsteroids()
 	for (int i = 0; i < AttributeComp->GetNumberOfAsteroidsToSpawn(); ++i)
 	{
 		GetWorld()->SpawnActor<AActor>(AsteroidClass, SpawnTM, SpawnParams);
+	}
+}
+
+TSubclassOf<AActor> ACAsteroidBase::GetAsteroidClassToSpawn() const
+{
+	switch (AttributeComp->GetSize())
+	{
+		case EAsteroidSize::Base:
+			return {};
+		case EAsteroidSize::Small:
+			return AsteroidClass_Base;
+		case EAsteroidSize::Medium:
+			return AsteroidClass_Small;
+		case EAsteroidSize::Large:
+			return AsteroidClass_Medium;
+		case EAsteroidSize::Largest:
+			return AsteroidClass_Large;
+		default:
+			return {};
 	}
 }
 void ACAsteroidBase::SpawnItem() {}

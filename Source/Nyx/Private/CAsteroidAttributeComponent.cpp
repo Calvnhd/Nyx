@@ -85,25 +85,6 @@ uint8 UCAsteroidAttributeComponent::GetNumberOfAsteroidsToSpawn() const
 	}
 }
 
-TSubclassOf<AActor> UCAsteroidAttributeComponent::GetAsteroidClassToSpawn() const
-{
-	switch (Size)
-	{
-		case EAsteroidSize::Base:
-			return {};
-		case EAsteroidSize::Small:
-			return AsteroidClass_Base;
-		case EAsteroidSize::Medium:
-			return AsteroidClass_Small;
-		case EAsteroidSize::Large:
-			return AsteroidClass_Medium;
-		case EAsteroidSize::Largest:
-			return AsteroidClass_Large;
-		default:
-			return {};
-	}
-}
-
 void UCAsteroidAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
 	if (!GetOwner()->CanBeDamaged() || Health <= 0)

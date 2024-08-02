@@ -58,6 +58,7 @@ protected:
 	void OnCollisionWithAsteroid();
 	void OnCollisionWithPlayer();
 	void SpawnSmallerAsteroids();
+	TSubclassOf<AActor> GetAsteroidClassToSpawn() const;
 	void SpawnItem();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Asteroid|Events")
 	void Explode();
@@ -67,4 +68,17 @@ protected:
 	float GetHealthPercent();
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Attributes")
 	bool IsAlive();
+
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> AsteroidClass_Base;
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> AsteroidClass_Small;
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> AsteroidClass_Medium;
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> AsteroidClass_Large;
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> AsteroidClass_Largest;
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> ItemDropClass;
 };
