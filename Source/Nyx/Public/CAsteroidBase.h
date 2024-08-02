@@ -44,17 +44,22 @@ protected:
 	virtual void PreInitializeComponents() override;
 	virtual void PostInitializeComponents() override;
 
+	UPROPERTY(EditAnywhere, Category = "Nyx|Attributes")
+	TSubclassOf<AActor> SmallerAsteroidClass;
+	UPROPERTY(EditAnywhere, Category = "Nyx|Attributes")
+	TSubclassOf<AActor> ItemDropClass;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
 	TObjectPtr<UCAsteroidAttributeComponent> AttributeComp;
 
-	UFUNCTION()
-	void HealthChangedHandler(AActor* InstigatorActor, UCAsteroidAttributeComponent* OwningComp, float Delta,
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Events")
+	void OnHealthChanged(AActor* InstigatorActor, UCAsteroidAttributeComponent* OwningComp, float Delta,
 						 float NewHealth);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes")
 	float GetHealthPercent();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Events")
 	void OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 					 FVector NormalImpulse, const FHitResult& Hit);
 
@@ -66,4 +71,8 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Projectile|Behaviour")
 	void Explode();
+	UPROPERTY(EditAnywhere, Category = "Nyx|Attributes")
+	uint8 NumberOfAsteroidsSpawnedOnDeath;
+	void SpawnSmallerAsteroids();
+	void SpawnItem();
 };

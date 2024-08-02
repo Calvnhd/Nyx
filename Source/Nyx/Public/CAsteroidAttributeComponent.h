@@ -44,6 +44,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetPower() const;
 
+	EAsteroidSize GetSize() const;
+
 	UPROPERTY(BlueprintAssignable, Category = "Nyx|Attributes")
 	FOnHealthChangedDelegate OnHealthChanged;
 

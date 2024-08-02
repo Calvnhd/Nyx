@@ -60,6 +60,12 @@ float UCAsteroidAttributeComponent::GetPower() const
 {
 	return Power;
 }
+
+EAsteroidSize UCAsteroidAttributeComponent::GetSize() const
+{
+	return Size;
+}
+
 void UCAsteroidAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
 	if (!GetOwner()->CanBeDamaged() || Health <= 0)
