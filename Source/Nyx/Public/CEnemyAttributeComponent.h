@@ -1,4 +1,4 @@
-// Copyright (C) 2023 - Calvin Davidson
+// Copyright (C) 2024 - Calvin Davidson
 
 #pragma once
 
@@ -25,6 +25,6 @@ public:
 	bool Kill(AActor* InstigatorActor);
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-EnemyAttributes")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|EnemyAttributes")
 	float CollisionDamageAmount = 50.0f;
 };

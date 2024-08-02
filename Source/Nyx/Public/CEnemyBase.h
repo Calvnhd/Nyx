@@ -1,4 +1,4 @@
-// Copyright (C) 2023 - Calvin Davidson
+// Copyright (C) 2024 - Calvin Davidson
 
 #pragma once
 
@@ -28,18 +28,18 @@ protected:
 
 	UCWorldUserWidget* ActiveHealthBar;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-UI")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|UI")
 	TSubclassOf<UUserWidget> HealthBarWidgetClass;
 
-	UPROPERTY(VisibleAnywhere, Category = "Nyx-Effects")
+	UPROPERTY(VisibleAnywhere, Category = "Nyx|Effects")
 	FName TimeToHitParamName;
 
 	virtual void PostInitializeComponents() override;
 
-	UPROPERTY(VisibleAnywhere, Category = "Nyx-Components")
+	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
 	TObjectPtr<UCEnemyAttributeComponent> EnemyAttributeComp;
 
-	UPROPERTY(VisibleAnywhere, Category = "Nyx-Components")
+	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
 	TObjectPtr<UPawnSensingComponent> PawnSensingComp;
 
 	UFUNCTION()

@@ -1,4 +1,4 @@
-// Copyright (C) 2023 - Calvin Davidson
+// Copyright (C) 2024 - Calvin Davidson
 
 #pragma once
 
@@ -18,11 +18,11 @@ class NYX_API UCBTT_RangedAttack : public UBTTaskNode
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 protected:
-	UPROPERTY(EditAnywhere, Category = "Nyx-AI")
+	UPROPERTY(EditAnywhere, Category = "Nyx|AI")
 	TSubclassOf<AActor> ProjectileClass;
 
 	// in degrees
-	UPROPERTY(EditAnywhere, Category = "Nyx-AI")
+	UPROPERTY(EditAnywhere, Category = "Nyx|AI")
 	float BulletSpread = 2.0f;
 
 };

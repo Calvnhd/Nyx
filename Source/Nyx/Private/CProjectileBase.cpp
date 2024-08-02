@@ -1,13 +1,15 @@
-// Copyright (C) 2023 - Calvin Davidson
+// Copyright (C) 2024 - Calvin Davidson
 
 #include "CProjectileBase.h"
 
+#include "CAsteroidAttributeComponent.h"
 #include "CEnemyAttributeComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
 // Sets default values
 ACProjectileBase::ACProjectileBase()
@@ -19,13 +21,16 @@ ACProjectileBase::ACProjectileBase()
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComp");
+	ForceComp = CreateDefaultSubobject<URadialForceComponent>("RadialForceComp");
 
 	// Attachments and hierarchy
 	RootComponent = SphereComp;
 	EffectComp->SetupAttachment(SphereComp);
+	ForceComp->SetupAttachment(SphereComp);
 
 	// Collision
 	SphereComp->SetCollisionProfileName("Projectile");
+	SphereComp->SetSimulatePhysics(true);
 
 	// Movement
 	MovementComp->bRotationFollowsVelocity = true;
@@ -35,11 +40,12 @@ ACProjectileBase::ACProjectileBase()
 
 	// Other properties
 	DamageAmount = 10;
+	// Lifetime
+	MaximumLifetime = 1.0f;
 }
 
-void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-											   UPrimitiveComponent* OtherComp, FVector NormalImpulse,
-											   const FHitResult& Hit)
+void ACProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+									   UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	// do something on hit
 	/*float Radius = 50.0f;
@@ -55,6 +61,8 @@ void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent
 	// Check there's a valid OtherActor and it's not the actor who spawned this projectile (no hitting ourselves)
 	if (OtherActor && OtherActor != GetInstigator())
 	{
+		// todo: refactor atrribute components
+
 		// Check if what we just hit has an EnemyAttributeComponent using casting -- Cast<ExpectedType>(ThingToCast)
 		//
 		// GetComponentByClass iterates through actor until it finds the FIRST instance of specified class
@@ -65,11 +73,16 @@ void ACProjectileBase::OnProjectileHitResponse(UPrimitiveComponent* HitComponent
 		{
 			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
 		}
+		else if (UCAsteroidAttributeComponent* AsteroidAttributeComp = Cast<UCAsteroidAttributeComponent>(
+					 OtherActor->GetComponentByClass(UCAsteroidAttributeComponent::StaticClass())))
+		{
+			AsteroidAttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
+		}
 		Explode();
 	}
 }
 
-void ACProjectileBase::Explode()
+void ACProjectileBase::Explode_Implementation()
 {
 	if (ensure(IsValid(this)))
 	{
@@ -87,7 +100,7 @@ void ACProjectileBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings
-	SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHitResponse);
+	SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHit);
 }
 
 // Called when the game starts or when spawned
@@ -97,4 +110,6 @@ void ACProjectileBase::BeginPlay()
 
 	// Don't hit yourself
 	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
+	// Don't live too long
+	SetLifeSpan(MaximumLifetime);
 }

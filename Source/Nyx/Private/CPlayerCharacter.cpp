@@ -1,4 +1,4 @@
-// Copyright (C) 2023 - Calvin Davidson
+// Copyright (C) 2024 - Calvin Davidson
 
 #include "CPlayerCharacter.h"
 
@@ -12,12 +12,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 ACPlayerCharacter::ACPlayerCharacter()
 {
-	GetCapsuleComponent()->InitCapsuleSize(110.0f, 110.0f);
-
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	// Controller rotation usually IS the camera rotation
 	bUseControllerRotationPitch = false;
@@ -57,7 +56,9 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Look);
-		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Triggered, this,
+		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Started, this,
+										   &ACPlayerCharacter::AttackPrimary);
+		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Completed, this,
 										   &ACPlayerCharacter::AttackPrimary);
 		EnhancedInputComponent->BindAction(AttackSpecialAction, ETriggerEvent::Triggered, this,
 										   &ACPlayerCharacter::AttackSpecial);
@@ -67,6 +68,7 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("'%s' Failed to find an Enhanced Input component!"), *GetNameSafe(this));
+		ensureAlways(false);
 	}
 }
 
@@ -121,26 +123,115 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void ACPlayerCharacter::AttackPrimary(const FInputActionValue& Value)
+FVector ACPlayerCharacter::GetCameraTargetLocation() const
 {
-	// Make sure the projectile class is assigned in BP
-	if (ensureAlways(ProjectileClassPrimary))
+	// You want to know where you're looking from
+	FVector CameraLocation = FollowCamera->GetComponentLocation();
+	// What direction you're looking
+	FRotator CameraRotation = FollowCamera->GetComponentRotation();
+	// What's your maximum view distance?
+	FVector ViewEnd = CameraLocation + (CameraRotation.Vector() * 10000);
+	// What do you see?
+	FHitResult ViewHit;
+	// This is a list of all the object types we're looking for
+	FCollisionObjectQueryParams ObjectQueryParams;
+	ObjectQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
+	// This is the shape of the trace.  A sphere is more lenient than a line.
+	FCollisionShape TraceShape;
+	TraceShape.SetSphere(20.0f);
+	// Ignore player
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	// Create trace
+	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(ViewHit, CameraLocation, ViewEnd, FQuat::Identity,
+															ObjectQueryParams, TraceShape, Params);
+	// if (bBlockingHit)
+	//{
+	//	float Radius = 50.0f;
+	//	float Segments = 32;
+	//	float Lifetime = 5.0f;
+	//	DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false, Lifetime);
+	// }
+
+	// that will give you a target location
+	return bBlockingHit ? ViewHit.ImpactPoint : ViewEnd;
+}
+
+float ACPlayerCharacter::CalculateBarrelPitch() const
+{
+	FVector MuzzleToTargetVector = GetCameraTargetLocation() - GetMuzzleLocation();
+	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(MuzzleToTargetVector);
+	return UKismetMathLibrary::Clamp(SpawnRotation.Pitch + NeutralBarrelPitch, MinBarrelPitch, MaxBarrelPitch);
+}
+FTransform ACPlayerCharacter::GetCrosshairTargetTM() const
+{
+	const FVector SpawnLocation = GetMuzzleLocation();
+	const FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, GetCameraTargetLocation());
+
+	// DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), FColor::Green,
+	// false, 			  2.0f, 0, 2.0f);
+
+	// A Transformation Matrix at the muzzle, looking at the target
+	return FTransform(SpawnRotation, SpawnLocation);
+}
+void ACPlayerCharacter::AttackPrimary_Implementation(const FInputActionValue& Value)
+{
+	if (Value.Get<bool>())
 	{
-		SpawnProjectile(ProjectileClassPrimary);
+		AttackPrimaryBegin();
+	}
+	else
+	{
+		AttackPrimaryEnd();
 	}
 }
 
-void ACPlayerCharacter::AttackSpecial(const FInputActionValue& Value)
+void ACPlayerCharacter::AttackPrimaryBegin()
+{
+	if (!GetWorldTimerManager().IsTimerActive(AttackPrimaryTimerHandle))
+	{
+		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
+										AttackPrimaryFireRate, true, 0);
+	}
+	else
+	{
+		float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
+		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryResetLoop,
+										TimeRemaining, false);
+	}
+}
+void ACPlayerCharacter::AttackPrimaryEnd()
+{
+	float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
+	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::DoNothing, TimeRemaining,
+									false);
+}
+
+void ACPlayerCharacter::AttackPrimaryResetLoop()
+{
+	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
+									AttackPrimaryFireRate, true, 0);
+}
+
+void ACPlayerCharacter::AttackPrimaryFireOnce_Implementation()
+{
+	if (ensureAlways(ProjectileClassPrimary) && ensureAlways(MuzzleFlashPrimary))
+	{
+		SpawnProjectile(ProjectileClassPrimary, MuzzleFlashPrimary);
+	}
+}
+
+void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Value)
 {
 	// todo
 }
 
-void ACPlayerCharacter::Dash(const FInputActionValue& Value)
+void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)
 {
 	// todo
 }
 
-void ACPlayerCharacter::Shield(const FInputActionValue& Value)
+void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
 {
 	// todo
 }
@@ -155,82 +246,33 @@ void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttri
 		DisableInput(PlayerController);
 	}
 }
-
 void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
 {
 	FActorSpawnParameters SpawnParams;
 	// Make sure the Projectile knows that it was spawned by the Player
 	SpawnParams.Instigator = this;
 	// Make projectile always spawn at desired location, regardless of collisions
-	SpawnParams.SpawnCollisionHandlingOverride =
-
-		ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	// Spawn projectile
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
 }
-FTransform ACPlayerCharacter::GetCrosshairTargetTM()
+void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect)
 {
-	// You want to know where you're looking from
-	FVector CameraLocation = FollowCamera->GetComponentLocation();
-	// What direction you're looking
-	FRotator CameraRotation = FollowCamera->GetComponentRotation();
-	// What's your maximum view distance?
-	FVector ViewEnd = CameraLocation + (CameraRotation.Vector() * 10000);
-	// What do you see?
-	FHitResult ViewHit;
-	// This is a list of all the object types we're looking for
-	FCollisionObjectQueryParams ObjectQueryParams;
-	// if (!bIsAutoAimActive)
-	//{
-	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-	//	ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-	// }
-	ObjectQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
-
-	// This is the shape of the trace.  A sphere is more lenient than a line.
-	FCollisionShape TraceShape;
-	// float TraceRadius = bIsAutoAimActive ? AutoAimSweepRadius : 20.0f;
-	float TraceRadius = 20.0f;
-	TraceShape.SetSphere(TraceRadius);
-
-	// Ignore player
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-
-	// Create trace
-	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(ViewHit, CameraLocation, ViewEnd, FQuat::Identity,
-															ObjectQueryParams, TraceShape, Params);
-	// that will give you a target location
-	FVector Target = bBlockingHit ? ViewHit.ImpactPoint : ViewEnd;
-
-	// if (bBlockingHit)
-	//{
-	//	float Radius = 50.0f;
-	//	float Segments = 32;
-	//	float Lifetime = 5.0f;
-	//	DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false, Lifetime);
-	// }
-
-	// then you want a spawn location for the projectile...
-	FVector SpawnLocation = GetMuzzleLocation();
-	// ...and a rotation for that spawn location, looking in the direction of the target
-	// Target - SpawnLocation calculates the vector from SpawnLocation to Target. This vector points from SpawnLocation
-	// towards Target.
-	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(Target - SpawnLocation);
-
-	// Debug info
-	// FColor SightColor = bBlockingHit ? FColor::Green : FColor::Red;
-	// DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), SightColor, false,
-	//              2.0f, 0, 2.0f);
-
-	// A Transformation Matrix above the ship, looking at the target
-	return FTransform(SpawnRotation, SpawnLocation);
+	FActorSpawnParameters SpawnParams;
+	// Make sure the Projectile knows that it was spawned by the Player
+	SpawnParams.Instigator = this;
+	// Make projectile always spawn at desired location, regardless of collisions
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	// Spawn projectile
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
+	UGameplayStatics::SpawnEmitterAtLocation(
+		this, MuzzleEffect, GetMuzzleLocation(),
+		UKismetMathLibrary::MakeRotFromX(GetCameraTargetLocation() - GetMuzzleLocation()));
 }
-FVector ACPlayerCharacter::GetMuzzleLocation()
+
+FVector ACPlayerCharacter::GetMuzzleLocation_Implementation() const
 {
-	// Quick n dirty for now
-	// Eventually would want to have a socket on the mesh and call something like...
+	// Ideally would want a named socket on the mesh and call something like...
 	// GetMesh()->GetSocketLocation(HandSocketName);
 	return GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, 100);
 }
@@ -239,3 +281,4 @@ void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 {
 	PlayerAttributeComp->ApplyHealthChange(this, Amount);
 }
+void ACPlayerCharacter::DoNothing() {}

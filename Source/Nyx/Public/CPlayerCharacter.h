@@ -1,4 +1,4 @@
-// Copyright (C) 2023 - Calvin Davidson
+// Copyright (C) 2024 - Calvin Davidson
 
 #pragma once
 
@@ -34,8 +34,6 @@ protected:
 	 * BlueprintReadOnly - read-only in the Blueprint scripting (does not affect 'details' panel)
 	 * BlueprintReadWrite - read-write access in Blueprints
 	 * --
-	 * category = "" = display only for detail panels and blueprint context menu
-	 *
 	 */
 
 	virtual void PostInitializeComponents() override;
@@ -46,61 +44,78 @@ protected:
 
 	// Epic recommends TObjectPtr over raw pointers in header files with UPROPERTY for UE5
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
 	TObjectPtr<USpringArmComponent> CameraBoom;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
 	TObjectPtr<UCameraComponent> FollowCamera;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Components")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
-
-	UPROPERTY(VisibleAnywhere, Category = "Nyx-Components")
+	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
 	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
 
 	/* Input Actions */
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> MoveAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> LookAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> AttackPrimaryAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> AttackSpecialAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> DashAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx-Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
 	TObjectPtr<UInputAction> ShieldAction;
 
 	/* Actions */
 
+	void DoNothing();
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void AttackPrimary(const FInputActionValue& Value);
-	void AttackSpecial(const FInputActionValue& Value);
-	void Dash(const FInputActionValue& Value);
-	void Shield(const FInputActionValue& Value);
 
-	/* Other stuff you need to re-organise */
+	FVector GetCameraTargetLocation() const;
+	FTransform GetCrosshairTargetTM() const;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Abilities")
+	FVector GetMuzzleLocation() const;
 
-	// TSubclassOf<> lets us assign some class in editor and edit it wherever
-	UPROPERTY(EditAnywhere, Category = "Nyx-Abilities")
-	TSubclassOf<AActor> ProjectileClassPrimary;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx-Abilities")
-	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	float MaxBarrelPitch = 160.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	float MinBarrelPitch = 80.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	float NeutralBarrelPitch = 90.0f;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Abilities")
+	float CalculateBarrelPitch() const;
 
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass);
+	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect);
 
-	UFUNCTION(BlueprintCallable)
-	FTransform GetCrosshairTargetTM();
+	FTimerHandle AttackPrimaryTimerHandle;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	float AttackPrimaryFireRate = 1.0f;
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
+	void AttackPrimary(const FInputActionValue& Value);
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
+	void AttackPrimaryFireOnce();
+	void AttackPrimaryBegin();
+	void AttackPrimaryEnd();
+	void AttackPrimaryResetLoop();
+	// TSubclassOf<> lets us assign some class in editor and edit it wherever
+	UPROPERTY(EditAnywhere, Category = "Nyx|Abilities")
+	TSubclassOf<AActor> ProjectileClassPrimary;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
 
-	FVector GetMuzzleLocation();
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
+	void AttackSpecial(const FInputActionValue& Value);
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
+	void Dash(const FInputActionValue& Value);
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
+	void Shield(const FInputActionValue& Value);
+
+	/* Attributes */
 
 	UFUNCTION()
 	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
