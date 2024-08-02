@@ -30,42 +30,59 @@ public:
 	// Sets default values for this component's properties
 	UCAsteroidAttributeComponent();
 
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	static UCAsteroidAttributeComponent* GetAttributes(AActor* FromActor);
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes", meta = (DisplayName = "IsAlive"))
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes", meta = (DisplayName = "IsAlive"))
 	static bool IsAsteroidAlive(AActor* Actor);
 
 	void InitializeAttributes();
 	bool IsAlive() const;
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	float GetHealth() const;
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	float GetHealthPercent() const;
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	float GetPower() const;
 
 	EAsteroidSize GetSize() const;
+	uint8 GetNumberOfAsteroidsToSpawn() const;
+	TSubclassOf<AActor> GetAsteroidClassToSpawn() const;
 
-	UPROPERTY(BlueprintAssignable, Category = "Nyx|Attributes")
+	UPROPERTY(BlueprintAssignable, Category = "Nyx|AttributeComponent|Attributes")
 	FOnHealthChangedDelegate OnHealthChanged;
 
 	void ApplyHealthChange(AActor* InstigatorActor, float Delta);
 
 protected:
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|Attributes")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	TEnumAsByte<EAsteroidSize> Size;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Nyx|Attributes")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Nyx|AttributeComponent|Attributes")
 	float BaseHealth;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Nyx|Attributes")
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Nyx|AttributeComponent|Attributes")
 	float BasePower;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Attributes")
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float SizeMultiplier;
-	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Attributes")
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float Health;
-	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Attributes")
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float Power;
-	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Attributes")
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float HealthMax;
+
+	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
+	TSubclassOf<AActor> AsteroidClass_Base;
+	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
+	TSubclassOf<AActor> AsteroidClass_Small;
+	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
+	TSubclassOf<AActor> AsteroidClass_Medium;
+	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
+	TSubclassOf<AActor> AsteroidClass_Large;
+	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
+	TSubclassOf<AActor> AsteroidClass_Largest;
+	UPROPERTY(EditAnywhere, Category = "Nyx|AttributeComponent|Classes")
+	TSubclassOf<AActor> ItemDropClass;
+
+
 };

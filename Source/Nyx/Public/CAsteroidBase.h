@@ -44,35 +44,27 @@ protected:
 	virtual void PreInitializeComponents() override;
 	virtual void PostInitializeComponents() override;
 
-	UPROPERTY(EditAnywhere, Category = "Nyx|Attributes")
-	TSubclassOf<AActor> SmallerAsteroidClass;
-	UPROPERTY(EditAnywhere, Category = "Nyx|Attributes")
-	TSubclassOf<AActor> ItemDropClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
+	// Components
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Asteroid|Components")
 	TObjectPtr<UCAsteroidAttributeComponent> AttributeComp;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Events")
+	// Events
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Asteroid|Events")
 	void OnHealthChanged(AActor* InstigatorActor, UCAsteroidAttributeComponent* OwningComp, float Delta,
 						 float NewHealth);
-
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes")
-	float GetHealthPercent();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Events")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Asteroid|Events")
 	void OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 					 FVector NormalImpulse, const FHitResult& Hit);
-
 	void OnCollisionWithAsteroid();
 	void OnCollisionWithPlayer();
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes")
-
-	bool IsAlive();
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Projectile|Behaviour")
-	void Explode();
-	UPROPERTY(EditAnywhere, Category = "Nyx|Attributes")
-	uint8 NumberOfAsteroidsSpawnedOnDeath;
 	void SpawnSmallerAsteroids();
 	void SpawnItem();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Asteroid|Events")
+	void Explode();
+
+	// Attributes
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Attributes")
+	float GetHealthPercent();
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Attributes")
+	bool IsAlive();
 };

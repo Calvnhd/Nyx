@@ -9,8 +9,6 @@ ACAsteroidBase::ACAsteroidBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	NumberOfAsteroidsSpawnedOnDeath = 3;
-
 	AttributeComp = CreateDefaultSubobject<UCAsteroidAttributeComponent>("AttributeComp");
 }
 
@@ -56,17 +54,17 @@ bool ACAsteroidBase::IsAlive()
 
 void ACAsteroidBase::SpawnSmallerAsteroids()
 {
-	if (!ensureAlways(SmallerAsteroidClass))
+	TSubclassOf<AActor> AsteroidClass = AttributeComp->GetAsteroidClassToSpawn();
+	if (!ensureAlways(AsteroidClass))
 	{
 		return;
 	}
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	FTransform SpawnTM(UKismetMathLibrary::RandomRotator(), GetActorLocation());
-	// Spawn projectile
-	for (int i = 0; i < NumberOfAsteroidsSpawnedOnDeath; ++i)
+	for (int i = 0; i < AttributeComp->GetNumberOfAsteroidsToSpawn(); ++i)
 	{
-		GetWorld()->SpawnActor<AActor>(SmallerAsteroidClass, SpawnTM, SpawnParams);
+		GetWorld()->SpawnActor<AActor>(AsteroidClass, SpawnTM, SpawnParams);
 	}
 }
 void ACAsteroidBase::SpawnItem() {}

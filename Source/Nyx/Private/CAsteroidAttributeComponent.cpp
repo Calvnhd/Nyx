@@ -66,6 +66,44 @@ EAsteroidSize UCAsteroidAttributeComponent::GetSize() const
 	return Size;
 }
 
+uint8 UCAsteroidAttributeComponent::GetNumberOfAsteroidsToSpawn() const
+{
+	switch (Size)
+	{
+		case EAsteroidSize::Base:
+			return 0;
+		case EAsteroidSize::Small:
+			return 6;
+		case EAsteroidSize::Medium:
+			return 5;
+		case EAsteroidSize::Large:
+			return 4;
+		case EAsteroidSize::Largest:
+			return 3;
+		default:
+			return {};
+	}
+}
+
+TSubclassOf<AActor> UCAsteroidAttributeComponent::GetAsteroidClassToSpawn() const
+{
+	switch (Size)
+	{
+		case EAsteroidSize::Base:
+			return {};
+		case EAsteroidSize::Small:
+			return AsteroidClass_Base;
+		case EAsteroidSize::Medium:
+			return AsteroidClass_Small;
+		case EAsteroidSize::Large:
+			return AsteroidClass_Medium;
+		case EAsteroidSize::Largest:
+			return AsteroidClass_Large;
+		default:
+			return {};
+	}
+}
+
 void UCAsteroidAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
 	if (!GetOwner()->CanBeDamaged() || Health <= 0)
