@@ -125,36 +125,43 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 
 FVector ACPlayerCharacter::GetCameraTargetLocation() const
 {
-	// You want to know where you're looking from
 	FVector CameraLocation = FollowCamera->GetComponentLocation();
-	// What direction you're looking
 	FRotator CameraRotation = FollowCamera->GetComponentRotation();
-	// What's your maximum view distance?
+	FVector ViewStart = CameraLocation + (CameraRotation.Vector() * 100);
 	FVector ViewEnd = CameraLocation + (CameraRotation.Vector() * 10000);
-	// What do you see?
-	FHitResult ViewHit;
-	// This is a list of all the object types we're looking for
-	FCollisionObjectQueryParams ObjectQueryParams;
-	ObjectQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
-	// This is the shape of the trace.  A sphere is more lenient than a line.
-	FCollisionShape TraceShape;
-	TraceShape.SetSphere(20.0f);
-	// Ignore player
+
+	FCollisionShape EnemyTraceShape;
+	EnemyTraceShape.SetSphere(50.0f);
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
-	// Create trace
-	bool bBlockingHit = GetWorld()->SweepSingleByObjectType(ViewHit, CameraLocation, ViewEnd, FQuat::Identity,
-															ObjectQueryParams, TraceShape, Params);
-	// if (bBlockingHit)
-	//{
-	//	float Radius = 50.0f;
-	//	float Segments = 32;
-	//	float Lifetime = 5.0f;
-	//	DrawDebugSphere(GetWorld(), ViewHit.ImpactPoint, Radius, Segments, FColor::MakeRandomColor(), false, Lifetime);
-	// }
 
-	// that will give you a target location
-	return bBlockingHit ? ViewHit.ImpactPoint : ViewEnd;
+	FHitResult EnemyHit;
+	FCollisionObjectQueryParams EnemyQueryParams;
+	EnemyQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
+
+	// float Radius = 5.0f;
+	// float Segments = 8;
+	// float Lifetime = 5.0f;
+	if (GetWorld()->SweepSingleByObjectType(EnemyHit, ViewStart, ViewEnd, FQuat::Identity, EnemyQueryParams,
+											EnemyTraceShape, Params))
+	{
+		// DrawDebugSphere(GetWorld(), EnemyHit.ImpactPoint, Radius, Segments, FColor::Red, false, Lifetime);
+		return EnemyHit.ImpactPoint;
+	}
+	FHitResult WorldHit;
+	FCollisionObjectQueryParams WorldQueryParams;
+	WorldQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+	FCollisionShape WorldTraceShape;
+	WorldTraceShape.SetSphere(5.0f);
+
+	if (GetWorld()->SweepSingleByObjectType(WorldHit, ViewStart, ViewEnd, FQuat::Identity, WorldQueryParams,
+											WorldTraceShape, Params))
+	{
+		// DrawDebugSphere(GetWorld(), WorldHit.ImpactPoint, Radius, Segments, FColor::Blue, false, Lifetime);
+		return WorldHit.ImpactPoint;
+	}
+	// DrawDebugSphere(GetWorld(), ViewEnd, Radius, Segments, FColor::Yellow, false, Lifetime);
+	return ViewEnd;
 }
 
 float ACPlayerCharacter::CalculateBarrelPitch() const
@@ -169,7 +176,7 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM() const
 	const FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, GetCameraTargetLocation());
 
 	// DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), FColor::Green,
-	// false, 			  2.0f, 0, 2.0f);
+	// false, 2.0f, 0, 2.0f);
 
 	// A Transformation Matrix at the muzzle, looking at the target
 	return FTransform(SpawnRotation, SpawnLocation);
