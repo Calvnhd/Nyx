@@ -41,7 +41,6 @@ public:
 	ACAsteroidBase();
 
 protected:
-	virtual void PreInitializeComponents() override;
 	virtual void PostInitializeComponents() override;
 
 	// Components
@@ -50,10 +49,10 @@ protected:
 
 	// Events
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Asteroid|Events")
-	void OnHealthChanged(AActor* InstigatorActor, UCAsteroidAttributeComponent* OwningComp, float Delta,
+	void OnHealthChanged(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 						 float NewHealth);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Asteroid|Events")
-	void OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	void OnAsteroidHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 					 FVector NormalImpulse, const FHitResult& Hit);
 	void OnCollisionWithAsteroid();
 	void OnCollisionWithPlayer();

@@ -43,7 +43,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 void ACPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	PlayerAttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACPlayerCharacter::OnHealthChangedResponse);
+	PlayerAttributeComp->OnHealthChanged.AddDynamic(this, &ACPlayerCharacter::OnHealthChangedResponse);
 }
 
 void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

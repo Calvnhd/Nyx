@@ -24,7 +24,7 @@ void ACEnemyBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings
-	EnemyAttributeComp->OnHealthChangedDelegate.AddDynamic(this, &ACEnemyBase::OnHealthChangedResponse);
+	EnemyAttributeComp->OnHealthChanged.AddDynamic(this, &ACEnemyBase::OnHealthChangedResponse);
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ACEnemyBase::OnCollisionResponse);
 	PawnSensingComp->OnSeePawn.AddDynamic(this, &ACEnemyBase::OnPawnSeenResponse);
 }

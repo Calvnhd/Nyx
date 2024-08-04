@@ -23,32 +23,31 @@ public:
 	UCAttributeComponentBase();
 
 	// Static functions can be called anywhere, without an instance of the class
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	static UCAttributeComponentBase* GetAttributes(AActor* FromActor);
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes", meta = (DisplayName = "IsAlive"))
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes", meta = (DisplayName = "IsAlive"))
 	static bool IsActorAlive(AActor* Actor);
-
-	bool IsAlive();
+	bool IsAlive() const;
 	void ApplyHealthChange(AActor* InstigatorActor, float Delta);
-	UFUNCTION(BlueprintCallable)
-	float GetHealth();
-	UFUNCTION(BlueprintCallable)
-	float GetHealthMax();
-	UFUNCTION(BlueprintCallable)
-	float GetHealthPercent();
-
-	UPROPERTY(BlueprintAssignable, Category = "Nyx|Attributes")
-	FOnHealthChangedSignature OnHealthChangedDelegate;
+	UPROPERTY(BlueprintAssignable, Category = "Nyx|AttributeComponent|Attributes")
+	FOnHealthChangedSignature OnHealthChanged;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	float GetHealth() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	float GetHealthMax() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	float GetHealthPercent() const;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float Health;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float HealthMax;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
-	float ThrustPercent;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
-	float ThrustPercentMax;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
-	float SpeedMax;
+
+	// UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
+	// float ThrustPercent;
+	// UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
+	// float ThrustPercentMax;
+	// UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
+	// float SpeedMax;
 };
