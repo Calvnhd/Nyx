@@ -56,6 +56,7 @@ protected:
 					 FVector NormalImpulse, const FHitResult& Hit);
 	void OnCollisionWithAsteroid();
 	void OnCollisionWithPlayer();
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Events")
 	void SpawnSmallerAsteroids();
 	TSubclassOf<AActor> GetAsteroidClassToSpawn() const;
 	void SpawnItem();

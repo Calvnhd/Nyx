@@ -52,7 +52,7 @@ bool ACAsteroidBase::IsAlive()
 	return AttributeComp->IsAlive();
 }
 
-void ACAsteroidBase::SpawnSmallerAsteroids()
+void ACAsteroidBase::SpawnSmallerAsteroids_Implementation()
 {
 	TSubclassOf<AActor> AsteroidClass = GetAsteroidClassToSpawn();
 	if (!ensureAlways(AsteroidClass))
