@@ -64,7 +64,14 @@ void ACAsteroidBase::SpawnSmallerAsteroids_Implementation()
 	FTransform SpawnTM(UKismetMathLibrary::RandomRotator(), GetActorLocation());
 	for (int i = 0; i < AttributeComp->GetNumberOfAsteroidsToSpawn(); ++i)
 	{
-		GetWorld()->SpawnActor<AActor>(AsteroidClass, SpawnTM, SpawnParams);
+		if(AActor* NewActor = GetWorld()->SpawnActor<AActor>(AsteroidClass, SpawnTM, SpawnParams))
+		{
+			if (UCAsteroidAttributeComponent* AsteroidAttributeComp = Cast<UCAsteroidAttributeComponent>(
+					NewActor->GetComponentByClass(UCAsteroidAttributeComponent::StaticClass())))
+			{
+				AsteroidAttributeComp->SetNumberOfAsteroidsToSpawn(AttributeComp->GetNumberOfAsteroidsToSpawn());
+			}
+		}
 	}
 }
 

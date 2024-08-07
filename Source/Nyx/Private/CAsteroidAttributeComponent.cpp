@@ -14,6 +14,9 @@ UCAsteroidAttributeComponent::UCAsteroidAttributeComponent()
 	SizeMultiplier = 1.0f;
 	Health = -1.0f;
 	Power = -1.0f;
+
+	TimeToActivate = 5;
+	NumberOfAsteroidsToSpawn = 3;
 }
 void UCAsteroidAttributeComponent::InitializeAttributes()
 {
@@ -22,6 +25,13 @@ void UCAsteroidAttributeComponent::InitializeAttributes()
 	Health = HealthMax;
 	Power = BasePower * SizeMultiplier;
 }
+// add another overload with some additional modifier for difficulty overall?
+void UCAsteroidAttributeComponent::InitializeAttributes(EAsteroidSize NewSize)
+{
+	Size = NewSize;
+	InitializeAttributes();
+}
+
 float UCAsteroidAttributeComponent::GetPower() const
 {
 	return Power;
@@ -34,21 +44,12 @@ EAsteroidSize UCAsteroidAttributeComponent::GetSize() const
 
 uint8 UCAsteroidAttributeComponent::GetNumberOfAsteroidsToSpawn() const
 {
-	switch (Size)
-	{
-		case EAsteroidSize::Base:
-			return 0;
-		case EAsteroidSize::Small:
-			return 6;
-		case EAsteroidSize::Medium:
-			return 5;
-		case EAsteroidSize::Large:
-			return 4;
-		case EAsteroidSize::Largest:
-			return 3;
-		default:
-			return {};
-	}
+	return NumberOfAsteroidsToSpawn;
+}
+
+void UCAsteroidAttributeComponent::SetNumberOfAsteroidsToSpawn(uint8 Num)
+{
+	NumberOfAsteroidsToSpawn = Num;
 }
 //UCAsteroidAttributeComponent* UCAsteroidAttributeComponent::GetAttributes(AActor* FromActor)
 //{

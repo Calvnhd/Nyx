@@ -32,10 +32,15 @@ public:
 	UCAsteroidAttributeComponent();
 
 	void InitializeAttributes();
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	void InitializeAttributes(EAsteroidSize NewSize);
 	float GetPower() const;
 	EAsteroidSize GetSize() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	uint8 GetNumberOfAsteroidsToSpawn() const;
 	TSubclassOf<AActor> GetAsteroidClassToSpawn() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	void SetNumberOfAsteroidsToSpawn(uint8 Num);
 
 	// UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	// static UCAsteroidAttributeComponent* GetAttributes(AActor* FromActor);
@@ -61,6 +66,10 @@ protected:
 	float SizeMultiplier;
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float Power;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
+	float TimeToActivate;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
+	uint8 NumberOfAsteroidsToSpawn;
 
 	// UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	// float HealthMax;
