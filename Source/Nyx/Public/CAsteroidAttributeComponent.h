@@ -30,11 +30,12 @@ public:
 	void InitializeAttributes();
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	void ModifyAttributes(float NewModifier = 1.0f);
-
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	EAsteroidSize GetSize() const;
-
-	float GetPower() const;
-
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	float GetDamagePower() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	float GetScaledPhysicalPower();
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	uint8 GetNumberOfAsteroidsToSpawn() const;
 	TSubclassOf<AActor> GetAsteroidClassToSpawn() const;
@@ -50,12 +51,14 @@ protected:
 	float SizeMultiplier;
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float AttributeModifier;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Nyx|AttributeComponent|Attributes")
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float BaseHealth;
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Nyx|AttributeComponent|Attributes")
-	float BasePower;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
+	float BaseDamagePower;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
+	float BasePhysicalPower;
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
-	float Power;
+	float DamagePower;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float TimeToActivate;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")

@@ -27,7 +27,9 @@ public:
 	static UCAttributeComponentBase* GetAttributes(AActor* FromActor);
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes", meta = (DisplayName = "IsAlive"))
 	static bool IsActorAlive(AActor* Actor);
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	bool IsAlive() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	void ApplyHealthChange(AActor* InstigatorActor, float Delta);
 	UPROPERTY(BlueprintAssignable, Category = "Nyx|AttributeComponent|Attributes")
 	FOnHealthChangedSignature OnHealthChanged;
