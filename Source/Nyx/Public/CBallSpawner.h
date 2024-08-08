@@ -7,6 +7,8 @@
 
 #include "CBallSpawner.generated.h"
 
+class ACAsteroidBase;
+
 UCLASS()
 class NYX_API ACBallSpawner : public AActor
 {
@@ -17,24 +19,32 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Spawner")
 	void ActivateSpawnLoop();
+
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Spawner")
-	void SpawnOnce();
+	ACAsteroidBase* SpawnOnce();
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Spawner")
 	void DeactivateSpawnLoop();
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Spawner")
-	void SetLoopLength(float NewLength);
+	void SetLoopLength(float NewLength, bool bHardReset = false);
 
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, Category = "Nyx|Spawner")
-	TSubclassOf<AActor> BallClass;
 	FTimerHandle SpawnLoopTimerHandle;
+
+	UPROPERTY(EditAnywhere, Category = "Nyx|Spawner")
+	TSubclassOf<ACAsteroidBase> BallClass;
+
 	UPROPERTY(EditAnywhere, Category = "Nyx|Spawner")
 	float LoopLength;
 
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Spawner")
 	bool IsSpawnerActive() const;
 
-public:
+	void ExecuteSpawnLoop();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Nyx|Spawner")
+	FVector GetSpawnLocation();
 };

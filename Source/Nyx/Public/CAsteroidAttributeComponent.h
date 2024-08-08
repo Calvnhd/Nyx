@@ -8,10 +8,6 @@
 
 #include "CAsteroidAttributeComponent.generated.h"
 
-// DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChangedDelegate, AActor*, InstigatorActor,
-//											  UCAsteroidAttributeComponent*, OwningComp, float, Delta, float,
-//											  NewHealth);
-
 UENUM()
 enum EAsteroidSize
 {
@@ -33,46 +29,35 @@ public:
 
 	void InitializeAttributes();
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
-	void InitializeAttributes(EAsteroidSize NewSize);
-	float GetPower() const;
+	void ModifyAttributes(float NewModifier = 1.0f);
+
 	EAsteroidSize GetSize() const;
+
+	float GetPower() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	uint8 GetNumberOfAsteroidsToSpawn() const;
 	TSubclassOf<AActor> GetAsteroidClassToSpawn() const;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	void SetNumberOfAsteroidsToSpawn(uint8 Num);
 
-	// UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
-	// static UCAsteroidAttributeComponent* GetAttributes(AActor* FromActor);
-	// UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes", meta = (DisplayName = "IsAlive"))
-	// static bool IsAsteroidAlive(AActor* Actor);
-	// bool IsAlive() const;
-	// UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
-	// float GetHealth() const;
-	// UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
-	// float GetHealthPercent() const;
-	// UPROPERTY(BlueprintAssignable, Category = "Nyx|AttributeComponent|Attributes")
-	// FOnHealthChangedDelegate OnHealthChanged;
-	// void ApplyHealthChange(AActor* InstigatorActor, float Delta);
+	float GetAttributeModifier() const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	TEnumAsByte<EAsteroidSize> Size;
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
+	float SizeMultiplier;
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
+	float AttributeModifier;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Nyx|AttributeComponent|Attributes")
 	float BaseHealth;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Nyx|AttributeComponent|Attributes")
 	float BasePower;
-	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
-	float SizeMultiplier;
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float Power;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float TimeToActivate;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	uint8 NumberOfAsteroidsToSpawn;
-
-	// UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
-	// float HealthMax;
-	// UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
-	// float Health;
 };

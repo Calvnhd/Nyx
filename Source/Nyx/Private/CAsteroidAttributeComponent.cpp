@@ -12,6 +12,7 @@ UCAsteroidAttributeComponent::UCAsteroidAttributeComponent()
 	// These default values will be overwritten on init based on BP values
 	Size = EAsteroidSize::Base;
 	SizeMultiplier = 1.0f;
+	AttributeModifier = 1.0f;
 	Health = -1.0f;
 	Power = -1.0f;
 
@@ -21,14 +22,13 @@ UCAsteroidAttributeComponent::UCAsteroidAttributeComponent()
 void UCAsteroidAttributeComponent::InitializeAttributes()
 {
 	SizeMultiplier = Size.GetIntValue();
-	HealthMax = BaseHealth * SizeMultiplier;
+	HealthMax = BaseHealth * SizeMultiplier * AttributeModifier;
 	Health = HealthMax;
-	Power = BasePower * SizeMultiplier;
+	Power = BasePower * SizeMultiplier * AttributeModifier;
 }
-// add another overload with some additional modifier for difficulty overall?
-void UCAsteroidAttributeComponent::InitializeAttributes(EAsteroidSize NewSize)
+void UCAsteroidAttributeComponent::ModifyAttributes(float NewModifier)
 {
-	Size = NewSize;
+	AttributeModifier = NewModifier;
 	InitializeAttributes();
 }
 
@@ -51,6 +51,12 @@ void UCAsteroidAttributeComponent::SetNumberOfAsteroidsToSpawn(uint8 Num)
 {
 	NumberOfAsteroidsToSpawn = Num;
 }
+
+float UCAsteroidAttributeComponent::GetAttributeModifier() const
+{
+	return AttributeModifier;
+}
+
 //UCAsteroidAttributeComponent* UCAsteroidAttributeComponent::GetAttributes(AActor* FromActor)
 //{
 //	if (FromActor)

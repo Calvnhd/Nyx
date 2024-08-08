@@ -43,11 +43,4 @@ protected:
 	float Health;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float HealthMax;
-
-	// UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
-	// float ThrustPercent;
-	// UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
-	// float ThrustPercentMax;
-	// UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
-	// float SpeedMax;
 };

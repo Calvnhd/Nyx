@@ -69,7 +69,9 @@ void ACAsteroidBase::SpawnSmallerAsteroids_Implementation()
 			if (UCAsteroidAttributeComponent* AsteroidAttributeComp = Cast<UCAsteroidAttributeComponent>(
 					NewActor->GetComponentByClass(UCAsteroidAttributeComponent::StaticClass())))
 			{
+				// Pass on own attributes to children
 				AsteroidAttributeComp->SetNumberOfAsteroidsToSpawn(AttributeComp->GetNumberOfAsteroidsToSpawn());
+				AsteroidAttributeComp->ModifyAttributes(AttributeComp->GetAttributeModifier());
 			}
 		}
 	}
