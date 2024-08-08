@@ -15,10 +15,14 @@ class NYX_API ACBallSpawner : public AActor
 public:
 	ACBallSpawner();
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Spawner")
 	void ActivateSpawnLoop();
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Spawner")
 	void SpawnOnce();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Spawner")
 	void DeactivateSpawnLoop();
-	void SetLoopLength();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Spawner")
+	void SetLoopLength(float NewLength);
 
 protected:
 	virtual void BeginPlay() override;
@@ -29,6 +33,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Nyx|Spawner")
 	float LoopLength;
 
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Spawner")
+	bool IsSpawnerActive() const;
 
 public:
 };
