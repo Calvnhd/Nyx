@@ -70,8 +70,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Attributes")
 	bool IsAlive();
 
-	
-
 	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
 	TSubclassOf<AActor> AsteroidClass_Base;
 	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
