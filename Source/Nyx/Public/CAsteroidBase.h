@@ -42,6 +42,7 @@ public:
 
 protected:
 	virtual void PostInitializeComponents() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Asteroid|Components")
@@ -69,6 +70,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Attributes")
 	bool IsAlive();
 
+	
+
 	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
 	TSubclassOf<AActor> AsteroidClass_Base;
 	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
@@ -81,4 +84,15 @@ protected:
 	TSubclassOf<AActor> AsteroidClass_Largest;
 	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
 	TSubclassOf<AActor> ItemDropClass;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Nyx|Asteroid|Components")
+	UStaticMeshComponent* GetStaticMeshComponent();
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Helper")
+	FVector GetPlayerDirection(AActor* Player) const;
+	UPROPERTY(BlueprintReadWrite, Category = "Nyx|Asteroid|Behaviour")
+	bool bTickPhysicsHomingForce;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Behaviour")
+	void AddForceInPlayerDirection(AActor* Player);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Nyx|Asteroid|Helper")
+	AActor* GetPlayerRef();
 };

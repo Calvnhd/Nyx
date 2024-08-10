@@ -11,6 +11,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class UCPlayerAttributeComponent;
 class UInputMappingContext;
+class UCAttributeComponentBase;
 class UInputAction;
 struct FInputActionValue;
 
@@ -124,4 +125,7 @@ protected:
 	// Exec turns it into a console command on a Character (or Player Controller, GameMode, Cheat Manager)
 	UFUNCTION(Exec)
 	void HealSelf(float Amount = 1000);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnDeath();
 };

@@ -248,9 +248,7 @@ void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttri
 {
 	if (NewHealth <= 0)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("YOU DIED"));
-		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		DisableInput(PlayerController);
+		OnDeath();
 	}
 }
 void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
@@ -288,4 +286,12 @@ void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 {
 	PlayerAttributeComp->ApplyHealthChange(this, Amount);
 }
+
+void ACPlayerCharacter::OnDeath_Implementation()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("YOU DIED"));
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	DisableInput(PlayerController);
+}
+
 void ACPlayerCharacter::DoNothing() {}

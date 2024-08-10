@@ -8,8 +8,10 @@
 
 ACAsteroidBase::ACAsteroidBase()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	AttributeComp = CreateDefaultSubobject<UCAsteroidAttributeComponent>("AttributeComp");
+
+	bTickPhysicsHomingForce = false;
 }
 
 void ACAsteroidBase::PostInitializeComponents()
@@ -17,6 +19,15 @@ void ACAsteroidBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	AttributeComp->InitializeAttributes();
 	AttributeComp->OnHealthChanged.AddDynamic(this, &ACAsteroidBase::OnHealthChanged);
+}
+
+void ACAsteroidBase::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if (bTickPhysicsHomingForce)
+	{
+		AddForceInPlayerDirection(GetPlayerRef());
+	}
 }
 
 void ACAsteroidBase::OnHealthChanged_Implementation(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
@@ -34,12 +45,12 @@ float ACAsteroidBase::GetHealthPercent()
 }
 
 void ACAsteroidBase::OnAsteroidHit_Implementation(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-												UPrimitiveComponent* OtherComp, FVector NormalImpulse,
-												const FHitResult& Hit)
+												  UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+												  const FHitResult& Hit)
 {
 	if (UCAttributeComponentBase* HitActorAttributes = UCAttributeComponentBase::GetAttributes(OtherActor))
 	{
-		//HitActorAttributes->ApplyHealthChange(this, AttributeComp->GetPower());
+		// HitActorAttributes->ApplyHealthChange(this, AttributeComp->GetPower());
 	}
 }
 
@@ -50,6 +61,27 @@ void ACAsteroidBase::OnCollisionWithPlayer() {}
 bool ACAsteroidBase::IsAlive()
 {
 	return AttributeComp->IsAlive();
+}
+
+FVector ACAsteroidBase::GetPlayerDirection(AActor* Player) const
+{
+	if (!Player)
+	{
+		return FVector(0);
+	}
+	return (Player->GetActorLocation() - GetActorLocation());
+}
+
+void ACAsteroidBase::AddForceInPlayerDirection(AActor* Player)
+{
+	if (!Player)
+	{
+		return;
+	}
+	if (UStaticMeshComponent* StaticMesh = GetStaticMeshComponent())
+	{
+		StaticMesh->AddForce(GetPlayerDirection(Player), NAME_None, true);
+	}
 }
 
 void ACAsteroidBase::SpawnSmallerAsteroids_Implementation()
@@ -64,7 +96,7 @@ void ACAsteroidBase::SpawnSmallerAsteroids_Implementation()
 	FTransform SpawnTM(UKismetMathLibrary::RandomRotator(), GetActorLocation());
 	for (int i = 0; i < AttributeComp->GetNumberOfAsteroidsToSpawn(); ++i)
 	{
-		if(AActor* NewActor = GetWorld()->SpawnActor<AActor>(AsteroidClass, SpawnTM, SpawnParams))
+		if (AActor* NewActor = GetWorld()->SpawnActor<AActor>(AsteroidClass, SpawnTM, SpawnParams))
 		{
 			if (UCAsteroidAttributeComponent* AsteroidAttributeComp = Cast<UCAsteroidAttributeComponent>(
 					NewActor->GetComponentByClass(UCAsteroidAttributeComponent::StaticClass())))
