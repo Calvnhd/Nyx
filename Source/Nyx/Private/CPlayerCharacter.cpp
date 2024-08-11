@@ -3,6 +3,7 @@
 #include "CPlayerCharacter.h"
 
 #include "CCommonDefines.h"
+#include "CPickupInterface.h"
 #include "CPlayerAttributeComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -44,6 +45,7 @@ void ACPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	PlayerAttributeComp->OnHealthChanged.AddDynamic(this, &ACPlayerCharacter::OnHealthChangedResponse);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::OnActorBeginOverlap);
 }
 
 void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -285,6 +287,15 @@ FVector ACPlayerCharacter::GetMuzzleLocation_Implementation() const
 void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 {
 	PlayerAttributeComp->ApplyHealthChange(this, Amount);
+}
+
+void ACPlayerCharacter::OnActorBeginOverlap_Implementation(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->Implements<UCPickupInterface>())
+	{
+		ICPickupInterface::Execute_Pickup(OtherActor, this);
+	}
 }
 
 void ACPlayerCharacter::OnDeath_Implementation()

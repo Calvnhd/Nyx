@@ -6,19 +6,21 @@ UCAsteroidAttributeComponent::UCAsteroidAttributeComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
+	Size = EAsteroidSize::Base;
+	SizeMultiplier = 1.0f;
+
 	BaseHealth = 100.0f;
 	BaseDamagePower = 10.0f;
 	BasePhysicalPower = 50.0f;
 
-	// These default values will be overwritten on init based on BP values
-	Size = EAsteroidSize::Base;
-	SizeMultiplier = 1.0f;
+	SpawnItemChance = 1.0f;
+	TimeToActivate = 5;
+	NumberOfAsteroidsToSpawn = 3;
+
 	AttributeModifier = 1.0f;
 	Health = -1.0f;
 	DamagePower = -1.0f;
-
-	TimeToActivate = 5;
-	NumberOfAsteroidsToSpawn = 3;
+	InitializeAttributes();
 }
 void UCAsteroidAttributeComponent::InitializeAttributes()
 {
@@ -58,7 +60,25 @@ void UCAsteroidAttributeComponent::SetNumberOfAsteroidsToSpawn(uint8 Num)
 	NumberOfAsteroidsToSpawn = Num;
 }
 
+float UCAsteroidAttributeComponent::GetSpawnItemChance() const
+{
+	return SpawnItemChance;
+}
+
 float UCAsteroidAttributeComponent::GetAttributeModifier() const
 {
 	return AttributeModifier;
+}
+
+bool UCAsteroidAttributeComponent::TrySpawnItem() const
+{
+	if (SpawnItemChance == 1)
+	{
+		return true;
+	}
+	if (SpawnItemChance == 0)
+	{
+		return false;
+	}
+	return (FMath::RandRange(0.0f, 1.0f) <= SpawnItemChance);
 }

@@ -21,7 +21,5 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Item|Health")
-	float PointsAmount;
-
-
+	float PointsValue;
 };

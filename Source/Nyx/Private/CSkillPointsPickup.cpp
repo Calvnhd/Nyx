@@ -6,19 +6,18 @@
 
 ACSkillPointsPickup::ACSkillPointsPickup()
 {
-	PointsAmount = 10.0f;
+	PointsValue = 10.0f;
 }
 
 void ACSkillPointsPickup::Pickup_Implementation(APawn* InstigatorPawn)
 {
-	Super::Pickup_Implementation(InstigatorPawn);
 	if (InstigatorPawn)
 	{
-		// todo: make UCPlayerAttributeComponent so you don't have to cast?
 		if (UCPlayerAttributeComponent* Attributes =
 				Cast<UCPlayerAttributeComponent>(UCAttributeComponentBase::GetAttributes(InstigatorPawn)))
 		{
-			// Add skill points
+			Attributes->AddSkillPoints(PointsValue);
 		}
 	}
+	Super::Pickup_Implementation(InstigatorPawn);
 }

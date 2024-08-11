@@ -38,11 +38,12 @@ public:
 	float GetScaledPhysicalPower();
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	uint8 GetNumberOfAsteroidsToSpawn() const;
-	TSubclassOf<AActor> GetAsteroidClassToSpawn() const;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	void SetNumberOfAsteroidsToSpawn(uint8 Num);
-
+	float GetSpawnItemChance() const;
 	float GetAttributeModifier() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	bool TrySpawnItem() const;
 
 protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
@@ -63,4 +64,6 @@ protected:
 	float TimeToActivate;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	uint8 NumberOfAsteroidsToSpawn;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
+	float SpawnItemChance;
 };

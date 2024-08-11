@@ -13,4 +13,5 @@ ACPickupItemBase::ACPickupItemBase()
 void ACPickupItemBase::Pickup_Implementation(APawn* InstigatorPawn)
 {
 	ICPickupInterface::Pickup_Implementation(InstigatorPawn);
+	Destroy();
 }

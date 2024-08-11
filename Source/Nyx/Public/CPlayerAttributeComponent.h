@@ -18,4 +18,10 @@ class NYX_API UCPlayerAttributeComponent : public UCAttributeComponentBase
 
 public:
 	UCPlayerAttributeComponent();
+
+	void AddSkillPoints(float PointsToAdd);
+	float GetSkillPoints() const;
+
+protected:
+	float SkillPoints;
 };

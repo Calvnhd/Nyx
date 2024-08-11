@@ -19,6 +19,11 @@ void ACAsteroidBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	AttributeComp->InitializeAttributes();
 	AttributeComp->OnHealthChanged.AddDynamic(this, &ACAsteroidBase::OnHealthChanged);
+
+	if (UStaticMeshComponent* MeshComp = GetStaticMeshComponent())
+	{
+		MeshComp->OnComponentHit.AddDynamic(this, &ACAsteroidBase::OnAsteroidHit);
+	}
 }
 
 void ACAsteroidBase::Tick(float DeltaSeconds)
@@ -48,19 +53,16 @@ void ACAsteroidBase::OnAsteroidHit_Implementation(UPrimitiveComponent* HitCompon
 												  UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 												  const FHitResult& Hit)
 {
-	if (UCAttributeComponentBase* HitActorAttributes = UCAttributeComponentBase::GetAttributes(OtherActor))
-	{
-		// HitActorAttributes->ApplyHealthChange(this, AttributeComp->GetPower());
-	}
 }
-
-void ACAsteroidBase::OnCollisionWithAsteroid() {}
-
-void ACAsteroidBase::OnCollisionWithPlayer() {}
 
 bool ACAsteroidBase::IsAlive()
 {
 	return AttributeComp->IsAlive();
+}
+
+UStaticMeshComponent* ACAsteroidBase::GetStaticMeshComponent_Implementation()
+{
+	return nullptr;
 }
 
 FVector ACAsteroidBase::GetPlayerDirection(AActor* Player) const
@@ -82,6 +84,11 @@ void ACAsteroidBase::AddForceInPlayerDirection(AActor* Player)
 	{
 		StaticMesh->AddForce(GetPlayerDirection(Player), NAME_None, true);
 	}
+}
+
+AActor* ACAsteroidBase::GetPlayerRef_Implementation() const
+{
+	return nullptr;
 }
 
 void ACAsteroidBase::SpawnSmallerAsteroids_Implementation()
@@ -127,7 +134,8 @@ TSubclassOf<AActor> ACAsteroidBase::GetAsteroidClassToSpawn() const
 			return {};
 	}
 }
-void ACAsteroidBase::SpawnItem() {}
+
+void ACAsteroidBase::SpawnItem_Implementation() {}
 
 void ACAsteroidBase::Explode_Implementation()
 {
@@ -137,7 +145,7 @@ void ACAsteroidBase::Explode_Implementation()
 		{
 			SpawnSmallerAsteroids();
 		}
-		else
+		if (AttributeComp->TrySpawnItem())
 		{
 			SpawnItem();
 		}
