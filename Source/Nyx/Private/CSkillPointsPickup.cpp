@@ -9,6 +9,11 @@ ACSkillPointsPickup::ACSkillPointsPickup()
 	PointsValue = 10.0f;
 }
 
+void ACSkillPointsPickup::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+}
+
 void ACSkillPointsPickup::Pickup_Implementation(APawn* InstigatorPawn)
 {
 	if (InstigatorPawn)
@@ -20,4 +25,9 @@ void ACSkillPointsPickup::Pickup_Implementation(APawn* InstigatorPawn)
 		}
 	}
 	Super::Pickup_Implementation(InstigatorPawn);
+}
+
+void ACSkillPointsPickup::Suction_Implementation(APawn* InstigatorPawn)
+{
+	Super::Suction_Implementation(InstigatorPawn);
 }

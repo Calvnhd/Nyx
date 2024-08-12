@@ -25,4 +25,7 @@ class NYX_API ICPickupInterface
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void Pickup(APawn* InstigatorPawn);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void Suction(APawn* InstigatorPawn);
 };

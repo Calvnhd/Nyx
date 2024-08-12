@@ -20,5 +20,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* MeshComp;
 
+	bool bSuction;
+
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void Pickup_Implementation(APawn* InstigatorPawn) override;
+	virtual void Suction_Implementation(APawn* InstigatorPawn) override;
+
+	UPROPERTY()
+	APawn* PlayerRef;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Item|Behaviour")
+	float SuctionForceMultiplier;
 };

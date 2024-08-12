@@ -7,6 +7,7 @@
 
 #include "CPlayerCharacter.generated.h"
 
+class USphereComponent;
 class UCameraComponent;
 class USpringArmComponent;
 class UCPlayerAttributeComponent;
@@ -53,6 +54,8 @@ protected:
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
 	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
+	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
+	TObjectPtr<USphereComponent> PickupSphereComp;
 
 	/* Input Actions */
 
@@ -135,4 +138,9 @@ protected:
 	void CapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 							 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
 							 const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Events")
+	void PickupSphereOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+									UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+									const FHitResult& SweepResult);
 };

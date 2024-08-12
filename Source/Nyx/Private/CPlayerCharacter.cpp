@@ -10,6 +10,7 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -39,6 +40,9 @@ ACPlayerCharacter::ACPlayerCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	PlayerAttributeComp = CreateDefaultSubobject<UCPlayerAttributeComponent>(TEXT("PlayerAttributeComp"));
+
+	PickupSphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("PickupSphereComp"));
+	PickupSphereComp->SetupAttachment(RootComponent);
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
@@ -47,6 +51,7 @@ void ACPlayerCharacter::PostInitializeComponents()
 	PlayerAttributeComp->OnHealthChanged.AddDynamic(this, &ACPlayerCharacter::HealthChangedHandler);
 	PlayerAttributeComp->OnSkillPointsChanged.AddDynamic(this, &ACPlayerCharacter::SkillPointsChangedHandler);
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::CapsuleCompOverlapHandler);
+	PickupSphereComp->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::PickupSphereOverlapHandler);
 }
 
 void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -289,9 +294,19 @@ void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 	PlayerAttributeComp->ApplyHealthChange(this, Amount);
 }
 
+void ACPlayerCharacter::PickupSphereOverlapHandler_Implementation(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	if (OtherActor && OtherActor->Implements<UCPickupInterface>())
+	{
+		ICPickupInterface::Execute_Suction(OtherActor, this);
+	}
+}
+
 void ACPlayerCharacter::CapsuleCompOverlapHandler_Implementation(UPrimitiveComponent* OverlappedComponent,
-																 AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                                                 AActor* OtherActor,
+                                                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->Implements<UCPickupInterface>())
 	{
