@@ -239,7 +239,7 @@ void ACPlayerCharacter::AttackPrimaryFireOnce()
 
 void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Value)
 {
-	// todo
+	// get an orbiting pickup and launch it forward
 }
 
 void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)

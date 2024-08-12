@@ -54,7 +54,7 @@ protected:
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
 	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
 	TObjectPtr<USphereComponent> PickupSphereComp;
 
 	/* Input Actions */
