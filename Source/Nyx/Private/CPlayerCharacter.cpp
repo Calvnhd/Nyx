@@ -44,8 +44,9 @@ ACPlayerCharacter::ACPlayerCharacter()
 void ACPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	PlayerAttributeComp->OnHealthChanged.AddDynamic(this, &ACPlayerCharacter::OnHealthChangedResponse);
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::OnActorBeginOverlap);
+	PlayerAttributeComp->OnHealthChanged.AddDynamic(this, &ACPlayerCharacter::HealthChangedHandler);
+	PlayerAttributeComp->OnSkillPointsChanged.AddDynamic(this, &ACPlayerCharacter::SkillPointsChangedHandler);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::CapsuleCompOverlapHandler);
 }
 
 void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -183,7 +184,7 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM() const
 	// A Transformation Matrix at the muzzle, looking at the target
 	return FTransform(SpawnRotation, SpawnLocation);
 }
-void ACPlayerCharacter::AttackPrimary_Implementation(const FInputActionValue& Value)
+void ACPlayerCharacter::AttackPrimary(const FInputActionValue& Value)
 {
 	if (Value.Get<bool>())
 	{
@@ -211,9 +212,10 @@ void ACPlayerCharacter::AttackPrimaryBegin()
 }
 void ACPlayerCharacter::AttackPrimaryEnd()
 {
-	float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
-	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::DoNothing, TimeRemaining,
-									false);
+	//float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
+	//GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::DoNothing, TimeRemaining,
+	//								false);
+	GetWorldTimerManager().ClearTimer(AttackPrimaryTimerHandle);
 }
 
 void ACPlayerCharacter::AttackPrimaryResetLoop()
@@ -222,7 +224,7 @@ void ACPlayerCharacter::AttackPrimaryResetLoop()
 									AttackPrimaryFireRate, true, 0);
 }
 
-void ACPlayerCharacter::AttackPrimaryFireOnce_Implementation()
+void ACPlayerCharacter::AttackPrimaryFireOnce()
 {
 	if (ensureAlways(ProjectileClassPrimary) && ensureAlways(MuzzleFlashPrimary))
 	{
@@ -245,7 +247,7 @@ void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
 	// todo
 }
 
-void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
+void ACPlayerCharacter::HealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
 												float Delta, float NewHealth)
 {
 	if (NewHealth <= 0)
@@ -253,6 +255,9 @@ void ACPlayerCharacter::OnHealthChangedResponse(AActor* InstigatorActor, UCAttri
 		OnDeath();
 	}
 }
+
+void ACPlayerCharacter::SkillPointsChangedHandler(UCAttributeComponentBase* OwningComp, float Delta, float NewPoints) {}
+
 void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
 {
 	FActorSpawnParameters SpawnParams;
@@ -265,22 +270,17 @@ void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
 }
 void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect)
 {
-	FActorSpawnParameters SpawnParams;
-	// Make sure the Projectile knows that it was spawned by the Player
-	SpawnParams.Instigator = this;
-	// Make projectile always spawn at desired location, regardless of collisions
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	// Spawn projectile
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
 	UGameplayStatics::SpawnEmitterAtLocation(
 		this, MuzzleEffect, GetMuzzleLocation(),
 		UKismetMathLibrary::MakeRotFromX(GetCameraTargetLocation() - GetMuzzleLocation()));
+
+	SpawnProjectile(ProjectileClass);
 }
 
 FVector ACPlayerCharacter::GetMuzzleLocation_Implementation() const
 {
-	// Ideally would want a named socket on the mesh and call something like...
-	// GetMesh()->GetSocketLocation(HandSocketName);
+	// Overridden with actual location in BP
+	// Named socket would be better for a more complex mesh
 	return GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, 100);
 }
 
@@ -289,7 +289,8 @@ void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 	PlayerAttributeComp->ApplyHealthChange(this, Amount);
 }
 
-void ACPlayerCharacter::OnActorBeginOverlap_Implementation(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void ACPlayerCharacter::CapsuleCompOverlapHandler_Implementation(UPrimitiveComponent* OverlappedComponent,
+																 AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->Implements<UCPickupInterface>())
@@ -305,4 +306,4 @@ void ACPlayerCharacter::OnDeath_Implementation()
 	DisableInput(PlayerController);
 }
 
-void ACPlayerCharacter::DoNothing() {}
+//void ACPlayerCharacter::DoNothing() {}

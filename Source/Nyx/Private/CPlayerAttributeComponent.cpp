@@ -12,6 +12,7 @@ UCPlayerAttributeComponent::UCPlayerAttributeComponent()
 void UCPlayerAttributeComponent::AddSkillPoints(float PointsToAdd)
 {
 	SkillPoints += PointsToAdd;
+	OnSkillPointsChanged.Broadcast(this, PointsToAdd, SkillPoints);
 }
 
 float UCPlayerAttributeComponent::GetSkillPoints() const

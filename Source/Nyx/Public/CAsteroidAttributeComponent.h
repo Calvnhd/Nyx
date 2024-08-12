@@ -40,7 +40,7 @@ public:
 	uint8 GetNumberOfAsteroidsToSpawn() const;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	void SetNumberOfAsteroidsToSpawn(uint8 Num);
-	float GetSpawnItemChance() const;
+	float GetChanceToSpawnItem() const;
 	float GetAttributeModifier() const;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
 	bool TrySpawnItem() const;
@@ -65,5 +65,5 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	uint8 NumberOfAsteroidsToSpawn;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
-	float SpawnItemChance;
+	float ChanceToSpawnItem;
 };

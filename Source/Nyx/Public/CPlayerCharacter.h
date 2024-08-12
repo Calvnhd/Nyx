@@ -71,7 +71,7 @@ protected:
 
 	/* Actions */
 
-	void DoNothing();
+	//void DoNothing();
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -96,9 +96,9 @@ protected:
 	FTimerHandle AttackPrimaryTimerHandle;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
 	float AttackPrimaryFireRate = 1.0f;
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
+	//UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	void AttackPrimary(const FInputActionValue& Value);
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
+	//UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	void AttackPrimaryFireOnce();
 	void AttackPrimaryBegin();
 	void AttackPrimaryEnd();
@@ -116,11 +116,13 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	void Shield(const FInputActionValue& Value);
 
-	/* Attributes */
+	/* Events */
 
 	UFUNCTION()
-	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
+	void HealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 								 float NewHealth);
+	UFUNCTION()
+	void SkillPointsChangedHandler(UCAttributeComponentBase* OwningComp, float Delta, float NewPoints);
 
 	// Exec turns it into a console command on a Character (or Player Controller, GameMode, Cheat Manager)
 	UFUNCTION(Exec)
@@ -130,7 +132,7 @@ protected:
 	void OnDeath();
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Events")
-	void OnActorBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	void CapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 							 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
 							 const FHitResult& SweepResult);
 };

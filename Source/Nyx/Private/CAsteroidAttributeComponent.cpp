@@ -13,7 +13,7 @@ UCAsteroidAttributeComponent::UCAsteroidAttributeComponent()
 	BaseDamagePower = 10.0f;
 	BasePhysicalPower = 50.0f;
 
-	SpawnItemChance = 1.0f;
+	ChanceToSpawnItem = 1.0f;
 	TimeToActivate = 5;
 	NumberOfAsteroidsToSpawn = 3;
 
@@ -60,9 +60,9 @@ void UCAsteroidAttributeComponent::SetNumberOfAsteroidsToSpawn(uint8 Num)
 	NumberOfAsteroidsToSpawn = Num;
 }
 
-float UCAsteroidAttributeComponent::GetSpawnItemChance() const
+float UCAsteroidAttributeComponent::GetChanceToSpawnItem() const
 {
-	return SpawnItemChance;
+	return ChanceToSpawnItem;
 }
 
 float UCAsteroidAttributeComponent::GetAttributeModifier() const
@@ -72,13 +72,13 @@ float UCAsteroidAttributeComponent::GetAttributeModifier() const
 
 bool UCAsteroidAttributeComponent::TrySpawnItem() const
 {
-	if (SpawnItemChance == 1)
+	if (ChanceToSpawnItem == 1)
 	{
 		return true;
 	}
-	if (SpawnItemChance == 0)
+	if (ChanceToSpawnItem == 0)
 	{
 		return false;
 	}
-	return (FMath::RandRange(0.0f, 1.0f) <= SpawnItemChance);
+	return (FMath::RandRange(0.0f, 1.0f) <= ChanceToSpawnItem);
 }
