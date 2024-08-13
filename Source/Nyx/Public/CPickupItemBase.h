@@ -19,7 +19,7 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* MeshComp;
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Nyx|Item|Behaviour")
 	bool bSuction;
 
 	virtual void Tick(float DeltaSeconds) override;
