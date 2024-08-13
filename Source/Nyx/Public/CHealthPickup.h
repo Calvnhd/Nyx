@@ -18,7 +18,7 @@ class NYX_API ACHealthPickup : public ACPickupItemBase
 public:
 	ACHealthPickup();
 
-	virtual void Pickup_Implementation(APawn* InstigatorPawn) override;
+	virtual void ConsumePickup_Implementation(APawn* InstigatorPawn) override;
 
 protected:
 

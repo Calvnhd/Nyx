@@ -7,6 +7,12 @@
 ACSkillPointsPickup::ACSkillPointsPickup()
 {
 	PointsValue = 10.0f;
+	bCanSuction = true;
+}
+
+void ACSkillPointsPickup::SetCanSuction(bool bNewCanSuction)
+{
+	bCanSuction = bNewCanSuction;
 }
 
 void ACSkillPointsPickup::Tick(float DeltaSeconds)
@@ -14,7 +20,7 @@ void ACSkillPointsPickup::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 }
 
-void ACSkillPointsPickup::Pickup_Implementation(APawn* InstigatorPawn)
+void ACSkillPointsPickup::ConsumePickup_Implementation(APawn* InstigatorPawn)
 {
 	if (InstigatorPawn)
 	{
@@ -24,10 +30,18 @@ void ACSkillPointsPickup::Pickup_Implementation(APawn* InstigatorPawn)
 			Attributes->AddSkillPoints(PointsValue);
 		}
 	}
-	Super::Pickup_Implementation(InstigatorPawn);
+	Super::ConsumePickup_Implementation(InstigatorPawn);
 }
 
-void ACSkillPointsPickup::Suction_Implementation(APawn* InstigatorPawn)
+void ACSkillPointsPickup::BeginSuction_Implementation(APawn* InstigatorPawn)
 {
-	Super::Suction_Implementation(InstigatorPawn);
+	if (bCanSuction)
+	{
+		Super::BeginSuction_Implementation(InstigatorPawn);
+	}
+}
+
+void ACSkillPointsPickup::StopSuction_Implementation(APawn* InstigatorPawn)
+{
+	Super::StopSuction_Implementation(InstigatorPawn);
 }

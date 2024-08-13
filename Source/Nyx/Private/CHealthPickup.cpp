@@ -9,9 +9,9 @@ ACHealthPickup::ACHealthPickup()
 	HealAmount = 50.0f;
 }
 
-void ACHealthPickup::Pickup_Implementation(APawn* InstigatorPawn)
+void ACHealthPickup::ConsumePickup_Implementation(APawn* InstigatorPawn)
 {
-	Super::Pickup_Implementation(InstigatorPawn);
+	Super::ConsumePickup_Implementation(InstigatorPawn);
 
 	if (InstigatorPawn)
 	{

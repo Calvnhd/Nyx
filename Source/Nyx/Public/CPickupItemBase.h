@@ -15,16 +15,18 @@ class NYX_API ACPickupItemBase : public AActor, public ICPickupInterface
 	
 public:	
 	ACPickupItemBase();
+	UStaticMeshComponent* GetMesh() const;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* MeshComp;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Nyx|Item|Behaviour")
-	bool bSuction;
+	bool bIsSuctionActive;
 
 	virtual void Tick(float DeltaSeconds) override;
-	virtual void Pickup_Implementation(APawn* InstigatorPawn) override;
-	virtual void Suction_Implementation(APawn* InstigatorPawn) override;
+	virtual void ConsumePickup_Implementation(APawn* InstigatorPawn) override;
+	virtual void BeginSuction_Implementation(APawn* InstigatorPawn) override;
+	virtual void StopSuction_Implementation(APawn* InstigatorPawn) override;
 
 	UPROPERTY()
 	APawn* PlayerRef;

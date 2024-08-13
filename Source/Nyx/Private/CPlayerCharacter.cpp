@@ -5,12 +5,13 @@
 #include "CCommonDefines.h"
 #include "CPickupInterface.h"
 #include "CPlayerAttributeComponent.h"
+#include "CSkillPointsPickup.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/SphereComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -43,6 +44,9 @@ ACPlayerCharacter::ACPlayerCharacter()
 
 	PickupSphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("PickupSphereComp"));
 	PickupSphereComp->SetupAttachment(RootComponent);
+
+	HeldPickupHeight = 150.0f;
+	PickupLaunchImpulseStrength = 5000.0f;
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
@@ -91,6 +95,19 @@ void ACPlayerCharacter::BeginPlay()
 				ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+}
+
+void ACPlayerCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (HeldPickup)
+	{
+		if (UStaticMeshComponent* PickupMesh = HeldPickup->GetMesh())
+		{
+			PickupMesh->SetWorldLocation(GetActorLocation() + FVector(0.0f, 0.0f, HeldPickupHeight));
 		}
 	}
 }
@@ -217,8 +234,8 @@ void ACPlayerCharacter::AttackPrimaryBegin()
 }
 void ACPlayerCharacter::AttackPrimaryEnd()
 {
-	//float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
-	//GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::DoNothing, TimeRemaining,
+	// float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
+	// GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::DoNothing, TimeRemaining,
 	//								false);
 	GetWorldTimerManager().ClearTimer(AttackPrimaryTimerHandle);
 }
@@ -239,7 +256,41 @@ void ACPlayerCharacter::AttackPrimaryFireOnce()
 
 void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Value)
 {
-	// get an orbiting pickup and launch it forward
+	if (HeldPickup)
+	{
+		if (UStaticMeshComponent* PickupMesh = HeldPickup->GetMesh())
+		{
+			PickupMesh->SetSimulatePhysics(true);
+			PickupMesh->SetEnableGravity(true);
+		}
+		FRotator RotationToTarget =
+			UKismetMathLibrary::FindLookAtRotation(HeldPickup->GetActorLocation(), GetCameraTargetLocation());
+		HeldPickup->GetMesh()->AddImpulse(RotationToTarget.Vector() * PickupLaunchImpulseStrength, NAME_None, true);
+
+		HeldPickup = nullptr;
+	}
+	else
+	{
+		TArray<AActor*> OverlappingActors;
+		PickupSphereComp->GetOverlappingActors(OverlappingActors, ACSkillPointsPickup::StaticClass());
+		if (OverlappingActors.IsEmpty())
+		{
+			return;
+		}
+		if (ACSkillPointsPickup* Pickup = Cast<ACSkillPointsPickup>(OverlappingActors.Pop()))
+		{
+			HeldPickup = Pickup;
+			HeldPickup->SetCanSuction(false);
+			ICPickupInterface::Execute_StopSuction(HeldPickup, this);
+
+			if (UStaticMeshComponent* PickupMesh = HeldPickup->GetMesh())
+			{
+				PickupMesh->SetEnableGravity(false);
+				// Resets the affect of any previous forces
+				PickupMesh->SetSimulatePhysics(false);
+			}
+		}
+	}
 }
 
 void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)
@@ -252,8 +303,8 @@ void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
 	// todo
 }
 
-void ACPlayerCharacter::HealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
-												float Delta, float NewHealth)
+void ACPlayerCharacter::HealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
+											 float NewHealth)
 {
 	if (NewHealth <= 0)
 	{
@@ -295,30 +346,29 @@ void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 }
 
 void ACPlayerCharacter::PickupSphereOverlapHandler_Implementation(UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-	const FHitResult& SweepResult)
+																  AActor* OtherActor, UPrimitiveComponent* OtherComp,
+																  int32 OtherBodyIndex, bool bFromSweep,
+																  const FHitResult& SweepResult)
 {
 	if (OtherActor && OtherActor->Implements<UCPickupInterface>())
 	{
-		ICPickupInterface::Execute_Suction(OtherActor, this);
+		ICPickupInterface::Execute_BeginSuction(OtherActor, this);
 	}
 }
 
 void ACPlayerCharacter::CapsuleCompOverlapHandler_Implementation(UPrimitiveComponent* OverlappedComponent,
-                                                                 AActor* OtherActor,
-                                                                 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+																 AActor* OtherActor, UPrimitiveComponent* OtherComp,
+																 int32 OtherBodyIndex, bool bFromSweep,
+																 const FHitResult& SweepResult)
 {
-	if (OtherActor->Implements<UCPickupInterface>())
+	/*if (OtherActor->Implements<UCPickupInterface>())
 	{
-		ICPickupInterface::Execute_Pickup(OtherActor, this);
-	}
+		ICPickupInterface::Execute_ConsumePickup(OtherActor, this);
+	}*/
 }
 
 void ACPlayerCharacter::OnDeath_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("YOU DIED"));
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	DisableInput(PlayerController);
 }
-
-//void ACPlayerCharacter::DoNothing() {}
