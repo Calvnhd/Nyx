@@ -21,7 +21,7 @@ public:
 
 	float GetCollisionDamageAmount();
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Nyx|EnemyAttributes")
 	bool Kill(AActor* InstigatorActor);
 
 protected:

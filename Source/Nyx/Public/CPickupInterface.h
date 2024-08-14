@@ -23,12 +23,12 @@ class NYX_API ICPickupInterface
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Nyx|Interface|Pickup")
 	void ConsumePickup(APawn* InstigatorPawn);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Nyx|Interface|Pickup")
 	void BeginSuction(APawn* InstigatorPawn);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Nyx|Interface|Pickup")
 	void StopSuction(APawn* InstigatorPawn);
 };

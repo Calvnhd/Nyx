@@ -24,25 +24,34 @@ class NYX_API UCAsteroidAttributeComponent : public UCAttributeComponentBase
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UCAsteroidAttributeComponent();
 
-	void InitializeAttributes();
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
-	void ModifyAttributes(float NewModifier = 1.0f);
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	/* Getters */
+
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	EAsteroidSize GetSize() const;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	float GetDamagePower() const;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	float GetScaledPhysicalPower();
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	uint8 GetNumberOfAsteroidsToSpawn() const;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
-	void SetNumberOfAsteroidsToSpawn(uint8 Num);
+
 	float GetChanceToSpawnItem() const;
 	float GetAttributeModifier() const;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+
+	/* Setters */
+
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Setters")
+	void ModifyAttributes(float NewModifier = 1.0f);
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Setters")
+	void SetNumberOfAsteroidsToSpawn(uint8 Num);
+
+	void InitializeAttributes();
+
+	/* Behaviour */
+
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Behaviour")
 	bool TrySpawnItem() const;
 
 protected:
@@ -50,18 +59,23 @@ protected:
 	TEnumAsByte<EAsteroidSize> Size;
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float SizeMultiplier;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float AttributeModifier;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float BaseHealth;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float BaseDamagePower;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float BasePhysicalPower;
+
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float DamagePower;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float TimeToActivate;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	uint8 NumberOfAsteroidsToSpawn;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")

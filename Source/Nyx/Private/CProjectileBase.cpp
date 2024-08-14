@@ -11,7 +11,6 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
-// Sets default values
 ACProjectileBase::ACProjectileBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -44,39 +43,33 @@ ACProjectileBase::ACProjectileBase()
 	MaximumLifetime = 1.0f;
 }
 
-void ACProjectileBase::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-									   UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ACProjectileBase::PostInitializeComponents()
 {
-	// do something on hit
-	/*float Radius = 50.0f;
-	float Segments = 32;
-	FColor LineColor = Hit.bBlockingHit ? FColor::Green : FColor::Red;
-	float Lifetime = 5.0f;
-	DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, Segments, LineColor, false, Lifetime);
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, LineColor, TEXT("Projectile Hit"));
-	}*/
+	Super::PostInitializeComponents();
 
-	// Check there's a valid OtherActor and it's not the actor who spawned this projectile (no hitting ourselves)
+	SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::NativeProjectileHitHandler);
+}
+
+void ACProjectileBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Don't hit yourself
+	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
+	// Don't live too long
+	SetLifeSpan(MaximumLifetime);
+}
+
+void ACProjectileBase::NativeProjectileHitHandler(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+												  UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+												  const FHitResult& Hit)
+{
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		// todo: refactor atrribute components
-
-		// Check if what we just hit has an EnemyAttributeComponent using casting -- Cast<ExpectedType>(ThingToCast)
-		//
-		// GetComponentByClass iterates through actor until it finds the FIRST instance of specified class
-		// StaticClass() lets us easily pass around the class type.  Use this to see if the actor has a
-		// CEnemyAttributeComponent, and then call the desired function on it.
-		if (UCEnemyAttributeComponent* AttributeComp = Cast<UCEnemyAttributeComponent>(
-				OtherActor->GetComponentByClass(UCEnemyAttributeComponent::StaticClass())))
+		if (UCAsteroidAttributeComponent* AttributeComp =
+				Cast<UCAsteroidAttributeComponent>(UCAttributeComponentBase::GetAttributes(OtherActor)))
 		{
 			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
-		}
-		else if (UCAsteroidAttributeComponent* AsteroidAttributeComp = Cast<UCAsteroidAttributeComponent>(
-					 OtherActor->GetComponentByClass(UCAsteroidAttributeComponent::StaticClass())))
-		{
-			AsteroidAttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
 		}
 		Explode();
 	}
@@ -90,26 +83,6 @@ void ACProjectileBase::Explode_Implementation()
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
 		}
-		// GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Projectile explode"));
 		Destroy();
 	}
-}
-
-void ACProjectileBase::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	// Delegate bindings
-	SphereComp->OnComponentHit.AddDynamic(this, &ACProjectileBase::OnProjectileHit);
-}
-
-// Called when the game starts or when spawned
-void ACProjectileBase::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// Don't hit yourself
-	SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
-	// Don't live too long
-	SetLifeSpan(MaximumLifetime);
 }

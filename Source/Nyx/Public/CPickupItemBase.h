@@ -18,9 +18,9 @@ public:
 	UStaticMeshComponent* GetMesh() const;
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Nyx|Pickup|Components")
 	UStaticMeshComponent* MeshComp;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Nyx|Item|Behaviour")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Nyx|Pickup|Behaviour")
 	bool bIsSuctionActive;
 
 	virtual void Tick(float DeltaSeconds) override;
@@ -30,6 +30,6 @@ protected:
 
 	UPROPERTY()
 	APawn* PlayerRef;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Item|Behaviour")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Pickup|Behaviour")
 	float SuctionForceMultiplier;
 };

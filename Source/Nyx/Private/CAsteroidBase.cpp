@@ -18,12 +18,7 @@ void ACAsteroidBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	AttributeComp->InitializeAttributes();
-	AttributeComp->OnHealthChanged.AddDynamic(this, &ACAsteroidBase::OnHealthChanged);
-
-	if (UStaticMeshComponent* MeshComp = GetStaticMeshComponent())
-	{
-		MeshComp->OnComponentHit.AddDynamic(this, &ACAsteroidBase::OnAsteroidHit);
-	}
+	AttributeComp->OnHealthChanged.AddDynamic(this, &ACAsteroidBase::NativeHealthChangedHandler);
 }
 
 void ACAsteroidBase::Tick(float DeltaSeconds)
@@ -35,8 +30,8 @@ void ACAsteroidBase::Tick(float DeltaSeconds)
 	}
 }
 
-void ACAsteroidBase::OnHealthChanged_Implementation(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
-													float Delta, float NewHealth)
+void ACAsteroidBase::NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
+												float Delta, float NewHealth)
 {
 	if (NewHealth <= 0.0f)
 	{
@@ -49,18 +44,12 @@ float ACAsteroidBase::GetHealthPercent()
 	return AttributeComp->GetHealthPercent();
 }
 
-void ACAsteroidBase::OnAsteroidHit_Implementation(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-												  UPrimitiveComponent* OtherComp, FVector NormalImpulse,
-												  const FHitResult& Hit)
-{
-}
-
 bool ACAsteroidBase::IsAlive()
 {
 	return AttributeComp->IsAlive();
 }
 
-UStaticMeshComponent* ACAsteroidBase::GetStaticMeshComponent_Implementation()
+UStaticMeshComponent* ACAsteroidBase::GetStaticMeshComponent_Implementation() const
 {
 	return nullptr;
 }

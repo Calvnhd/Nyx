@@ -41,32 +41,40 @@ public:
 	ACAsteroidBase();
 
 protected:
+	/* Overrides */
+
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaSeconds) override;
 
-	// Components
+	/* Components */
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Asteroid|Components")
 	TObjectPtr<UCAsteroidAttributeComponent> AttributeComp;
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Components")
+	UStaticMeshComponent* GetStaticMeshComponent() const;
 
-	// Events
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Asteroid|Events")
-	void OnHealthChanged(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta, float NewHealth);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Asteroid|Events")
-	void OnAsteroidHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-					   FVector NormalImpulse, const FHitResult& Hit);
+	/* Events */
+
+	UFUNCTION()
+	void NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
+									float NewHealth);
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Events")
 	void SpawnSmallerAsteroids();
-	TSubclassOf<AActor> GetAsteroidClassToSpawn() const;
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Events")
 	void SpawnItem();
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Events")
 	void Explode();
 
-	// Attributes
+	/* Attributes */
+
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Attributes")
 	float GetHealthPercent();
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Attributes")
 	bool IsAlive();
+
+	/* Classes */
+
+	TSubclassOf<AActor> GetAsteroidClassToSpawn() const;
 
 	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
 	TSubclassOf<AActor> AsteroidClass_Base;
@@ -81,14 +89,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
 	TSubclassOf<AActor> ItemDropClass;
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Components")
-	UStaticMeshComponent* GetStaticMeshComponent();
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Helper")
-	FVector GetPlayerDirection(AActor* Player) const;
+	/* Behaviour */
+
 	UPROPERTY(BlueprintReadWrite, Category = "Nyx|Asteroid|Behaviour")
 	bool bTickPhysicsHomingForce;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Behaviour")
 	void AddForceInPlayerDirection(AActor* Player);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Asteroid|Helper")
+
+	/* Awareness */
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Asteroid|Awareness")
 	AActor* GetPlayerRef() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Awareness")
+	FVector GetPlayerDirection(AActor* Player) const;
 };

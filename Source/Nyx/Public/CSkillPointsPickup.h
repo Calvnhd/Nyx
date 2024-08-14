@@ -27,7 +27,7 @@ protected:
 	virtual void BeginSuction_Implementation(APawn* InstigatorPawn) override;
 	virtual void StopSuction_Implementation(APawn* InstigatorPawn) override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Item|Value")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Pickup|SkillPoints")
 	float PointsValue;
 
 	bool bCanSuction;

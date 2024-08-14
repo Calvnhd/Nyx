@@ -47,15 +47,16 @@ ACPlayerCharacter::ACPlayerCharacter()
 
 	HeldPickupHeight = 150.0f;
 	PickupLaunchImpulseStrength = 5000.0f;
+	AttackPrimaryFireRate = 1.0f;
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	PlayerAttributeComp->OnHealthChanged.AddDynamic(this, &ACPlayerCharacter::HealthChangedHandler);
-	PlayerAttributeComp->OnSkillPointsChanged.AddDynamic(this, &ACPlayerCharacter::SkillPointsChangedHandler);
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::CapsuleCompOverlapHandler);
-	PickupSphereComp->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::PickupSphereOverlapHandler);
+	PlayerAttributeComp->OnHealthChanged.AddDynamic(this, &ACPlayerCharacter::NativeHealthChangedHandler);
+	PlayerAttributeComp->OnSkillPointsChanged.AddDynamic(this, &ACPlayerCharacter::NativeSkillPointsChangedHandler);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::NativeCapsuleCompOverlapHandler);
+	PickupSphereComp->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::NativePickupSphereOverlapHandler);
 }
 
 void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -303,7 +304,7 @@ void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
 	// todo
 }
 
-void ACPlayerCharacter::HealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
+void ACPlayerCharacter::NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 											 float NewHealth)
 {
 	if (NewHealth <= 0)
@@ -312,7 +313,7 @@ void ACPlayerCharacter::HealthChangedHandler(AActor* InstigatorActor, UCAttribut
 	}
 }
 
-void ACPlayerCharacter::SkillPointsChangedHandler(UCAttributeComponentBase* OwningComp, float Delta, float NewPoints) {}
+void ACPlayerCharacter::NativeSkillPointsChangedHandler(UCAttributeComponentBase* OwningComp, float Delta, float NewPoints) {}
 
 void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
 {
@@ -345,7 +346,7 @@ void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 	PlayerAttributeComp->ApplyHealthChange(this, Amount);
 }
 
-void ACPlayerCharacter::PickupSphereOverlapHandler_Implementation(UPrimitiveComponent* OverlappedComponent,
+void ACPlayerCharacter::NativePickupSphereOverlapHandler(UPrimitiveComponent* OverlappedComponent,
 																  AActor* OtherActor, UPrimitiveComponent* OtherComp,
 																  int32 OtherBodyIndex, bool bFromSweep,
 																  const FHitResult& SweepResult)
@@ -356,7 +357,7 @@ void ACPlayerCharacter::PickupSphereOverlapHandler_Implementation(UPrimitiveComp
 	}
 }
 
-void ACPlayerCharacter::CapsuleCompOverlapHandler_Implementation(UPrimitiveComponent* OverlappedComponent,
+void ACPlayerCharacter::NativeCapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent,
 																 AActor* OtherActor, UPrimitiveComponent* OtherComp,
 																 int32 OtherBodyIndex, bool bFromSweep,
 																 const FHitResult& SweepResult)

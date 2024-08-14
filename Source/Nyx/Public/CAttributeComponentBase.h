@@ -22,22 +22,23 @@ class NYX_API UCAttributeComponentBase : public UActorComponent
 public:
 	UCAttributeComponentBase();
 
-	// Static functions can be called anywhere, without an instance of the class
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	static UCAttributeComponentBase* GetAttributes(AActor* FromActor);
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes", meta = (DisplayName = "IsAlive"))
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters", meta = (DisplayName = "IsAlive"))
 	static bool IsActorAlive(AActor* Actor);
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	bool IsAlive() const;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Setters")
 	void ApplyHealthChange(AActor* InstigatorActor, float Delta);
-	UPROPERTY(BlueprintAssignable, Category = "Nyx|AttributeComponent|Attributes")
+	UPROPERTY(BlueprintAssignable, Category = "Nyx|AttributeComponent|Events")
 	FOnHealthChangedSignature OnHealthChanged;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	float GetHealth() const;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	float GetHealthMax() const;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	float GetHealthPercent() const;
 
 protected:

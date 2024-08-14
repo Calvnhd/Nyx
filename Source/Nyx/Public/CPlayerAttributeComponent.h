@@ -25,7 +25,7 @@ public:
 	void AddSkillPoints(float PointsToAdd);
 	float GetSkillPoints() const;
 
-	UPROPERTY(BlueprintAssignable, Category = "Nyx|AttributeComponent|Attributes")
+	UPROPERTY(BlueprintAssignable, Category = "Nyx|AttributeComponent|Events")
 	FOnSkillPointsChangedSignature OnSkillPointsChanged;
 
 protected:

@@ -39,6 +39,8 @@ protected:
 	 * --
 	 */
 
+	/* Overrides */
+
 	virtual void PostInitializeComponents() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
@@ -46,30 +48,31 @@ protected:
 
 	/* Components */
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
 	TObjectPtr<USpringArmComponent> CameraBoom;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
 	TObjectPtr<UCameraComponent> FollowCamera;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
-	TObjectPtr<UInputMappingContext> DefaultMappingContext;
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
+	UPROPERTY(VisibleAnywhere, Category = "Nyx|Player|Components")
 	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
 	TObjectPtr<USphereComponent> PickupSphereComp;
 
-	/* Input Actions */
+	/* Input */
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
+	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> MoveAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> LookAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> AttackPrimaryAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> AttackSpecialAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> DashAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> ShieldAction;
 
 	/* Actions */
@@ -80,70 +83,68 @@ protected:
 	FVector GetCameraTargetLocation() const;
 	FTransform GetCrosshairTargetTM() const;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Abilities")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Player|Abilities")
 	FVector GetMuzzleLocation() const;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	float MaxBarrelPitch = 160.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	float MinBarrelPitch = 80.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	float NeutralBarrelPitch = 90.0f;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Abilities")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
 	float CalculateBarrelPitch() const;
 
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass);
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect);
 
 	FTimerHandle AttackPrimaryTimerHandle;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
-	float AttackPrimaryFireRate = 1.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	float AttackPrimaryFireRate;
 	void AttackPrimary(const FInputActionValue& Value);
 	void AttackPrimaryFireOnce();
 	void AttackPrimaryBegin();
 	void AttackPrimaryEnd();
 	void AttackPrimaryResetLoop();
-	UPROPERTY(EditAnywhere, Category = "Nyx|Abilities")
+	UPROPERTY(EditAnywhere, Category = "Nyx|Player|Abilities")
 	TSubclassOf<AActor> ProjectileClassPrimary;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Dash(const FInputActionValue& Value);
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Shield(const FInputActionValue& Value);
 
 	/* Events */
 
 	UFUNCTION()
-	void HealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
-							  float NewHealth);
+	void NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
+									float NewHealth);
 	UFUNCTION()
-	void SkillPointsChangedHandler(UCAttributeComponentBase* OwningComp, float Delta, float NewPoints);
+	void NativeSkillPointsChangedHandler(UCAttributeComponentBase* OwningComp, float Delta, float NewPoints);
+	UFUNCTION()
+	void NativeCapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+										 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+										 const FHitResult& SweepResult);
+	UFUNCTION()
+	void NativePickupSphereOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+										  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+										  const FHitResult& SweepResult);
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Events")
+	void OnDeath();
+
+	/* Misc */
 
 	// Exec turns it into a console command on a Character (or Player Controller, GameMode, Cheat Manager)
 	UFUNCTION(Exec)
 	void HealSelf(float Amount = 1000);
-
-	UFUNCTION(BlueprintNativeEvent)
-	void OnDeath();
-
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Events")
-	void CapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-								   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-								   const FHitResult& SweepResult);
-
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Events")
-	void PickupSphereOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-									UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-									const FHitResult& SweepResult);
-
 	/// WIP pickup stuff
 	UPROPERTY()
 	ACSkillPointsPickup* HeldPickup;
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void AttackSpecial(const FInputActionValue& Value);
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	float HeldPickupHeight;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	float PickupLaunchImpulseStrength;
 };
