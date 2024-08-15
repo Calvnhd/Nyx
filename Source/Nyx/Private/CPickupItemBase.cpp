@@ -54,7 +54,9 @@ void ACPickupItemBase::Tick(float DeltaSeconds)
 
 	if (bIsSuctionActive && PlayerRef)
 	{
-		MeshComp->AddForce((PlayerRef->GetActorLocation() - GetActorLocation()) * SuctionForceMultiplier, NAME_None,
-						   true);
+		FVector PickupToPlayer = (PlayerRef->GetActorLocation() - GetActorLocation());
+		float Distance = PickupToPlayer.Length();
+		PickupToPlayer.Normalize();
+		MeshComp->AddForce(PickupToPlayer * SuctionForceMultiplier * Distance, NAME_None, true);
 	}
 }

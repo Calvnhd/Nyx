@@ -27,8 +27,11 @@ protected:
 	virtual void BeginSuction_Implementation(APawn* InstigatorPawn) override;
 	virtual void StopSuction_Implementation(APawn* InstigatorPawn) override;
 
+	bool bCanSuction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Pickup|SkillPoints")
 	float PointsValue;
-
-	bool bCanSuction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Pickup|Behaviour")
+	float OrbitForceMultiplier;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Pickup|Behaviour")
+	float OrbitRadiusThreshold;
 };
