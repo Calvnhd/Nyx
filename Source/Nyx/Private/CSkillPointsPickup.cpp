@@ -10,6 +10,7 @@ ACSkillPointsPickup::ACSkillPointsPickup()
 	bCanSuction = true;
 	OrbitForceMultiplier = 1.0f;
 	OrbitRadiusThreshold = 1000.0f;
+	RepelForceMultiplier = 1.0f;
 }
 
 void ACSkillPointsPickup::SetCanSuction(bool bNewCanSuction)
@@ -19,8 +20,6 @@ void ACSkillPointsPickup::SetCanSuction(bool bNewCanSuction)
 
 void ACSkillPointsPickup::Tick(float DeltaSeconds)
 {
-	Super::Tick(DeltaSeconds);
-
 	if (bIsSuctionActive && PlayerRef)
 	{
 		FVector PickupToPlayer = (PlayerRef->GetActorLocation() - GetActorLocation());
@@ -28,9 +27,13 @@ void ACSkillPointsPickup::Tick(float DeltaSeconds)
 		PickupToPlayer.Normalize();
 		FVector PerpendicularVector = FRotator(0.0f, 90.0f, 0.0f).RotateVector(PickupToPlayer);
 
+		MeshComp->AddForce(PickupToPlayer * SuctionForceMultiplier * Distance, NAME_None, true);
+		MeshComp->AddForce(PerpendicularVector * OrbitForceMultiplier * (1 / Distance) * 100000, NAME_None, true);
 		if (Distance < OrbitRadiusThreshold)
 		{
-			MeshComp->AddForce(PerpendicularVector * OrbitForceMultiplier * (1 / Distance), NAME_None, true);
+			MeshComp->AddForce(-1 * PickupToPlayer * SuctionForceMultiplier * SuctionForceMultiplier *
+								   RepelForceMultiplier * (1 / Distance) * 100000,
+							   NAME_None, true);
 		}
 	}
 }

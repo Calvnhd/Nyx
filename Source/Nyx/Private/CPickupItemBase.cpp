@@ -51,7 +51,6 @@ void ACPickupItemBase::StopSuction_Implementation(APawn* InstigatorPawn)
 void ACPickupItemBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
 	if (bIsSuctionActive && PlayerRef)
 	{
 		FVector PickupToPlayer = (PlayerRef->GetActorLocation() - GetActorLocation());
