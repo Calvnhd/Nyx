@@ -9,6 +9,8 @@ UCAsteroidAttributeComponent::UCAsteroidAttributeComponent()
 	Size = EAsteroidSize::Base;
 	SizeMultiplier = 1.0f;
 
+	State = EAsteroidState::Dormant;
+
 	BaseHealth = 100.0f;
 	BaseDamagePower = 10.0f;
 	BasePhysicalPower = 50.0f;
@@ -48,6 +50,11 @@ float UCAsteroidAttributeComponent::GetScaledPhysicalPower()
 EAsteroidSize UCAsteroidAttributeComponent::GetSize() const
 {
 	return Size;
+}
+
+EAsteroidState UCAsteroidAttributeComponent::GetState() const
+{
+	return State;
 }
 
 uint8 UCAsteroidAttributeComponent::GetNumberOfAsteroidsToSpawn() const

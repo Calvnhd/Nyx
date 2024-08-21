@@ -9,9 +9,19 @@ ACPickupItemBase::ACPickupItemBase()
 	RootComponent = MeshComp;
 
 	bIsSuctionActive = false;
-	SuctionForceMultiplier = 1.0f;
+	SuctionForceMultiplier = 10.0f;
 }
-
+void ACPickupItemBase::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if (bIsSuctionActive && PlayerRef)
+	{
+		FVector PickupToPlayer = (PlayerRef->GetActorLocation() - GetActorLocation());
+		float Distance = PickupToPlayer.Length();
+		PickupToPlayer.Normalize();
+		MeshComp->AddForce(PickupToPlayer * SuctionForceMultiplier * Distance, NAME_None, true);
+	}
+}
 UStaticMeshComponent* ACPickupItemBase::GetMesh() const
 {
 	if (MeshComp)
@@ -20,13 +30,11 @@ UStaticMeshComponent* ACPickupItemBase::GetMesh() const
 	}
 	return nullptr;
 }
-
 void ACPickupItemBase::ConsumePickup_Implementation(APawn* InstigatorPawn)
 {
 	ICPickupInterface::ConsumePickup_Implementation(InstigatorPawn);
 	Destroy();
 }
-
 void ACPickupItemBase::BeginSuction_Implementation(APawn* InstigatorPawn)
 {
 	ICPickupInterface::BeginSuction_Implementation(InstigatorPawn);
@@ -41,21 +49,9 @@ void ACPickupItemBase::BeginSuction_Implementation(APawn* InstigatorPawn)
 		bIsSuctionActive = true;
 	}
 }
-
 void ACPickupItemBase::StopSuction_Implementation(APawn* InstigatorPawn)
 {
 	ICPickupInterface::StopSuction_Implementation(InstigatorPawn);
 	bIsSuctionActive = false;
 }
 
-void ACPickupItemBase::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-	if (bIsSuctionActive && PlayerRef)
-	{
-		FVector PickupToPlayer = (PlayerRef->GetActorLocation() - GetActorLocation());
-		float Distance = PickupToPlayer.Length();
-		PickupToPlayer.Normalize();
-		MeshComp->AddForce(PickupToPlayer * SuctionForceMultiplier * Distance, NAME_None, true);
-	}
-}

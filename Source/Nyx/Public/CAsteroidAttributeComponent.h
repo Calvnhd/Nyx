@@ -18,6 +18,15 @@ enum EAsteroidSize
 	Largest = 20
 };
 
+UENUM()
+enum EAsteroidState
+{
+	Dormant,
+	Active,
+	Aggressive,
+	Stunned
+};
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class NYX_API UCAsteroidAttributeComponent : public UCAttributeComponentBase
 {
@@ -30,6 +39,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	EAsteroidSize GetSize() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
+	EAsteroidState GetState() const;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	float GetDamagePower() const;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
@@ -57,6 +68,8 @@ public:
 protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	TEnumAsByte<EAsteroidSize> Size;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
+	TEnumAsByte<EAsteroidState> State;
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float SizeMultiplier;
 

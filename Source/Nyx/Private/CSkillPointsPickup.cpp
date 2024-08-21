@@ -8,16 +8,15 @@ ACSkillPointsPickup::ACSkillPointsPickup()
 {
 	PointsValue = 10.0f;
 	bCanSuction = true;
-	OrbitForceMultiplier = 1.0f;
-	OrbitRadiusThreshold = 1000.0f;
+	OrbitForceMultiplier = 2.5f;
+	OrbitRadiusThreshold = 250.0f;
 	RepelForceMultiplier = 1.0f;
+	bIsArmed = false;
 }
-
 void ACSkillPointsPickup::SetCanSuction(bool bNewCanSuction)
 {
 	bCanSuction = bNewCanSuction;
 }
-
 void ACSkillPointsPickup::Tick(float DeltaSeconds)
 {
 	if (bIsSuctionActive && PlayerRef)
@@ -38,6 +37,12 @@ void ACSkillPointsPickup::Tick(float DeltaSeconds)
 	}
 }
 
+void ACSkillPointsPickup::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	MeshComp->OnComponentHit.AddDynamic(this, &ACSkillPointsPickup::NativeComponentHitHandler);
+}
+
 void ACSkillPointsPickup::ConsumePickup_Implementation(APawn* InstigatorPawn)
 {
 	if (InstigatorPawn)
@@ -50,7 +55,6 @@ void ACSkillPointsPickup::ConsumePickup_Implementation(APawn* InstigatorPawn)
 	}
 	Super::ConsumePickup_Implementation(InstigatorPawn);
 }
-
 void ACSkillPointsPickup::BeginSuction_Implementation(APawn* InstigatorPawn)
 {
 	if (bCanSuction)
@@ -58,8 +62,25 @@ void ACSkillPointsPickup::BeginSuction_Implementation(APawn* InstigatorPawn)
 		Super::BeginSuction_Implementation(InstigatorPawn);
 	}
 }
-
 void ACSkillPointsPickup::StopSuction_Implementation(APawn* InstigatorPawn)
 {
 	Super::StopSuction_Implementation(InstigatorPawn);
+}
+void ACSkillPointsPickup::Arm_Implementation()
+{
+	bIsArmed = true;
+}
+void ACSkillPointsPickup::Detonate_Implementation()
+{
+	Destroy();
+}
+
+void ACSkillPointsPickup::NativeComponentHitHandler(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+													UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+													const FHitResult& Hit)
+{
+	if (bIsArmed)
+	{
+		Execute_Detonate(this);
+	}
 }
