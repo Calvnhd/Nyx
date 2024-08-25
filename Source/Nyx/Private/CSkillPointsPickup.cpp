@@ -2,16 +2,24 @@
 
 #include "CSkillPointsPickup.h"
 
+#include "CAsteroidBase.h"
 #include "CPlayerAttributeComponent.h"
+#include "Components/SphereComponent.h"
 
 ACSkillPointsPickup::ACSkillPointsPickup()
 {
+	BlastSphere = CreateDefaultSubobject<USphereComponent>(TEXT("BlastSphere"));
+	BlastSphere->SetupAttachment(RootComponent);
+
 	PointsValue = 10.0f;
 	bCanSuction = true;
 	OrbitForceMultiplier = 2.5f;
 	OrbitRadiusThreshold = 250.0f;
 	RepelForceMultiplier = 1.0f;
 	bIsArmed = false;
+	BlastDamageAmount = 100.0f;
+	CollisionDamageAmount = 10.0f;
+	StunTimeAmount = 10.0f;
 }
 void ACSkillPointsPickup::SetCanSuction(bool bNewCanSuction)
 {
@@ -82,5 +90,31 @@ void ACSkillPointsPickup::NativeComponentHitHandler(UPrimitiveComponent* HitComp
 	if (bIsArmed)
 	{
 		Execute_Detonate(this);
+	}
+}
+
+void ACSkillPointsPickup::BlastDamageAndStun()
+{
+	if (!BlastSphere)
+	{
+		return;
+	}
+	TArray<AActor*> OverlappingActors;
+	BlastSphere->GetOverlappingActors(OverlappingActors);
+	if (OverlappingActors.IsEmpty())
+	{
+		return;
+	}
+	for (auto Actor : OverlappingActors)
+	{
+		if (UCAsteroidAttributeComponent* Attributes =
+				Cast<UCAsteroidAttributeComponent>(UCAttributeComponentBase::GetAttributes(Actor)))
+		{
+			Attributes->ApplyHealthChange(this, -BlastDamageAmount);
+		}
+		if (Actor->Implements<UCStunInterface>())
+		{
+			ICStunInterface::Execute_Stun(Actor, StunTimeAmount);
+		}
 	}
 }

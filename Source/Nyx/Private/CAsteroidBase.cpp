@@ -54,6 +54,11 @@ UStaticMeshComponent* ACAsteroidBase::GetStaticMeshComponent_Implementation() co
 	return nullptr;
 }
 
+void ACAsteroidBase::OnStunTimerComplete()
+{
+	ICStunInterface::Execute_Recover(this);
+}
+
 FVector ACAsteroidBase::GetPlayerDirection(AActor* Player) const
 {
 	if (!Player)
@@ -61,6 +66,27 @@ FVector ACAsteroidBase::GetPlayerDirection(AActor* Player) const
 		return FVector(0);
 	}
 	return (Player->GetActorLocation() - GetActorLocation());
+}
+
+void ACAsteroidBase::Stun_Implementation(float StunTime)
+{
+	RecoverToState = AttributeComp->GetState();
+	EnablePhysicsAndGravity();
+	GetWorldTimerManager().SetTimer(StunTimerHandle, this, &ACAsteroidBase::OnStunTimerComplete, StunTime);
+}
+
+void ACAsteroidBase::Recover_Implementation()
+{
+	switch (RecoverToState)
+	{
+		case EAsteroidState::Active:
+			DisablePhysicsAndGravity();
+			break;
+		case EAsteroidState::Aggressive:
+			break;
+		default:
+			EnablePhysicsAndGravity();
+	}
 }
 
 void ACAsteroidBase::AddForceInPlayerDirection(AActor* Player)
@@ -72,6 +98,23 @@ void ACAsteroidBase::AddForceInPlayerDirection(AActor* Player)
 	if (UStaticMeshComponent* StaticMesh = GetStaticMeshComponent())
 	{
 		StaticMesh->AddForce(GetPlayerDirection(Player), NAME_None, true);
+	}
+}
+
+void ACAsteroidBase::EnablePhysicsAndGravity()
+{
+	if (UStaticMeshComponent* MeshComp = GetStaticMeshComponent())
+	{
+		MeshComp->SetEnableGravity(true);
+		MeshComp->SetSimulatePhysics(true);
+	}
+}
+void ACAsteroidBase::DisablePhysicsAndGravity()
+{
+	if (UStaticMeshComponent* MeshComp = GetStaticMeshComponent())
+	{
+		MeshComp->SetEnableGravity(false);
+		MeshComp->SetSimulatePhysics(false);
 	}
 }
 

@@ -8,7 +8,7 @@
 
 #include "CSkillPointsPickup.generated.h"
 
-class UStaticMeshComponent;
+class USphereComponent;
 
 /**
  *
@@ -23,6 +23,9 @@ public:
 	void SetCanSuction(bool bNewCanSuction);
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Pickup|Components")
+	TObjectPtr<USphereComponent> BlastSphere;
+
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void PostInitializeComponents() override;
 	// Pickup Interface
@@ -35,6 +38,15 @@ protected:
 	UFUNCTION()
 	void NativeComponentHitHandler(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 								   UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Pickup|Behaviour")
+	void BlastDamageAndStun();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Pickup|Damage")
+	float BlastDamageAmount;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Pickup|Damage")
+	float CollisionDamageAmount;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Pickup|Damage")
+	float StunTimeAmount;
 
 	bool bIsArmed;
 	bool bCanSuction;

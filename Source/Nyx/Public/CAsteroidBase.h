@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CAsteroidAttributeComponent.h"
+#include "CStunInterface.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
@@ -33,7 +34,7 @@ Collision with ship weapon
 */
 
 UCLASS()
-class NYX_API ACAsteroidBase : public AActor
+class NYX_API ACAsteroidBase : public AActor, public ICStunInterface
 {
 	GENERATED_BODY()
 
@@ -95,6 +96,13 @@ protected:
 	bool bTickPhysicsHomingForce;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Behaviour")
 	void AddForceInPlayerDirection(AActor* Player);
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Behaviour")
+	void EnablePhysicsAndGravity();
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Behaviour")
+	void DisablePhysicsAndGravity();
+
+	FTimerHandle StunTimerHandle;
+	void OnStunTimerComplete();
 
 	/* Awareness */
 
@@ -102,4 +110,11 @@ protected:
 	AActor* GetPlayerRef() const;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Awareness")
 	FVector GetPlayerDirection(AActor* Player) const;
+
+	/* Interfaces */
+
+	virtual void Stun_Implementation(float StunTime) override;
+	virtual void Recover_Implementation() override;
+
+	EAsteroidState RecoverToState;
 };
