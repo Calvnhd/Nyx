@@ -30,6 +30,7 @@ void UCAsteroidAttributeComponent::InitializeAttributes()
 	HealthMax = BaseHealth * SizeMultiplier * AttributeModifier;
 	Health = HealthMax;
 	DamagePower = BaseDamagePower * SizeMultiplier * AttributeModifier;
+	State = EAsteroidState::Dormant;
 }
 void UCAsteroidAttributeComponent::ModifyAttributes(float NewModifier)
 {
@@ -55,6 +56,11 @@ EAsteroidSize UCAsteroidAttributeComponent::GetSize() const
 EAsteroidState UCAsteroidAttributeComponent::GetState() const
 {
 	return State;
+}
+
+void UCAsteroidAttributeComponent::SetState(EAsteroidState NewState)
+{
+	State = NewState;
 }
 
 uint8 UCAsteroidAttributeComponent::GetNumberOfAsteroidsToSpawn() const

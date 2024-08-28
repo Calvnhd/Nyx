@@ -57,6 +57,8 @@ public:
 	void ModifyAttributes(float NewModifier = 1.0f);
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Setters")
 	void SetNumberOfAsteroidsToSpawn(uint8 Num);
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Setters")
+	void SetState(EAsteroidState NewState);
 
 	void InitializeAttributes();
 

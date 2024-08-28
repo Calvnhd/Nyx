@@ -24,7 +24,7 @@ void ACAsteroidBase::PostInitializeComponents()
 void ACAsteroidBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if (bTickPhysicsHomingForce)
+	if (bTickPhysicsHomingForce && AttributeComp->GetState() != EAsteroidState::Stunned)
 	{
 		AddForceInPlayerDirection(GetPlayerRef());
 	}
@@ -71,6 +71,7 @@ FVector ACAsteroidBase::GetPlayerDirection(AActor* Player) const
 void ACAsteroidBase::Stun_Implementation(float StunTime)
 {
 	RecoverToState = AttributeComp->GetState();
+	AttributeComp->SetState(EAsteroidState::Stunned);
 	EnablePhysicsAndGravity();
 	GetWorldTimerManager().SetTimer(StunTimerHandle, this, &ACAsteroidBase::OnStunTimerComplete, StunTime);
 }
@@ -87,6 +88,7 @@ void ACAsteroidBase::Recover_Implementation()
 		default:
 			EnablePhysicsAndGravity();
 	}
+	AttributeComp->SetState(RecoverToState);
 }
 
 void ACAsteroidBase::AddForceInPlayerDirection(AActor* Player)
