@@ -113,7 +113,26 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Dash(const FInputActionValue& Value);
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
+	void OnDashComplete();
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Shield(const FInputActionValue& Value);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	float DashStrength;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	float DashTime;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	float DashDecelerationPercent;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	float DashDecelerationRate;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	float MaxSpeed;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
+	void ReduceSpeedToMax();
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
+	float GetSpeed() const;
+	FTimerHandle ReduceSpeedToMaxTimerHandle;
+	FTimerHandle DashTimerHandle;
 
 	/* Events */
 

@@ -48,6 +48,12 @@ ACPlayerCharacter::ACPlayerCharacter()
 	HeldPickupHeight = 150.0f;
 	PickupLaunchImpulseStrength = 5000.0f;
 	AttackPrimaryFireRate = 1.0f;
+
+	DashStrength = 4000.0f;
+	DashTime = 0.2f;
+	MaxSpeed = 2000.0f;
+	DashDecelerationPercent = 0.9f;
+	DashDecelerationRate = 0.1f;
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
@@ -248,6 +254,11 @@ void ACPlayerCharacter::AttackPrimaryResetLoop()
 									AttackPrimaryFireRate, true, 0);
 }
 
+void ACPlayerCharacter::OnDashComplete_Implementation()
+{
+	ReduceSpeedToMax();
+}
+
 void ACPlayerCharacter::AttackPrimaryFireOnce()
 {
 	if (ensureAlways(ProjectileClassPrimary) && ensureAlways(MuzzleFlashPrimary))
@@ -300,12 +311,35 @@ void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Va
 
 void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)
 {
-	// todo
+	LaunchCharacter(GetActorForwardVector() * DashStrength, false, false);
+	GetWorldTimerManager().SetTimer(DashTimerHandle, this, &ACPlayerCharacter::OnDashComplete, DashTime);
 }
 
 void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
 {
 	// todo
+}
+
+void ACPlayerCharacter::ReduceSpeedToMax()
+{
+	if (GetSpeed() > MaxSpeed)
+	{
+		FVector MovementDirection = GetVelocity();
+		MovementDirection.Normalize();
+		if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+		{
+			MovementComponent->Velocity = GetVelocity() * DashDecelerationPercent;
+			GetWorldTimerManager().SetTimer(ReduceSpeedToMaxTimerHandle, this, &ACPlayerCharacter::ReduceSpeedToMax,
+											DashDecelerationRate);
+		}
+	}
+}
+
+float ACPlayerCharacter::GetSpeed() const
+{
+	FVector Velocity = GetVelocity();
+	FVector IgnoreZ = FVector(Velocity.X, Velocity.Y, 0);
+	return IgnoreZ.Length();
 }
 
 void ACPlayerCharacter::NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
