@@ -274,15 +274,9 @@ void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Va
 		HeldPickup->GetMesh()->AddImpulse(RotationToTarget.Vector() * PickupLaunchImpulseStrength, NAME_None, true);
 		HeldPickup = nullptr;
 	}
-	else
+	else if (!OrbitingPickups.IsEmpty())
 	{
-		TArray<AActor*> OverlappingActors;
-		PickupSphereComp->GetOverlappingActors(OverlappingActors, ACSkillPointsPickup::StaticClass());
-		if (OverlappingActors.IsEmpty())
-		{
-			return;
-		}
-		if (ACSkillPointsPickup* Pickup = Cast<ACSkillPointsPickup>(OverlappingActors.Pop()))
+		if (ACSkillPointsPickup* Pickup = Cast<ACSkillPointsPickup>(OrbitingPickups.Pop()))
 		{
 			HeldPickup = Pickup;
 			HeldPickup->SetCanSuction(false);
@@ -386,6 +380,11 @@ void ACPlayerCharacter::NativePickupSphereOverlapHandler(UPrimitiveComponent* Ov
 {
 	if (OtherActor && OtherActor->Implements<UCPickupInterface>())
 	{
+		if (ACSkillPointsPickup* Pickup =
+				Cast<ACSkillPointsPickup>(OtherActor))
+		{
+			OrbitingPickups.Add(Pickup);
+		}
 		ICPickupInterface::Execute_BeginSuction(OtherActor, this);
 	}
 }

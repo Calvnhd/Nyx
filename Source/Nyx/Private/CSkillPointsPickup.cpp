@@ -68,15 +68,6 @@ void ACSkillPointsPickup::BeginSuction_Implementation(APawn* InstigatorPawn)
 	if (bCanSuction)
 	{
 		Super::BeginSuction_Implementation(InstigatorPawn);
-
-		// GetAttributes
-
-		if (UCPlayerAttributeComponent* Attributes =
-				Cast<UCPlayerAttributeComponent>(UCAttributeComponentBase::GetAttributes(InstigatorPawn)))
-		{
-			Attributes->AddPickUp(this);
-		}
-
 	}
 }
 void ACSkillPointsPickup::StopSuction_Implementation(APawn* InstigatorPawn)

@@ -54,8 +54,8 @@ protected:
 	TObjectPtr<UCameraComponent> FollowCamera;
 	UPROPERTY(VisibleAnywhere, Category = "Nyx|Player|Components")
 	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
-	//TObjectPtr<USphereComponent> PickupSphereComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
+	TObjectPtr<USphereComponent> PickupSphereComp;
 
 	/* Input */
 
