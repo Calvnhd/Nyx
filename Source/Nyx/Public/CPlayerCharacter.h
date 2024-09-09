@@ -161,7 +161,7 @@ protected:
 	UFUNCTION(Exec)
 	void HealSelf(float Amount = 1000);
 	/// WIP pickup stuff
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities")
 	ACSkillPointsPickup* HeldPickup;
 	UPROPERTY()
 	TArray<ACSkillPointsPickup*> OrbitingPickups;

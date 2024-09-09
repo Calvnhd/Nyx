@@ -243,11 +243,6 @@ void ACPlayerCharacter::AttackPrimaryResetLoop()
 									AttackPrimaryFireRate, true, 0);
 }
 
-void ACPlayerCharacter::OnDashComplete_Implementation()
-{
-	ReduceSpeedToMax();
-}
-
 void ACPlayerCharacter::AttackPrimaryFireOnce()
 {
 	if (ensureAlways(ProjectileClassPrimary) && ensureAlways(MuzzleFlashPrimary))
@@ -292,15 +287,20 @@ void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Va
 	}
 }
 
+void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
+{
+	// todo
+}
+
 void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)
 {
 	LaunchCharacter(GetActorForwardVector() * DashStrength, false, false);
 	GetWorldTimerManager().SetTimer(DashTimerHandle, this, &ACPlayerCharacter::OnDashComplete, DashTime);
 }
 
-void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
+void ACPlayerCharacter::OnDashComplete_Implementation()
 {
-	// todo
+	ReduceSpeedToMax();
 }
 
 void ACPlayerCharacter::ReduceSpeedToMax()
@@ -380,8 +380,7 @@ void ACPlayerCharacter::NativePickupSphereOverlapHandler(UPrimitiveComponent* Ov
 {
 	if (OtherActor && OtherActor->Implements<UCPickupInterface>())
 	{
-		if (ACSkillPointsPickup* Pickup =
-				Cast<ACSkillPointsPickup>(OtherActor))
+		if (ACSkillPointsPickup* Pickup = Cast<ACSkillPointsPickup>(OtherActor))
 		{
 			OrbitingPickups.Add(Pickup);
 		}
