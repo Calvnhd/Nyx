@@ -172,13 +172,9 @@ FVector ACPlayerCharacter::GetCameraTargetLocation() const
 	FCollisionObjectQueryParams EnemyQueryParams;
 	EnemyQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
 
-	// float Radius = 5.0f;
-	// float Segments = 8;
-	// float Lifetime = 5.0f;
 	if (GetWorld()->SweepSingleByObjectType(EnemyHit, ViewStart, ViewEnd, FQuat::Identity, EnemyQueryParams,
 											EnemyTraceShape, Params))
 	{
-		// DrawDebugSphere(GetWorld(), EnemyHit.ImpactPoint, Radius, Segments, FColor::Red, false, Lifetime);
 		return EnemyHit.ImpactPoint;
 	}
 	FHitResult WorldHit;
@@ -190,10 +186,8 @@ FVector ACPlayerCharacter::GetCameraTargetLocation() const
 	if (GetWorld()->SweepSingleByObjectType(WorldHit, ViewStart, ViewEnd, FQuat::Identity, WorldQueryParams,
 											WorldTraceShape, Params))
 	{
-		// DrawDebugSphere(GetWorld(), WorldHit.ImpactPoint, Radius, Segments, FColor::Blue, false, Lifetime);
 		return WorldHit.ImpactPoint;
 	}
-	// DrawDebugSphere(GetWorld(), ViewEnd, Radius, Segments, FColor::Yellow, false, Lifetime);
 	return ViewEnd;
 }
 
@@ -207,9 +201,6 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM() const
 {
 	const FVector SpawnLocation = GetMuzzleLocation();
 	const FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, GetCameraTargetLocation());
-
-	// DrawDebugLine(GetWorld(), SpawnLocation, (SpawnLocation + (SpawnRotation.Vector() * 100000)), FColor::Green,
-	// false, 2.0f, 0, 2.0f);
 
 	// A Transformation Matrix at the muzzle, looking at the target
 	return FTransform(SpawnRotation, SpawnLocation);
@@ -242,9 +233,6 @@ void ACPlayerCharacter::AttackPrimaryBegin()
 }
 void ACPlayerCharacter::AttackPrimaryEnd()
 {
-	// float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
-	// GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::DoNothing, TimeRemaining,
-	//								false);
 	GetWorldTimerManager().ClearTimer(AttackPrimaryTimerHandle);
 }
 
