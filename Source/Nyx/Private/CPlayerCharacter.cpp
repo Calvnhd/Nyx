@@ -54,6 +54,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 	MaxSpeed = 2000.0f;
 	DashDecelerationPercent = 0.9f;
 	DashDecelerationRate = 0.1f;
+	EndDashSpeedModifier = 0.0f;
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
@@ -310,7 +311,7 @@ void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
 
 void ACPlayerCharacter::ReduceSpeedToMax()
 {
-	if (GetSpeed() > MaxSpeed)
+	if (GetSpeed() > MaxSpeed + EndDashSpeedModifier)
 	{
 		FVector MovementDirection = GetVelocity();
 		MovementDirection.Normalize();
@@ -367,6 +368,11 @@ FVector ACPlayerCharacter::GetMuzzleLocation_Implementation() const
 	// Overridden with actual location in BP
 	// Named socket would be better for a more complex mesh
 	return GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, 100);
+}
+
+void ACPlayerCharacter::CollectPickup(ACSkillPointsPickup* NewPickup)
+{
+	OrbitingPickups.Add(NewPickup);
 }
 
 void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)

@@ -54,8 +54,8 @@ protected:
 	TObjectPtr<UCameraComponent> FollowCamera;
 	UPROPERTY(VisibleAnywhere, Category = "Nyx|Player|Components")
 	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
-	TObjectPtr<USphereComponent> PickupSphereComp;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
+	//TObjectPtr<USphereComponent> PickupSphereComp;
 
 	/* Input */
 
@@ -127,6 +127,8 @@ protected:
 	float DashDecelerationRate;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities")
 	float MaxSpeed;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	float EndDashSpeedModifier;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
 	void ReduceSpeedToMax();
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
@@ -153,6 +155,7 @@ protected:
 	void OnDeath();
 
 	/* Misc */
+	void CollectPickup(ACSkillPointsPickup* NewPickup);
 
 	// Exec turns it into a console command on a Character (or Player Controller, GameMode, Cheat Manager)
 	UFUNCTION(Exec)
@@ -160,6 +163,8 @@ protected:
 	/// WIP pickup stuff
 	UPROPERTY()
 	ACSkillPointsPickup* HeldPickup;
+	UPROPERTY()
+	TArray<ACSkillPointsPickup*> OrbitingPickups;
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void AttackSpecial(const FInputActionValue& Value);
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")

@@ -2,6 +2,8 @@
 
 #include "CPlayerAttributeComponent.h"
 
+#include "CSkillPointsPickup.h"
+
 UCPlayerAttributeComponent::UCPlayerAttributeComponent()
 {
 	HealthMax = 1000.0f;
@@ -18,4 +20,8 @@ void UCPlayerAttributeComponent::AddSkillPoints(float PointsToAdd)
 float UCPlayerAttributeComponent::GetSkillPoints() const
 {
 	return SkillPoints;
+}
+void UCPlayerAttributeComponent::AddPickup(ACSkillPointsPickup* NewPickup)
+{
+	HeldPickups.Add(NewPickup);
 }

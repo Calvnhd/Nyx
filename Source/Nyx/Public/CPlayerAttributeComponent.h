@@ -9,7 +9,7 @@
 #include "CPlayerAttributeComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSkillPointsChangedSignature, UCAttributeComponentBase*, OwningComp,
-											  float, Delta, float, NewPoints);
+											   float, Delta, float, NewPoints);
 
 /*
  * Contains and manages the player's attributes
