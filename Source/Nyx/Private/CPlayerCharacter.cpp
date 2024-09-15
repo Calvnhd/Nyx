@@ -55,6 +55,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 	DashDecelerationPercent = 0.9f;
 	DashDecelerationRate = 0.1f;
 	EndDashSpeedModifier = 0.0f;
+	bCameraIsLocked = false;
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
@@ -83,6 +84,8 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 										   &ACPlayerCharacter::AttackPrimary);
 		EnhancedInputComponent->BindAction(AttackSpecialAction, ETriggerEvent::Triggered, this,
 										   &ACPlayerCharacter::AttackSpecial);
+		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Triggered, this,
+										   &ACPlayerCharacter::CameraLock);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Dash);
 		EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Shield);
 	}
@@ -146,14 +149,17 @@ void ACPlayerCharacter::Move(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Look(const FInputActionValue& Value)
 {
-	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
-
-	if (Controller != nullptr)
+	if (!bCameraIsLocked)
 	{
-		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+		// input is a Vector2D
+		FVector2D LookAxisVector = Value.Get<FVector2D>();
+
+		if (Controller != nullptr)
+		{
+			// add yaw and pitch input to controller
+			AddControllerYawInput(LookAxisVector.X);
+			AddControllerPitchInput(LookAxisVector.Y);
+		}
 	}
 }
 
@@ -241,6 +247,11 @@ void ACPlayerCharacter::AttackPrimaryResetLoop()
 {
 	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
 									AttackPrimaryFireRate, true, 0);
+}
+
+void ACPlayerCharacter::CameraLock_Implementation(const FInputActionValue& Value)
+{
+	bCameraIsLocked = Value.Get<bool>();
 }
 
 void ACPlayerCharacter::AttackPrimaryFireOnce()

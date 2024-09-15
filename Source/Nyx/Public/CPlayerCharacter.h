@@ -74,6 +74,8 @@ protected:
 	TObjectPtr<UInputAction> DashAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> ShieldAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
+	TObjectPtr<UInputAction> CameraLockAction;
 
 	/* Actions */
 
@@ -109,6 +111,11 @@ protected:
 	TSubclassOf<AActor> ProjectileClassPrimary;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
+	void CameraLock(const FInputActionValue& Value);
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	bool bCameraIsLocked;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Dash(const FInputActionValue& Value);
