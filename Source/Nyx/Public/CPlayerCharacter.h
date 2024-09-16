@@ -83,7 +83,10 @@ protected:
 	void Look(const FInputActionValue& Value);
 
 	FVector GetCameraTargetLocation() const;
+	AActor* GetCameraTargetActor() const;
 	FTransform GetCrosshairTargetTM() const;
+	FTransform GetLockedTargetTM() const;
+
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Player|Abilities")
 	FVector GetMuzzleLocation() const;
@@ -116,6 +119,10 @@ protected:
 	void CameraLock(const FInputActionValue& Value);
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities")
 	bool bCameraIsLocked;
+	UPROPERTY(BlueprintReadOnly)
+	AActor* CameraLockFocussedEnemy;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	float CameraLockTraceRadius;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Dash(const FInputActionValue& Value);

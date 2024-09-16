@@ -2,6 +2,7 @@
 
 #include "CPlayerCharacter.h"
 
+#include "CAsteroidBase.h"
 #include "CCommonDefines.h"
 #include "CPickupInterface.h"
 #include "CPlayerAttributeComponent.h"
@@ -56,6 +57,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 	DashDecelerationRate = 0.1f;
 	EndDashSpeedModifier = 0.0f;
 	bCameraIsLocked = false;
+	CameraLockTraceRadius = 1000.0f;
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
@@ -120,6 +122,24 @@ void ACPlayerCharacter::Tick(float DeltaSeconds)
 		if (UStaticMeshComponent* PickupMesh = HeldPickup->GetMesh())
 		{
 			PickupMesh->SetWorldLocation(GetActorLocation() + FVector(0.0f, 0.0f, HeldPickupHeight));
+		}
+	}
+	if (bCameraIsLocked)
+	{
+		// are we currently targeting a specific enemy?
+		if (!CameraLockFocussedEnemy)
+		{
+			// if not, get one
+			// run a big trace to see if there are any enemies in our view
+			// if yes, pick an enemy to focus
+			if (ACAsteroidBase* TargetEnemy = Cast<ACAsteroidBase>(GetCameraTargetActor()))
+			{
+				CameraLockFocussedEnemy = TargetEnemy;
+			}
+		}
+		if (CameraLockFocussedEnemy)
+		{
+			// rotate camera towards that enemy
 		}
 	}
 }
@@ -198,11 +218,42 @@ FVector ACPlayerCharacter::GetCameraTargetLocation() const
 	return ViewEnd;
 }
 
-float ACPlayerCharacter::CalculateBarrelPitch() const
+AActor* ACPlayerCharacter::GetCameraTargetActor() const
 {
-	FVector MuzzleToTargetVector = GetCameraTargetLocation() - GetMuzzleLocation();
-	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(MuzzleToTargetVector);
-	return UKismetMathLibrary::Clamp(SpawnRotation.Pitch + NeutralBarrelPitch, MinBarrelPitch, MaxBarrelPitch);
+	FVector CameraLocation = FollowCamera->GetComponentLocation();
+	FRotator CameraRotation = FollowCamera->GetComponentRotation();
+	FVector ViewStart = CameraLocation + (CameraRotation.Vector() * 100);
+	FVector ViewEnd = CameraLocation + (CameraRotation.Vector() * 10000);
+
+	FCollisionShape EnemyTraceShape;
+	EnemyTraceShape.SetSphere(CameraLockTraceRadius);
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	FHitResult EnemyHit;
+	FCollisionObjectQueryParams EnemyQueryParams;
+	EnemyQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
+
+	if (GetWorld()->SweepSingleByObjectType(EnemyHit, ViewStart, ViewEnd, FQuat::Identity, EnemyQueryParams,
+											EnemyTraceShape, Params))
+	{
+		// SweepSingle will return the first enemy hit
+		return EnemyHit.GetActor();
+	}
+	return nullptr;
+}
+FTransform ACPlayerCharacter::GetLockedTargetTM() const
+{
+	if (CameraLockFocussedEnemy)
+	{
+		const FVector SpawnLocation = GetMuzzleLocation();
+		const FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, CameraLockFocussedEnemy->GetActorLocation());
+
+		// A Transformation Matrix at the muzzle, looking at the target
+		return FTransform(SpawnRotation, SpawnLocation);
+	}
+	ensure(false);
+	return FTransform();
 }
 FTransform ACPlayerCharacter::GetCrosshairTargetTM() const
 {
@@ -212,6 +263,13 @@ FTransform ACPlayerCharacter::GetCrosshairTargetTM() const
 	// A Transformation Matrix at the muzzle, looking at the target
 	return FTransform(SpawnRotation, SpawnLocation);
 }
+float ACPlayerCharacter::CalculateBarrelPitch() const
+{
+	FVector MuzzleToTargetVector = GetCameraTargetLocation() - GetMuzzleLocation();
+	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(MuzzleToTargetVector);
+	return UKismetMathLibrary::Clamp(SpawnRotation.Pitch + NeutralBarrelPitch, MinBarrelPitch, MaxBarrelPitch);
+}
+
 void ACPlayerCharacter::AttackPrimary(const FInputActionValue& Value)
 {
 	if (Value.Get<bool>())
@@ -252,6 +310,10 @@ void ACPlayerCharacter::AttackPrimaryResetLoop()
 void ACPlayerCharacter::CameraLock_Implementation(const FInputActionValue& Value)
 {
 	bCameraIsLocked = Value.Get<bool>();
+	if (!bCameraIsLocked)
+	{
+		CameraLockFocussedEnemy = nullptr;
+	}
 }
 
 void ACPlayerCharacter::AttackPrimaryFireOnce()
@@ -357,7 +419,9 @@ void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
 	// Make projectile always spawn at desired location, regardless of collisions
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	// Spawn projectile
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, GetCrosshairTargetTM(), SpawnParams);
+
+	FTransform TargetTM = bCameraIsLocked ? GetLockedTargetTM() : GetCrosshairTargetTM();
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, TargetTM, SpawnParams);
 }
 void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect)
 {
