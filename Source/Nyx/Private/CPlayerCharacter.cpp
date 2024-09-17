@@ -123,7 +123,7 @@ void ACPlayerCharacter::Tick(float DeltaSeconds)
 	}
 	if (bCameraIsLocked)
 	{
-		if (!LockedTarget)
+		if (!LockedTarget || !UCAttributeComponentBase::IsActorAlive(LockedTarget))
 		{
 			if (ACAsteroidBase* TargetEnemy = Cast<ACAsteroidBase>(FindNewLockedTarget()))
 			{
