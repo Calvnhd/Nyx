@@ -95,7 +95,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
 	float CalculateTurretRotation() const;
 
-
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass);
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect);
 
@@ -118,13 +117,13 @@ protected:
 	bool bCameraIsLocked;
 	UPROPERTY(BlueprintReadOnly)
 	AActor* LockedTarget;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
-	float FindTargetTraceRadius;
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void RotateCameraToLockedTarget();
 	FVector GetCrosshairTargetLocation() const;
-	AActor* FindLockedTarget() const;
+	AActor* FindLockedTarget();
 	FTransform GetTargetTM() const;
+	AActor* SortEnemiesHit(TArray<FHitResult> EnemiesHit);
+	TArray<FHitResult> TraceForTargets(float ViewStartDistance = 100.0f, float Radius = 500.0f);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Dash(const FInputActionValue& Value);

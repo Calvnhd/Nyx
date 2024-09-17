@@ -18,6 +18,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "KismetTraceUtils.h"
 
 ACPlayerCharacter::ACPlayerCharacter()
 {
@@ -57,7 +59,6 @@ ACPlayerCharacter::ACPlayerCharacter()
 	DashDecelerationRate = 0.1f;
 	EndDashSpeedModifier = 0.0f;
 	bCameraIsLocked = false;
-	FindTargetTraceRadius = 1000.0f;
 	LockedTarget = nullptr;
 }
 
@@ -208,29 +209,49 @@ FVector ACPlayerCharacter::GetCrosshairTargetLocation() const
 	return ViewEnd;
 }
 
-AActor* ACPlayerCharacter::FindLockedTarget() const
+AActor* ACPlayerCharacter::FindLockedTarget()
+{
+	if (AActor* Target = SortEnemiesHit(TraceForTargets(100, 500)))
+	{
+		return Target;
+	}
+	if (AActor* Target = SortEnemiesHit(TraceForTargets(1000, 1000)))
+	{
+		return Target;
+	}
+	return SortEnemiesHit(TraceForTargets(2000, 2000));
+}
+
+TArray<FHitResult> ACPlayerCharacter::TraceForTargets(float ViewStartDistance /* = 100.0f */, float Radius /* = 500.0f */)
 {
 	FVector CameraLocation = FollowCamera->GetComponentLocation();
 	FRotator CameraRotation = FollowCamera->GetComponentRotation();
-	FVector ViewStart = CameraLocation + (CameraRotation.Vector() * 100);
+	FVector ViewStart = GetActorLocation() + (CameraRotation.Vector() * ViewStartDistance);
 	FVector ViewEnd = CameraLocation + (CameraRotation.Vector() * 10000);
 
-	FCollisionShape EnemyTraceShape;
-	EnemyTraceShape.SetSphere(FindTargetTraceRadius);
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
-
-	FHitResult EnemyHit;
 	FCollisionObjectQueryParams EnemyQueryParams;
 	EnemyQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
 
-	if (GetWorld()->SweepSingleByObjectType(EnemyHit, ViewStart, ViewEnd, FQuat::Identity, EnemyQueryParams, EnemyTraceShape, Params))
+	TArray<FHitResult> EnemiesHit;
+	GetWorld()->SweepMultiByObjectType(EnemiesHit, ViewStart, ViewEnd, FQuat::Identity, EnemyQueryParams, FCollisionShape::MakeSphere(Radius),
+									   Params);
+	//DrawDebugSphereTraceMulti(GetWorld(), ViewStart, ViewEnd, Radius, EDrawDebugTrace::ForDuration, !EnemiesHit.IsEmpty(), EnemiesHit,
+	//						  FLinearColor::Red, FLinearColor::Green, 5.0f);
+
+	return EnemiesHit;
+}
+
+AActor* ACPlayerCharacter::SortEnemiesHit(TArray<FHitResult> EnemiesHit)
+{
+	if (!EnemiesHit.IsEmpty())
 	{
-		// SweepSingle will return the first enemy hit
-		return EnemyHit.GetActor();
+		return EnemiesHit.Pop().GetActor();
 	}
 	return nullptr;
 }
+
 FTransform ACPlayerCharacter::GetTargetTM() const
 {
 	const FVector SpawnLocation = GetMuzzleLocation();
@@ -246,6 +267,7 @@ FTransform ACPlayerCharacter::GetTargetTM() const
 	// A Transformation Matrix at the muzzle, looking at the target
 	return FTransform(SpawnRotation, SpawnLocation);
 }
+
 float ACPlayerCharacter::CalculateBarrelPitch() const
 {
 	FVector MuzzleToTargetVector;
