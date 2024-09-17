@@ -3,10 +3,10 @@
 #include "CPlayerCharacter.h"
 
 #include "CAsteroidBase.h"
+#include "CCommonDefines.h"
 #include "CPickupInterface.h"
 #include "CPlayerAttributeComponent.h"
 #include "CSkillPointsPickup.h"
-#include "CTargetingComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -41,12 +41,10 @@ ACPlayerCharacter::ACPlayerCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	PickupSphere = CreateDefaultSubobject<USphereComponent>(TEXT("PickupSphere"));
-	PickupSphere->SetupAttachment(RootComponent);
+	PlayerAttributeComp = CreateDefaultSubobject<UCPlayerAttributeComponent>(TEXT("PlayerAttributeComp"));
 
-	PlayerAttributes = CreateDefaultSubobject<UCPlayerAttributeComponent>(TEXT("PlayerAttributes"));
-
-	TargetManager = CreateDefaultSubobject<UCTargetingComponent>(TEXT("TargetManager"));
+	PickupSphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("PickupSphereComp"));
+	PickupSphereComp->SetupAttachment(RootComponent);
 
 	HeldPickupHeight = 150.0f;
 	PickupLaunchImpulseStrength = 5000.0f;
@@ -58,18 +56,18 @@ ACPlayerCharacter::ACPlayerCharacter()
 	DashDecelerationPercent = 0.9f;
 	DashDecelerationRate = 0.1f;
 	EndDashSpeedModifier = 0.0f;
-
 	bCameraIsLocked = false;
-	LockedTarget = nullptr;
+	CameraLockTraceRadius = 1000.0f;
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	PlayerAttributes->OnHealthChanged.AddDynamic(this, &ACPlayerCharacter::NativeHealthChangedHandler);
-	PlayerAttributes->OnSkillPointsChanged.AddDynamic(this, &ACPlayerCharacter::NativeSkillPointsChangedHandler);
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::NativeCapsuleCompOverlapHandler);
-	PickupSphere->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::NativePickupSphereOverlapHandler);
+	PlayerAttributeComp->OnHealthChanged.AddDynamic(this, &ACPlayerCharacter::NativeHealthChangedHandler);
+	PlayerAttributeComp->OnSkillPointsChanged.AddDynamic(this, &ACPlayerCharacter::NativeSkillPointsChangedHandler);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this,
+															  &ACPlayerCharacter::NativeCapsuleCompOverlapHandler);
+	PickupSphereComp->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::NativePickupSphereOverlapHandler);
 }
 
 void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -82,10 +80,14 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Look);
-		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Started, this, &ACPlayerCharacter::AttackPrimary);
-		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Completed, this, &ACPlayerCharacter::AttackPrimary);
-		EnhancedInputComponent->BindAction(AttackSpecialAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::AttackSpecial);
-		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::SetCameraLock);
+		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Started, this,
+										   &ACPlayerCharacter::AttackPrimary);
+		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Completed, this,
+										   &ACPlayerCharacter::AttackPrimary);
+		EnhancedInputComponent->BindAction(AttackSpecialAction, ETriggerEvent::Triggered, this,
+										   &ACPlayerCharacter::AttackSpecial);
+		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Triggered, this,
+										   &ACPlayerCharacter::CameraLock);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Dash);
 		EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Shield);
 	}
@@ -125,14 +127,17 @@ void ACPlayerCharacter::Tick(float DeltaSeconds)
 	if (bCameraIsLocked)
 	{
 		// are we currently targeting a specific enemy?
-		if (!LockedTarget)
+		if (!CameraLockFocussedEnemy)
 		{
-			if (ACAsteroidBase* NewTarget = Cast<ACAsteroidBase>(TargetManager->FindTargetActor(FollowCamera, GetMuzzle()->GetComponentLocation())))
+			// if not, get one
+			// run a big trace to see if there are any enemies in our view
+			// if yes, pick an enemy to focus
+			if (ACAsteroidBase* TargetEnemy = Cast<ACAsteroidBase>(GetCameraTargetActor()))
 			{
-				LockedTarget = NewTarget;
+				CameraLockFocussedEnemy = TargetEnemy;
 			}
 		}
-		if (LockedTarget)
+		if (CameraLockFocussedEnemy)
 		{
 			// rotate camera towards that enemy
 		}
@@ -178,10 +183,89 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+FVector ACPlayerCharacter::GetCameraTargetLocation() const
+{
+	FVector CameraLocation = FollowCamera->GetComponentLocation();
+	FRotator CameraRotation = FollowCamera->GetComponentRotation();
+	FVector ViewStart = CameraLocation + (CameraRotation.Vector() * 100);
+	FVector ViewEnd = CameraLocation + (CameraRotation.Vector() * 10000);
+
+	FCollisionShape EnemyTraceShape;
+	EnemyTraceShape.SetSphere(50.0f);
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	FHitResult EnemyHit;
+	FCollisionObjectQueryParams EnemyQueryParams;
+	EnemyQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
+
+	if (GetWorld()->SweepSingleByObjectType(EnemyHit, ViewStart, ViewEnd, FQuat::Identity, EnemyQueryParams,
+											EnemyTraceShape, Params))
+	{
+		return EnemyHit.ImpactPoint;
+	}
+	FHitResult WorldHit;
+	FCollisionObjectQueryParams WorldQueryParams;
+	WorldQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+	FCollisionShape WorldTraceShape;
+	WorldTraceShape.SetSphere(5.0f);
+
+	if (GetWorld()->SweepSingleByObjectType(WorldHit, ViewStart, ViewEnd, FQuat::Identity, WorldQueryParams,
+											WorldTraceShape, Params))
+	{
+		return WorldHit.ImpactPoint;
+	}
+	return ViewEnd;
+}
+
+AActor* ACPlayerCharacter::GetCameraTargetActor() const
+{
+	FVector CameraLocation = FollowCamera->GetComponentLocation();
+	FRotator CameraRotation = FollowCamera->GetComponentRotation();
+	FVector ViewStart = CameraLocation + (CameraRotation.Vector() * 100);
+	FVector ViewEnd = CameraLocation + (CameraRotation.Vector() * 10000);
+
+	FCollisionShape EnemyTraceShape;
+	EnemyTraceShape.SetSphere(CameraLockTraceRadius);
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	FHitResult EnemyHit;
+	FCollisionObjectQueryParams EnemyQueryParams;
+	EnemyQueryParams.AddObjectTypesToQuery(COLLISION_ENEMY);
+
+	if (GetWorld()->SweepSingleByObjectType(EnemyHit, ViewStart, ViewEnd, FQuat::Identity, EnemyQueryParams,
+											EnemyTraceShape, Params))
+	{
+		// SweepSingle will return the first enemy hit
+		return EnemyHit.GetActor();
+	}
+	return nullptr;
+}
+FTransform ACPlayerCharacter::GetLockedTargetTM() const
+{
+	if (CameraLockFocussedEnemy)
+	{
+		const FVector SpawnLocation = GetMuzzleLocation();
+		const FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, CameraLockFocussedEnemy->GetActorLocation());
+
+		// A Transformation Matrix at the muzzle, looking at the target
+		return FTransform(SpawnRotation, SpawnLocation);
+	}
+	ensure(false);
+	return FTransform();
+}
+FTransform ACPlayerCharacter::GetCrosshairTargetTM() const
+{
+	const FVector SpawnLocation = GetMuzzleLocation();
+	const FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, GetCameraTargetLocation());
+
+	// A Transformation Matrix at the muzzle, looking at the target
+	return FTransform(SpawnRotation, SpawnLocation);
+}
 float ACPlayerCharacter::CalculateBarrelPitch() const
 {
-	FVector MuzzleToTargetVector =
-		TargetManager->GetCrosshairTargetLocation(FollowCamera, GetMuzzle()->GetComponentLocation()) - GetMuzzle()->GetComponentLocation();
+	FVector MuzzleToTargetVector = GetCameraTargetLocation() - GetMuzzleLocation();
 	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(MuzzleToTargetVector);
 	return UKismetMathLibrary::Clamp(SpawnRotation.Pitch + NeutralBarrelPitch, MinBarrelPitch, MaxBarrelPitch);
 }
@@ -202,12 +286,14 @@ void ACPlayerCharacter::AttackPrimaryBegin()
 {
 	if (!GetWorldTimerManager().IsTimerActive(AttackPrimaryTimerHandle))
 	{
-		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce, AttackPrimaryFireRate, true, 0);
+		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
+										AttackPrimaryFireRate, true, 0);
 	}
 	else
 	{
 		float TimeRemaining = GetWorldTimerManager().GetTimerRemaining(AttackPrimaryTimerHandle);
-		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryResetLoop, TimeRemaining, false);
+		GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryResetLoop,
+										TimeRemaining, false);
 	}
 }
 void ACPlayerCharacter::AttackPrimaryEnd()
@@ -217,15 +303,16 @@ void ACPlayerCharacter::AttackPrimaryEnd()
 
 void ACPlayerCharacter::AttackPrimaryResetLoop()
 {
-	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce, AttackPrimaryFireRate, true, 0);
+	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce,
+									AttackPrimaryFireRate, true, 0);
 }
 
-void ACPlayerCharacter::SetCameraLock_Implementation(const FInputActionValue& Value)
+void ACPlayerCharacter::CameraLock_Implementation(const FInputActionValue& Value)
 {
 	bCameraIsLocked = Value.Get<bool>();
 	if (!bCameraIsLocked)
 	{
-		LockedTarget = nullptr;
+		CameraLockFocussedEnemy = nullptr;
 	}
 }
 
@@ -250,8 +337,8 @@ void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Va
 		{
 			ICBombInterface::Execute_Arm(HeldPickup);
 		}
-		FRotator RotationToTarget = UKismetMathLibrary::FindLookAtRotation(
-			HeldPickup->GetActorLocation(), TargetManager->GetCrosshairTargetLocation(FollowCamera, GetMuzzle()->GetComponentLocation()));
+		FRotator RotationToTarget =
+			UKismetMathLibrary::FindLookAtRotation(HeldPickup->GetActorLocation(), GetCameraTargetLocation());
 		HeldPickup->GetMesh()->AddImpulse(RotationToTarget.Vector() * PickupLaunchImpulseStrength, NAME_None, true);
 		HeldPickup = nullptr;
 	}
@@ -298,7 +385,8 @@ void ACPlayerCharacter::ReduceSpeedToMax()
 		if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
 		{
 			MovementComponent->Velocity = GetVelocity() * DashDecelerationPercent;
-			GetWorldTimerManager().SetTimer(ReduceSpeedToMaxTimerHandle, this, &ACPlayerCharacter::ReduceSpeedToMax, DashDecelerationRate);
+			GetWorldTimerManager().SetTimer(ReduceSpeedToMaxTimerHandle, this, &ACPlayerCharacter::ReduceSpeedToMax,
+											DashDecelerationRate);
 		}
 	}
 }
@@ -310,7 +398,8 @@ float ACPlayerCharacter::GetSpeed() const
 	return IgnoreZ.Length();
 }
 
-void ACPlayerCharacter::NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta, float NewHealth)
+void ACPlayerCharacter::NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
+												   float Delta, float NewHealth)
 {
 	if (NewHealth <= 0)
 	{
@@ -318,7 +407,9 @@ void ACPlayerCharacter::NativeHealthChangedHandler(AActor* InstigatorActor, UCAt
 	}
 }
 
-void ACPlayerCharacter::NativeSkillPointsChangedHandler(UCAttributeComponentBase* OwningComp, float Delta, float NewPoints) {}
+void ACPlayerCharacter::NativeSkillPointsChangedHandler(UCAttributeComponentBase* OwningComp, float Delta,
+														float NewPoints)
+{}
 
 void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
 {
@@ -329,26 +420,23 @@ void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	// Spawn projectile
 
-	FTransform TargetTM = bCameraIsLocked ? TargetManager->GetLockedTargetTM(LockedTarget->GetActorLocation(), GetMuzzle()->GetComponentLocation())
-										  : TargetManager->GetCrosshairTargetTM(FollowCamera, GetMuzzle()->GetComponentLocation());
+	FTransform TargetTM = bCameraIsLocked ? GetLockedTargetTM() : GetCrosshairTargetTM();
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, TargetTM, SpawnParams);
 }
-
 void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect)
 {
 	UGameplayStatics::SpawnEmitterAtLocation(
-		this, MuzzleEffect, GetMuzzle()->GetComponentLocation(),
-		UKismetMathLibrary::MakeRotFromX(TargetManager->GetCrosshairTargetLocation(FollowCamera, GetMuzzle()->GetComponentLocation()) -
-										 GetMuzzle()->GetComponentLocation()));
+		this, MuzzleEffect, GetMuzzleLocation(),
+		UKismetMathLibrary::MakeRotFromX(GetCameraTargetLocation() - GetMuzzleLocation()));
 
 	SpawnProjectile(ProjectileClass);
 }
 
-UStaticMeshComponent* ACPlayerCharacter::GetMuzzle_Implementation() const
+FVector ACPlayerCharacter::GetMuzzleLocation_Implementation() const
 {
 	// Overridden with actual location in BP
 	// Named socket would be better for a more complex mesh
-	return nullptr;
+	return GetCapsuleComponent()->GetComponentLocation() + FVector(0, 0, 100);
 }
 
 void ACPlayerCharacter::CollectPickup(ACSkillPointsPickup* NewPickup)
@@ -358,11 +446,12 @@ void ACPlayerCharacter::CollectPickup(ACSkillPointsPickup* NewPickup)
 
 void ACPlayerCharacter::HealSelf(float Amount /* = 1000 */)
 {
-	PlayerAttributes->ApplyHealthChange(this, Amount);
+	PlayerAttributeComp->ApplyHealthChange(this, Amount);
 }
 
-void ACPlayerCharacter::NativePickupSphereOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-														 int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ACPlayerCharacter::NativePickupSphereOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+														 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+														 bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor && OtherActor->Implements<UCPickupInterface>())
 	{
@@ -374,8 +463,9 @@ void ACPlayerCharacter::NativePickupSphereOverlapHandler(UPrimitiveComponent* Ov
 	}
 }
 
-void ACPlayerCharacter::NativeCapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-														int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ACPlayerCharacter::NativeCapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+														UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+														bool bFromSweep, const FHitResult& SweepResult)
 {
 	/*if (OtherActor->Implements<UCPickupInterface>())
 	{
