@@ -120,7 +120,7 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void RotateCameraToLockedTarget();
 	FVector GetCrosshairTargetLocation() const;
-	AActor* FindLockedTarget();
+	AActor* FindNewLockedTarget();
 	FTransform GetTargetTM() const;
 	AActor* SortEnemiesHit(TArray<FHitResult> EnemiesHit);
 	TArray<FHitResult> TraceForTargets(float ViewStartDistance = 100.0f, float Radius = 500.0f);

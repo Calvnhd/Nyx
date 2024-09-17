@@ -125,7 +125,7 @@ void ACPlayerCharacter::Tick(float DeltaSeconds)
 	{
 		if (!LockedTarget)
 		{
-			if (ACAsteroidBase* TargetEnemy = Cast<ACAsteroidBase>(FindLockedTarget()))
+			if (ACAsteroidBase* TargetEnemy = Cast<ACAsteroidBase>(FindNewLockedTarget()))
 			{
 				LockedTarget = TargetEnemy;
 			}
@@ -209,7 +209,7 @@ FVector ACPlayerCharacter::GetCrosshairTargetLocation() const
 	return ViewEnd;
 }
 
-AActor* ACPlayerCharacter::FindLockedTarget()
+AActor* ACPlayerCharacter::FindNewLockedTarget()
 {
 	if (AActor* Target = SortEnemiesHit(TraceForTargets(100, 500)))
 	{
