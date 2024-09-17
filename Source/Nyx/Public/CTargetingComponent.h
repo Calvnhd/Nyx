@@ -8,6 +8,7 @@
 #include "CTargetingComponent.generated.h"
 
 class UCameraComponent;
+class UStaticMeshComponent;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class NYX_API UCTargetingComponent : public UActorComponent
@@ -19,29 +20,16 @@ public:
 
 protected:
 
-	UPROPERTY(BlueprintReadOnly)
-	AActor* TargetLockedActor;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	float FindTargetTraceRadius;
 
-	UPROPERTY()
-	UCameraComponent* Camera;
-	UPROPERTY()
-	AActor* Muzzle;
-
 public:
-	// Called every frame
-	//virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	//						   FActorComponentTickFunction* ThisTickFunction) override;
-
-	void InitializeReferences(UCameraComponent* InCamera, AActor* InMuzzle);
-
-	FTransform GetCrosshairTargetTM() const;
-	FTransform GetLockedTargetTM() const;
-	FVector GetCameraTargetLocation() const;
-	AActor* GetCameraTargetActor() const;
-
-	void ClearTargetLockedActor();
-	bool HasTargetLockedActor() const;
-	bool FindNewTargetActor();
+	// A Transformation Matrix at the muzzle, looking at the crosshair target
+	FTransform GetCrosshairTargetTM(UCameraComponent* Camera, FVector MuzzleLocation) const;
+	// A Transformation Matrix at the muzzle, looking at the specified target
+	FTransform GetLockedTargetTM(FVector LockedTargetLocation, FVector MuzzleLocation) const;
+	// Get location of whatever the crosshair is targeting
+	FVector GetCrosshairTargetLocation(UCameraComponent* Camera, FVector MuzzleLocation) const;
+	// Find a new target to focus
+	AActor* FindTargetActor(UCameraComponent* Camera, FVector MuzzleLocation) const;
 };

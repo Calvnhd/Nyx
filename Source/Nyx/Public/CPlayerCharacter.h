@@ -7,6 +7,7 @@
 
 #include "CPlayerCharacter.generated.h"
 
+class ACAsteroidBase;
 class UCTargetingComponent;
 class USphereComponent;
 class UCameraComponent;
@@ -86,7 +87,7 @@ protected:
 	void Look(const FInputActionValue& Value);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Player|Abilities")
-	AActor* GetMuzzle() const;
+	UStaticMeshComponent* GetMuzzle() const;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	float MaxBarrelPitch = 160.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
@@ -116,6 +117,8 @@ protected:
 	void SetCameraLock(const FInputActionValue& Value);
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities")
 	bool bCameraIsLocked;
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	ACAsteroidBase* LockedTarget;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Dash(const FInputActionValue& Value);
@@ -146,18 +149,15 @@ protected:
 	/* Events */
 
 	UFUNCTION()
-	void NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
-									float NewHealth);
+	void NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta, float NewHealth);
 	UFUNCTION()
 	void NativeSkillPointsChangedHandler(UCAttributeComponentBase* OwningComp, float Delta, float NewPoints);
 	UFUNCTION()
-	void NativeCapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-										 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-										 const FHitResult& SweepResult);
+	void NativeCapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+										 int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
-	void NativePickupSphereOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-										  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-										  const FHitResult& SweepResult);
+	void NativePickupSphereOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+										  int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Events")
 	void OnDeath();
 

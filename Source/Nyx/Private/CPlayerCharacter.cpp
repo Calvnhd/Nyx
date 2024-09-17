@@ -2,6 +2,7 @@
 
 #include "CPlayerCharacter.h"
 
+#include "CAsteroidBase.h"
 #include "CPickupInterface.h"
 #include "CPlayerAttributeComponent.h"
 #include "CSkillPointsPickup.h"
@@ -59,6 +60,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 	EndDashSpeedModifier = 0.0f;
 
 	bCameraIsLocked = false;
+	LockedTarget = nullptr;
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
@@ -68,7 +70,6 @@ void ACPlayerCharacter::PostInitializeComponents()
 	PlayerAttributes->OnSkillPointsChanged.AddDynamic(this, &ACPlayerCharacter::NativeSkillPointsChangedHandler);
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::NativeCapsuleCompOverlapHandler);
 	PickupSphere->OnComponentBeginOverlap.AddDynamic(this, &ACPlayerCharacter::NativePickupSphereOverlapHandler);
-	TargetManager->InitializeReferences(FollowCamera, GetMuzzle());
 }
 
 void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -124,11 +125,14 @@ void ACPlayerCharacter::Tick(float DeltaSeconds)
 	if (bCameraIsLocked)
 	{
 		// are we currently targeting a specific enemy?
-		if (!TargetManager->HasTargetLockedActor())
+		if (!LockedTarget)
 		{
-			TargetManager->FindNewTargetActor();
+			if (ACAsteroidBase* NewTarget = Cast<ACAsteroidBase>(TargetManager->FindTargetActor(FollowCamera, GetMuzzle()->GetComponentLocation())))
+			{
+				LockedTarget = NewTarget;
+			}
 		}
-		if (TargetManager->HasTargetLockedActor())
+		if (LockedTarget)
 		{
 			// rotate camera towards that enemy
 		}
@@ -176,7 +180,8 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 
 float ACPlayerCharacter::CalculateBarrelPitch() const
 {
-	FVector MuzzleToTargetVector = TargetManager->GetCameraTargetLocation() - GetMuzzle()->GetActorLocation();
+	FVector MuzzleToTargetVector =
+		TargetManager->GetCrosshairTargetLocation(FollowCamera, GetMuzzle()->GetComponentLocation()) - GetMuzzle()->GetComponentLocation();
 	FRotator SpawnRotation = UKismetMathLibrary::MakeRotFromX(MuzzleToTargetVector);
 	return UKismetMathLibrary::Clamp(SpawnRotation.Pitch + NeutralBarrelPitch, MinBarrelPitch, MaxBarrelPitch);
 }
@@ -220,7 +225,7 @@ void ACPlayerCharacter::SetCameraLock_Implementation(const FInputActionValue& Va
 	bCameraIsLocked = Value.Get<bool>();
 	if (!bCameraIsLocked)
 	{
-		TargetManager->ClearTargetLockedActor();
+		LockedTarget = nullptr;
 	}
 }
 
@@ -245,7 +250,8 @@ void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Va
 		{
 			ICBombInterface::Execute_Arm(HeldPickup);
 		}
-		FRotator RotationToTarget = UKismetMathLibrary::FindLookAtRotation(HeldPickup->GetActorLocation(), TargetManager->GetCameraTargetLocation());
+		FRotator RotationToTarget = UKismetMathLibrary::FindLookAtRotation(
+			HeldPickup->GetActorLocation(), TargetManager->GetCrosshairTargetLocation(FollowCamera, GetMuzzle()->GetComponentLocation()));
 		HeldPickup->GetMesh()->AddImpulse(RotationToTarget.Vector() * PickupLaunchImpulseStrength, NAME_None, true);
 		HeldPickup = nullptr;
 	}
@@ -323,20 +329,22 @@ void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass)
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	// Spawn projectile
 
-	FTransform TargetTM = bCameraIsLocked ? TargetManager->GetLockedTargetTM() : TargetManager->GetCrosshairTargetTM();
+	FTransform TargetTM = bCameraIsLocked ? TargetManager->GetLockedTargetTM(LockedTarget->GetActorLocation(), GetMuzzle()->GetComponentLocation())
+										  : TargetManager->GetCrosshairTargetTM(FollowCamera, GetMuzzle()->GetComponentLocation());
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, TargetTM, SpawnParams);
 }
 
 void ACPlayerCharacter::SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect)
 {
 	UGameplayStatics::SpawnEmitterAtLocation(
-		this, MuzzleEffect, GetMuzzle()->GetActorLocation(),
-		UKismetMathLibrary::MakeRotFromX(TargetManager->GetCameraTargetLocation() - GetMuzzle()->GetActorLocation()));
+		this, MuzzleEffect, GetMuzzle()->GetComponentLocation(),
+		UKismetMathLibrary::MakeRotFromX(TargetManager->GetCrosshairTargetLocation(FollowCamera, GetMuzzle()->GetComponentLocation()) -
+										 GetMuzzle()->GetComponentLocation()));
 
 	SpawnProjectile(ProjectileClass);
 }
 
-AActor* ACPlayerCharacter::GetMuzzle_Implementation() const
+UStaticMeshComponent* ACPlayerCharacter::GetMuzzle_Implementation() const
 {
 	// Overridden with actual location in BP
 	// Named socket would be better for a more complex mesh

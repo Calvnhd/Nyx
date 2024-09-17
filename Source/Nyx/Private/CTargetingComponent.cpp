@@ -8,45 +8,20 @@
 UCTargetingComponent::UCTargetingComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	TargetLockedActor = nullptr;
 	FindTargetTraceRadius = 1000.0f;
-
-	Camera = nullptr;
-	Muzzle = nullptr;
 }
 
-void UCTargetingComponent::InitializeReferences(UCameraComponent* InCamera, AActor* InMuzzle)
+FTransform UCTargetingComponent::GetCrosshairTargetTM(UCameraComponent* Camera, FVector MuzzleLocation) const
 {
-	ensureAlways(InCamera);
-	ensureAlways(InMuzzle);
-	Camera = InCamera;
-	Muzzle = InMuzzle;
+	return FTransform(UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, GetCrosshairTargetLocation(Camera, MuzzleLocation)), MuzzleLocation);
 }
 
-FTransform UCTargetingComponent::GetCrosshairTargetTM() const
+FTransform UCTargetingComponent::GetLockedTargetTM(FVector LockedTargetLocation, FVector MuzzleLocation) const
 {
-	const FVector SpawnLocation = Muzzle->GetActorLocation();
-	const FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, GetCameraTargetLocation());
-
-	// A Transformation Matrix at the muzzle, looking at the target
-	return FTransform(SpawnRotation, SpawnLocation);
+	return FTransform(UKismetMathLibrary::FindLookAtRotation(MuzzleLocation, LockedTargetLocation), MuzzleLocation);
 }
 
-FTransform UCTargetingComponent::GetLockedTargetTM() const
-{
-	if (TargetLockedActor)
-	{
-		const FVector SpawnLocation = Muzzle->GetActorLocation();
-		const FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, TargetLockedActor->GetActorLocation());
-
-		// A Transformation Matrix at the muzzle, looking at the target
-		return FTransform(SpawnRotation, SpawnLocation);
-	}
-	ensure(false);
-	return FTransform();
-}
-
-FVector UCTargetingComponent::GetCameraTargetLocation() const
+FVector UCTargetingComponent::GetCrosshairTargetLocation(UCameraComponent* Camera, FVector MuzzleLocation) const
 {
 	FVector CameraLocation = Camera->GetComponentLocation();
 	FRotator CameraRotation = Camera->GetComponentRotation();
@@ -79,7 +54,7 @@ FVector UCTargetingComponent::GetCameraTargetLocation() const
 	return ViewEnd;
 }
 
-AActor* UCTargetingComponent::GetCameraTargetActor() const
+AActor* UCTargetingComponent::FindTargetActor(UCameraComponent* Camera, FVector MuzzleLocation) const
 {
 	FVector CameraLocation = Camera->GetComponentLocation();
 	FRotator CameraRotation = Camera->GetComponentRotation();
@@ -101,29 +76,4 @@ AActor* UCTargetingComponent::GetCameraTargetActor() const
 		return EnemyHit.GetActor();
 	}
 	return nullptr;
-}
-
-// void UCTargetingComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-//										 FActorComponentTickFunction* ThisTickFunction)
-//{
-//	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-// }
-
-void UCTargetingComponent::ClearTargetLockedActor()
-{
-	TargetLockedActor = nullptr;
-}
-
-bool UCTargetingComponent::HasTargetLockedActor() const
-{
-	if (TargetLockedActor)
-	{
-		return true;
-	}
-	return false;
-}
-
-bool UCTargetingComponent::FindNewTargetActor()
-{
-	return false;
 }
