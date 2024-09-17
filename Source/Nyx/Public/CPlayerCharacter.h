@@ -82,12 +82,6 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 
-	FVector GetCameraTargetLocation() const;
-	AActor* GetCameraTargetActor() const;
-	FTransform GetCrosshairTargetTM() const;
-	FTransform GetLockedTargetTM() const;
-
-
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Player|Abilities")
 	FVector GetMuzzleLocation() const;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
@@ -98,6 +92,9 @@ protected:
 	float NeutralBarrelPitch = 90.0f;
 	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
 	float CalculateBarrelPitch() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
+	float CalculateTurretRotation() const;
+
 
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass);
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect);
@@ -116,13 +113,18 @@ protected:
 	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
-	void CameraLock(const FInputActionValue& Value);
+	void SetCameraLock(const FInputActionValue& Value);
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities")
 	bool bCameraIsLocked;
 	UPROPERTY(BlueprintReadOnly)
-	AActor* CameraLockFocussedEnemy;
+	AActor* LockedTarget;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
-	float CameraLockTraceRadius;
+	float FindTargetTraceRadius;
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
+	void RotateCameraToLockedTarget();
+	FVector GetCrosshairTargetLocation() const;
+	AActor* FindLockedTarget() const;
+	FTransform GetTargetTM() const;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Dash(const FInputActionValue& Value);
@@ -153,18 +155,15 @@ protected:
 	/* Events */
 
 	UFUNCTION()
-	void NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
-									float NewHealth);
+	void NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta, float NewHealth);
 	UFUNCTION()
 	void NativeSkillPointsChangedHandler(UCAttributeComponentBase* OwningComp, float Delta, float NewPoints);
 	UFUNCTION()
-	void NativeCapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-										 UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-										 const FHitResult& SweepResult);
+	void NativeCapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+										 int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
-	void NativePickupSphereOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-										  UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
-										  const FHitResult& SweepResult);
+	void NativePickupSphereOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+										  int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Events")
 	void OnDeath();
 
