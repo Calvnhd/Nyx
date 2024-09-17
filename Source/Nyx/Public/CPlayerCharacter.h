@@ -7,6 +7,7 @@
 
 #include "CPlayerCharacter.generated.h"
 
+class UCTargetingComponent;
 class USphereComponent;
 class UCameraComponent;
 class ACSkillPointsPickup;
@@ -53,9 +54,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
 	TObjectPtr<UCameraComponent> FollowCamera;
 	UPROPERTY(VisibleAnywhere, Category = "Nyx|Player|Components")
-	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
+	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributes;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
-	TObjectPtr<USphereComponent> PickupSphereComp;
+	TObjectPtr<USphereComponent> PickupSphere;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
+	TObjectPtr<UCTargetingComponent> TargetManager;
 
 	/* Input */
 
@@ -82,14 +85,8 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 
-	FVector GetCameraTargetLocation() const;
-	AActor* GetCameraTargetActor() const;
-	FTransform GetCrosshairTargetTM() const;
-	FTransform GetLockedTargetTM() const;
-
-
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Player|Abilities")
-	FVector GetMuzzleLocation() const;
+	AActor* GetMuzzle() const;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	float MaxBarrelPitch = 160.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
@@ -116,13 +113,9 @@ protected:
 	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
-	void CameraLock(const FInputActionValue& Value);
+	void SetCameraLock(const FInputActionValue& Value);
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities")
 	bool bCameraIsLocked;
-	UPROPERTY(BlueprintReadOnly)
-	AActor* CameraLockFocussedEnemy;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
-	float CameraLockTraceRadius;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Dash(const FInputActionValue& Value);
