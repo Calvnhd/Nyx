@@ -117,7 +117,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
 
-	void SetCameraLock(const FInputActionValue& Value);
+	void ToggleCameraLock(const FInputActionValue& Value);
 	void SetLockedTarget();
 	void CheckLockedTarget();
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities")

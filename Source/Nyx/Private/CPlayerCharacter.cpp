@@ -90,8 +90,7 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Started, this, &ACPlayerCharacter::AttackPrimary);
 		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Completed, this, &ACPlayerCharacter::AttackPrimary);
 		EnhancedInputComponent->BindAction(AttackSpecialAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::AttackSpecial);
-		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Started, this, &ACPlayerCharacter::SetCameraLock);
-		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Completed, this, &ACPlayerCharacter::SetCameraLock);
+		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Started, this, &ACPlayerCharacter::ToggleCameraLock);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Dash);
 		EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Shield);
 	}
@@ -181,7 +180,7 @@ void ACPlayerCharacter::Move(const FInputActionValue& Value)
 void ACPlayerCharacter::BeginLook(const FInputActionValue& Value)
 {
 	bLookLockOverride = true;
-	LockedTarget = nullptr;
+	//LockedTarget = nullptr;
 }
 
 void ACPlayerCharacter::Look(const FInputActionValue& Value)
@@ -219,7 +218,7 @@ void ACPlayerCharacter::EndLook(const FInputActionValue& Value)
 	bLookLockOverride = false;
 	if (bCameraIsLocked)
 	{
-		SetLockedTarget();
+		//SetLockedTarget();
 	}
 }
 
@@ -228,9 +227,9 @@ void ACPlayerCharacter::RotateCameraToLockedTarget_Implementation()
 	// todo
 }
 
-void ACPlayerCharacter::SetCameraLock(const FInputActionValue& Value)
+void ACPlayerCharacter::ToggleCameraLock(const FInputActionValue& Value)
 {
-	bCameraIsLocked = Value.Get<bool>();
+	bCameraIsLocked = !bCameraIsLocked;
 	if (!bCameraIsLocked)
 	{
 		LockedTarget = nullptr;
@@ -334,6 +333,7 @@ AActor* ACPlayerCharacter::SortEnemiesHit(TArray<FHitResult> EnemiesHit)
 {
 	// How to prioritize targets?
 	// Some combination of size, health, and proximity
+	// maybe that's up to the player
 	if (!EnemiesHit.IsEmpty())
 	{
 		AActor* ClosestEnemy = EnemiesHit.Pop().GetActor();
