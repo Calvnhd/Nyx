@@ -78,7 +78,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float AttributeModifier;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Nyx|AttributeComponent|Attributes")
 	float BaseHealth;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float BaseDamagePower;
@@ -88,10 +88,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float DamagePower;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Nyx|AttributeComponent|Attributes")
 	float TimeToActivate;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Nyx|AttributeComponent|Attributes")
 	uint8 NumberOfAsteroidsToSpawn;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float ChanceToSpawnItem;

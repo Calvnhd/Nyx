@@ -132,6 +132,8 @@ protected:
 	FTransform GetTargetTM() const;
 	AActor* SortEnemiesHit(TArray<FHitResult> EnemiesHit);
 	TArray<FHitResult> TraceForTargets(float ViewStartDistance = 100.0f, float Radius = 500.0f);
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	float TargetLockVelocityModifier;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Dash(const FInputActionValue& Value);

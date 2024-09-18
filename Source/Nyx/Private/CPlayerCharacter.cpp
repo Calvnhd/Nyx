@@ -63,6 +63,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 	bLookLockOverride = false;
 	LookPitchCeiling = 20.0f;
 	LookPitchFloor = -30.0f;
+	TargetLockVelocityModifier = 1.0f;
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
@@ -144,13 +145,13 @@ void ACPlayerCharacter::Tick(float DeltaSeconds)
 	if (CameraPitch >= LookPitchCeiling)
 	{
 		// look down
-		AddControllerPitchInput(0.1);
+		AddControllerPitchInput(0.5);
 	}
 	// looking too far downwards
 	else if (CameraPitch <= LookPitchFloor)
 	{
 		// look up
-		AddControllerPitchInput(-0.1);
+		AddControllerPitchInput(-0.5);
 	}
 }
 
@@ -197,7 +198,7 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 		if (CameraPitch < LookPitchCeiling && CameraPitch > LookPitchFloor)
 		{
 			AddControllerPitchInput(LookAxisVector.Y);
-		}	
+		}
 		// looking too far upwards
 		else if (CameraPitch >= LookPitchCeiling)
 		{
@@ -252,6 +253,10 @@ void ACPlayerCharacter::SetLockedTarget()
 
 void ACPlayerCharacter::CheckLockedTarget()
 {
+	if (!LockedTarget)
+	{
+		return;
+	}
 	if (!UCAttributeComponentBase ::IsActorAlive(LockedTarget))
 	{
 		LockedTarget = nullptr;
@@ -327,9 +332,27 @@ TArray<FHitResult> ACPlayerCharacter::TraceForTargets(float ViewStartDistance /*
 
 AActor* ACPlayerCharacter::SortEnemiesHit(TArray<FHitResult> EnemiesHit)
 {
+	// How to prioritize targets?
+	// Some combination of size, health, and proximity
 	if (!EnemiesHit.IsEmpty())
 	{
-		return EnemiesHit.Pop().GetActor();
+		AActor* ClosestEnemy = EnemiesHit.Pop().GetActor();
+		FVector EnemyToPlayer = ClosestEnemy->GetActorLocation() - GetActorLocation();
+		float ShortestDistance = fabs(EnemyToPlayer.Length());
+
+		for (auto& Enemy : EnemiesHit)
+		{
+			FVector NextEnemyLocation = Enemy.GetActor()->GetActorLocation();
+			FVector NextEnemyToPlayer = NextEnemyLocation - GetActorLocation();
+			float Distance = fabs(NextEnemyToPlayer.Length());
+
+			if (Distance < ShortestDistance)
+			{
+				ClosestEnemy = Enemy.GetActor();
+				ShortestDistance = Distance;
+			}
+		}
+		return ClosestEnemy;
 	}
 	return nullptr;
 }
@@ -340,7 +363,14 @@ FTransform ACPlayerCharacter::GetTargetTM() const
 	FRotator SpawnRotation;
 	if (bCameraIsLocked && LockedTarget)
 	{
-		SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, LockedTarget->GetActorLocation());
+		// @TODO
+		// calculate TargetLockVelocityModifier based on some combination of target velocity and distance
+		FVector TargetMovementDirection = LockedTarget->GetVelocity();
+		TargetMovementDirection.Normalize();
+		FVector TargetLocation = LockedTarget->GetActorLocation() + TargetMovementDirection * TargetLockVelocityModifier;
+		////////////////////////
+		DrawDebugSphere(GetWorld(), TargetLocation, 100, 8, FColor::Red, false, 1, 0, 1);
+		SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, TargetLocation);
 	}
 	else
 	{
