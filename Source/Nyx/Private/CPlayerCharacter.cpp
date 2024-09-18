@@ -60,6 +60,9 @@ ACPlayerCharacter::ACPlayerCharacter()
 	EndDashSpeedModifier = 0.0f;
 	bCameraIsLocked = false;
 	LockedTarget = nullptr;
+	bLookLockOverride = false;
+	LookPitchCeiling = 20.0f;
+	LookPitchFloor = -30.0f;
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
@@ -80,11 +83,14 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Move);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Started, this, &ACPlayerCharacter::BeginLook);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Look);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Completed, this, &ACPlayerCharacter::EndLook);
 		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Started, this, &ACPlayerCharacter::AttackPrimary);
 		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Completed, this, &ACPlayerCharacter::AttackPrimary);
 		EnhancedInputComponent->BindAction(AttackSpecialAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::AttackSpecial);
-		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::SetCameraLock);
+		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Started, this, &ACPlayerCharacter::SetCameraLock);
+		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Completed, this, &ACPlayerCharacter::SetCameraLock);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Dash);
 		EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Shield);
 	}
@@ -121,19 +127,30 @@ void ACPlayerCharacter::Tick(float DeltaSeconds)
 			PickupMesh->SetWorldLocation(GetActorLocation() + FVector(0.0f, 0.0f, HeldPickupHeight));
 		}
 	}
-	if (bCameraIsLocked)
+	if (bCameraIsLocked && !bLookLockOverride)
 	{
-		if (!LockedTarget || !UCAttributeComponentBase::IsActorAlive(LockedTarget))
+		CheckLockedTarget();
+		if (!LockedTarget)
 		{
-			if (ACAsteroidBase* TargetEnemy = Cast<ACAsteroidBase>(FindNewLockedTarget()))
-			{
-				LockedTarget = TargetEnemy;
-			}
+			SetLockedTarget();
 		}
 		if (LockedTarget)
 		{
 			RotateCameraToLockedTarget();
 		}
+	}
+	float CameraPitch = FollowCamera->GetComponentRotation().Pitch;
+	// looking too far upwards
+	if (CameraPitch >= LookPitchCeiling)
+	{
+		// look down
+		AddControllerPitchInput(0.1);
+	}
+	// looking too far downwards
+	else if (CameraPitch <= LookPitchFloor)
+	{
+		// look up
+		AddControllerPitchInput(-0.1);
 	}
 }
 
@@ -160,19 +177,84 @@ void ACPlayerCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
+void ACPlayerCharacter::BeginLook(const FInputActionValue& Value)
+{
+	bLookLockOverride = true;
+	LockedTarget = nullptr;
+}
+
 void ACPlayerCharacter::Look(const FInputActionValue& Value)
 {
+	// input is a Vector2D
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+
+	if (Controller != nullptr)
+	{
+		// add yaw input to controller
+		AddControllerYawInput(LookAxisVector.X);
+
+		float CameraPitch = FollowCamera->GetComponentRotation().Pitch;
+		if (CameraPitch < LookPitchCeiling && CameraPitch > LookPitchFloor)
+		{
+			AddControllerPitchInput(LookAxisVector.Y);
+		}	
+		// looking too far upwards
+		else if (CameraPitch >= LookPitchCeiling)
+		{
+			// look down
+			AddControllerPitchInput(0.1);
+		}
+		// looking too far downwards
+		else if (CameraPitch <= LookPitchFloor)
+		{
+			// look up
+			AddControllerPitchInput(-0.1);
+		}
+	}
+}
+
+void ACPlayerCharacter::EndLook(const FInputActionValue& Value)
+{
+	bLookLockOverride = false;
+	if (bCameraIsLocked)
+	{
+		SetLockedTarget();
+	}
+}
+
+void ACPlayerCharacter::RotateCameraToLockedTarget_Implementation()
+{
+	// todo
+}
+
+void ACPlayerCharacter::SetCameraLock(const FInputActionValue& Value)
+{
+	bCameraIsLocked = Value.Get<bool>();
 	if (!bCameraIsLocked)
 	{
-		// input is a Vector2D
-		FVector2D LookAxisVector = Value.Get<FVector2D>();
+		LockedTarget = nullptr;
+	}
+	else
+	{
+		SetLockedTarget();
+	}
+}
 
-		if (Controller != nullptr)
-		{
-			// add yaw and pitch input to controller
-			AddControllerYawInput(LookAxisVector.X);
-			AddControllerPitchInput(LookAxisVector.Y);
-		}
+void ACPlayerCharacter::SetLockedTarget()
+{
+	LockedTarget = nullptr;
+	if (ACAsteroidBase* TargetEnemy = Cast<ACAsteroidBase>(FindNewLockedTarget()))
+	{
+		LockedTarget = TargetEnemy;
+		// bind to on death event?
+	}
+}
+
+void ACPlayerCharacter::CheckLockedTarget()
+{
+	if (!UCAttributeComponentBase ::IsActorAlive(LockedTarget))
+	{
+		LockedTarget = nullptr;
 	}
 }
 
@@ -237,7 +319,7 @@ TArray<FHitResult> ACPlayerCharacter::TraceForTargets(float ViewStartDistance /*
 	TArray<FHitResult> EnemiesHit;
 	GetWorld()->SweepMultiByObjectType(EnemiesHit, ViewStart, ViewEnd, FQuat::Identity, EnemyQueryParams, FCollisionShape::MakeSphere(Radius),
 									   Params);
-	//DrawDebugSphereTraceMulti(GetWorld(), ViewStart, ViewEnd, Radius, EDrawDebugTrace::ForDuration, !EnemiesHit.IsEmpty(), EnemiesHit,
+	// DrawDebugSphereTraceMulti(GetWorld(), ViewStart, ViewEnd, Radius, EDrawDebugTrace::ForDuration, !EnemiesHit.IsEmpty(), EnemiesHit,
 	//						  FLinearColor::Red, FLinearColor::Green, 5.0f);
 
 	return EnemiesHit;
@@ -325,20 +407,6 @@ void ACPlayerCharacter::AttackPrimaryEnd()
 void ACPlayerCharacter::AttackPrimaryResetLoop()
 {
 	GetWorldTimerManager().SetTimer(AttackPrimaryTimerHandle, this, &ACPlayerCharacter::AttackPrimaryFireOnce, AttackPrimaryFireRate, true, 0);
-}
-
-void ACPlayerCharacter::RotateCameraToLockedTarget_Implementation()
-{
-	// todo
-}
-
-void ACPlayerCharacter::SetCameraLock_Implementation(const FInputActionValue& Value)
-{
-	bCameraIsLocked = Value.Get<bool>();
-	if (!bCameraIsLocked)
-	{
-		LockedTarget = nullptr;
-	}
 }
 
 void ACPlayerCharacter::AttackPrimaryFireOnce()

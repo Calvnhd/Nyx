@@ -80,7 +80,13 @@ protected:
 	/* Actions */
 
 	void Move(const FInputActionValue& Value);
+	void BeginLook(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void EndLook(const FInputActionValue& Value);
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	float LookPitchFloor;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	float LookPitchCeiling;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Player|Abilities")
 	FVector GetMuzzleLocation() const;
@@ -111,10 +117,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void SetCameraLock(const FInputActionValue& Value);
+	void SetLockedTarget();
+	void CheckLockedTarget();
 	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities")
 	bool bCameraIsLocked;
+	bool bLookLockOverride;
 	UPROPERTY(BlueprintReadOnly)
 	AActor* LockedTarget;
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
