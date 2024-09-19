@@ -30,8 +30,11 @@ ACPlayerCharacter::ACPlayerCharacter()
 	bUseControllerRotationYaw = false;
 
 	// Configure character movement
+
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
+
+	// Camera & Targeting
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
@@ -43,21 +46,6 @@ ACPlayerCharacter::ACPlayerCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	PlayerAttributeComp = CreateDefaultSubobject<UCPlayerAttributeComponent>(TEXT("PlayerAttributeComp"));
-
-	PickupSphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("PickupSphereComp"));
-	PickupSphereComp->SetupAttachment(RootComponent);
-
-	HeldPickupHeight = 150.0f;
-	PickupLaunchImpulseStrength = 5000.0f;
-	AttackPrimaryFireRate = 1.0f;
-
-	DashStrength = 4000.0f;
-	DashTime = 0.2f;
-	MaxSpeed = 2000.0f;
-	DashDecelerationPercent = 0.9f;
-	DashDecelerationRate = 0.1f;
-	EndDashSpeedModifier = 0.0f;
 	bCameraIsLocked = false;
 	LockedTarget = nullptr;
 	bLookLockOverride = false;
@@ -66,7 +54,31 @@ ACPlayerCharacter::ACPlayerCharacter()
 	TargetLockVelocityModifier = 1.0f;
 	CameraLockDeadzoneSize = 5.0f;
 	UpdateLockedTargetCounter = 0.0f;
-	UpdateLockedTargetThreshold = 1.0f;
+	TimeToUpdateLockedTarget = 1.0f;
+	KeepTargetLockDistance = 1000.0f;
+
+	// Pickups
+
+	PickupSphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("PickupSphereComp"));
+	PickupSphereComp->SetupAttachment(RootComponent);
+	HeldPickupHeight = 150.0f;
+	PickupLaunchImpulseStrength = 5000.0f;
+	AttackPrimaryFireRate = 1.0f;
+
+	// Dash
+
+	DashStrength = 4000.0f;
+	DashTime = 0.2f;
+	MaxSpeed = 2000.0f;
+	DashDecelerationPercent = 0.9f;
+	DashDecelerationRate = 0.1f;
+	EndDashSpeedModifier = 0.0f;
+	PowerDashMultiplier = 5.0f;
+	TempInvincibleTime = 1.0f;
+
+	// Other Components
+
+	PlayerAttributeComp = CreateDefaultSubobject<UCPlayerAttributeComponent>(TEXT("PlayerAttributeComp"));
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
@@ -135,27 +147,30 @@ void ACPlayerCharacter::Tick(float DeltaSeconds)
 	{
 		UpdateLockedTargetCounter = UpdateLockedTargetCounter + DeltaSeconds;
 		CheckLockedTarget();
-		if (!LockedTarget || UpdateLockedTargetCounter > UpdateLockedTargetThreshold)
+
+		// get a new target if we don't have one
+		if (!LockedTarget)
 		{
 			SetLockedTarget();
 		}
-		if (LockedTarget)
+		else if (GetDistanceTo(LockedTarget) > KeepTargetLockDistance && UpdateLockedTargetCounter > TimeToUpdateLockedTarget)
 		{
-			RotateCameraToLockedTarget();
+			SetLockedTarget();
 		}
-	}
-	float CameraPitch = FollowCamera->GetComponentRotation().Pitch;
-	// looking too far upwards
-	if (CameraPitch >= LookPitchCeiling)
-	{
-		// look down
-		AddControllerPitchInput(0.5);
-	}
-	// looking too far downwards
-	else if (CameraPitch <= LookPitchFloor)
-	{
-		// look up
-		AddControllerPitchInput(-0.5);
+		RotateCameraToLockedTarget();
+
+		// looking too far upwards or downwards
+		float CameraPitch = FollowCamera->GetComponentRotation().Pitch;
+		if (CameraPitch >= LookPitchCeiling)
+		{
+			// look down
+			AddControllerPitchInput(0.5);
+		}
+		else if (CameraPitch <= LookPitchFloor)
+		{
+			// look up
+			AddControllerPitchInput(-0.5);
+		}
 	}
 }
 
@@ -551,13 +566,35 @@ void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)
 {
-	LaunchCharacter(GetActorForwardVector() * DashStrength, false, false);
+	float ThisDashStrength = DashStrength;
+	if (HeldPickup)
+	{
+		MakeTempInvincibile();
+		ThisDashStrength = DashStrength * PowerDashMultiplier;
+		if (HeldPickup->Implements<UCBombInterface>())
+		{
+			ICBombInterface::Execute_Detonate(HeldPickup);
+		}
+		HeldPickup = nullptr;
+	}
+	LaunchCharacter(GetActorForwardVector() * ThisDashStrength, false, false);
 	GetWorldTimerManager().SetTimer(DashTimerHandle, this, &ACPlayerCharacter::OnDashComplete, DashTime);
 }
 
 void ACPlayerCharacter::OnDashComplete_Implementation()
 {
 	ReduceSpeedToMax();
+}
+
+void ACPlayerCharacter::MakeTempInvincibile()
+{
+	SetCanBeDamaged(false);
+	GetWorldTimerManager().SetTimer(TempInvincibleTimerHandle, this, &ACPlayerCharacter::ExpireTempInvincible, TempInvincibleTime);
+}
+
+void ACPlayerCharacter::ExpireTempInvincible()
+{
+	SetCanBeDamaged(true);
 }
 
 void ACPlayerCharacter::ReduceSpeedToMax()

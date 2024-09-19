@@ -8,8 +8,8 @@
 #include "CAttributeComponentBase.generated.h"
 
 // Dynamic allows BP assignment, Multicast allows multiple listeners
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChangedSignature, AActor*, InstigatorActor,
-											  UCAttributeComponentBase*, OwningComp, float, Delta, float, NewHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChangedSignature, AActor*, InstigatorActor, UCAttributeComponentBase*, OwningComp, float,
+											  Delta, float, NewHealth);
 
 /*
  * Base class for storing and managing attributes
@@ -30,7 +30,7 @@ public:
 	bool IsAlive() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Setters")
-	void ApplyHealthChange(AActor* InstigatorActor, float Delta);
+	virtual void ApplyHealthChange(AActor* InstigatorActor, float Delta);
 	UPROPERTY(BlueprintAssignable, Category = "Nyx|AttributeComponent|Events")
 	FOnHealthChangedSignature OnHealthChanged;
 

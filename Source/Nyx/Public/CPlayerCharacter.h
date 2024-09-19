@@ -121,32 +121,37 @@ protected:
 	void SetCameraLock(const FInputActionValue& Value);
 	void SetLockedTarget();
 	void CheckLockedTarget();
-	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities|Camera & Targeting")
 	bool bCameraIsLocked;
 	bool bLookLockOverride;
 	UPROPERTY(BlueprintReadOnly)
 	AActor* LockedTarget;
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Camera & Targeting")
 	void RotateCameraToLockedTarget();
 	FVector GetCrosshairTargetLocation() const;
 	AActor* FindNewLockedTarget();
 	FTransform GetTargetTM() const;
 	AActor* SortEnemiesHit(TArray<FHitResult> EnemiesHit);
 	TArray<FHitResult> TraceForTargets(float ViewStartDistance = 100.0f, float Radius = 500.0f);
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Camera & Targeting")
 	float TargetLockVelocityModifier;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Camera & Targeting")
 	float CameraLockDeadzoneSize;
 	float UpdateLockedTargetCounter;
-	float UpdateLockedTargetThreshold;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Camera & Targeting")
+	float TimeToUpdateLockedTarget;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|AbilitiesCamera & Targeting")
+	float KeepTargetLockDistance;
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Dash")
 	void Dash(const FInputActionValue& Value);
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Dash")
 	void OnDashComplete();
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
-	void Shield(const FInputActionValue& Value);
-
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Dash")
+	float PowerDashMultiplier;
+	void MakeTempInvincibile();
+	void ExpireTempInvincible();
+	float TempInvincibleTime;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities")
 	float DashStrength;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities")
@@ -165,6 +170,10 @@ protected:
 	float GetSpeed() const;
 	FTimerHandle ReduceSpeedToMaxTimerHandle;
 	FTimerHandle DashTimerHandle;
+	FTimerHandle TempInvincibleTimerHandle;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
+	void Shield(const FInputActionValue& Value);
 
 	/* Events */
 

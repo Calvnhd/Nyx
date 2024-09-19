@@ -30,4 +30,5 @@ public:
 
 protected:
 	float SkillPoints;
+	bool bIsInvulnerable;
 };
