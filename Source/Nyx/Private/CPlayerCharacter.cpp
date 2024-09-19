@@ -93,7 +93,8 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Started, this, &ACPlayerCharacter::AttackPrimary);
 		EnhancedInputComponent->BindAction(AttackPrimaryAction, ETriggerEvent::Completed, this, &ACPlayerCharacter::AttackPrimary);
 		EnhancedInputComponent->BindAction(AttackSpecialAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::AttackSpecial);
-		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Started, this, &ACPlayerCharacter::ToggleCameraLock);
+		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Started, this, &ACPlayerCharacter::SetCameraLock);
+		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Completed, this, &ACPlayerCharacter::SetCameraLock);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Dash);
 		EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Shield);
 	}
@@ -195,7 +196,8 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 	if (Controller != nullptr)
 	{
 		// add yaw input to controller
-		AddControllerYawInput(LookAxisVector.X);
+		float YawSensitivity = 1.5f;
+		AddControllerYawInput(LookAxisVector.X * YawSensitivity);
 
 		float CameraPitch = FollowCamera->GetComponentRotation().Pitch;
 		if (CameraPitch < LookPitchCeiling && CameraPitch > LookPitchFloor)
@@ -260,20 +262,34 @@ void ACPlayerCharacter::RotateCameraToLockedTarget_Implementation()
 
 	// Pitch
 	// This keeps pitch roughly between -4 and 0 when locked on target
-	float ActualPitch = CameraRotation.Pitch;
-	float DesiredPitch = -4.0f;
-	float PitchDifference = fabs(ActualPitch - DesiredPitch);
-	if (PitchDifference > 4.0f)
-	{
-		// positive change looks down
-		float DirectionPitch = (ActualPitch > DesiredPitch) ? 0.5 : -0.5;
-		AddControllerPitchInput(DirectionPitch);
-	}
+	// float ActualPitch = CameraRotation.Pitch;
+	// float DesiredPitch = -4.0f;
+	// float PitchDifference = fabs(ActualPitch - DesiredPitch);
+	// if (PitchDifference > 4.0f)
+	//{
+	//	// positive change looks down
+	//	float DirectionPitch = (ActualPitch > DesiredPitch) ? 0.5 : -0.5;
+	//	AddControllerPitchInput(DirectionPitch);
+	//}
 }
 
 void ACPlayerCharacter::ToggleCameraLock(const FInputActionValue& Value)
 {
 	bCameraIsLocked = !bCameraIsLocked;
+	if (!bCameraIsLocked)
+	{
+		LockedTarget = nullptr;
+		UpdateLockedTargetCounter = 0.0f;
+	}
+	else
+	{
+		SetLockedTarget();
+	}
+}
+
+void ACPlayerCharacter::SetCameraLock(const FInputActionValue& Value)
+{
+	bCameraIsLocked = Value.Get<bool>();
 	if (!bCameraIsLocked)
 	{
 		LockedTarget = nullptr;
@@ -414,7 +430,8 @@ FTransform ACPlayerCharacter::GetTargetTM() const
 		TargetMovementDirection.Normalize();
 		FVector TargetLocation = LockedTarget->GetActorLocation() + TargetMovementDirection * TargetLockVelocityModifier;
 		////////////////////////
-		DrawDebugSphere(GetWorld(), TargetLocation, 100, 8, FColor::Red, false, 1, 0, 1);
+
+		DrawDebugSphere(GetWorld(), TargetLocation, 50, 8, FColor::Red, false, 1, 0, 1);
 		SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, TargetLocation);
 	}
 	else
