@@ -134,6 +134,10 @@ protected:
 	TArray<FHitResult> TraceForTargets(float ViewStartDistance = 100.0f, float Radius = 500.0f);
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
 	float TargetLockVelocityModifier;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	float CameraLockDeadzoneSize;
+	float UpdateLockedTargetCounter;
+	float UpdateLockedTargetThreshold;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
 	void Dash(const FInputActionValue& Value);

@@ -64,6 +64,9 @@ ACPlayerCharacter::ACPlayerCharacter()
 	LookPitchCeiling = 20.0f;
 	LookPitchFloor = -30.0f;
 	TargetLockVelocityModifier = 1.0f;
+	CameraLockDeadzoneSize = 5.0f;
+	UpdateLockedTargetCounter = 0.0f;
+	UpdateLockedTargetThreshold = 1.0f;
 }
 
 void ACPlayerCharacter::PostInitializeComponents()
@@ -129,8 +132,9 @@ void ACPlayerCharacter::Tick(float DeltaSeconds)
 	}
 	if (bCameraIsLocked && !bLookLockOverride)
 	{
+		UpdateLockedTargetCounter = UpdateLockedTargetCounter + DeltaSeconds;
 		CheckLockedTarget();
-		if (!LockedTarget)
+		if (!LockedTarget || UpdateLockedTargetCounter > UpdateLockedTargetThreshold)
 		{
 			SetLockedTarget();
 		}
@@ -180,7 +184,7 @@ void ACPlayerCharacter::Move(const FInputActionValue& Value)
 void ACPlayerCharacter::BeginLook(const FInputActionValue& Value)
 {
 	bLookLockOverride = true;
-	//LockedTarget = nullptr;
+	// LockedTarget = nullptr;
 }
 
 void ACPlayerCharacter::Look(const FInputActionValue& Value)
@@ -218,13 +222,53 @@ void ACPlayerCharacter::EndLook(const FInputActionValue& Value)
 	bLookLockOverride = false;
 	if (bCameraIsLocked)
 	{
-		//SetLockedTarget();
+		SetLockedTarget();
 	}
 }
 
 void ACPlayerCharacter::RotateCameraToLockedTarget_Implementation()
 {
-	// todo
+	if (!LockedTarget)
+	{
+		return;
+	}
+	FRotator CameraRotation = FollowCamera->GetComponentRotation();
+
+	// Yaw
+	float DesiredYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedTarget->GetActorLocation()).Yaw;
+	float ActualYaw = CameraRotation.Yaw;
+	float YawDifference = fabs(DesiredYaw - ActualYaw);
+	bool bUseInner = YawDifference < 180;
+	float DistanceToRotateYaw = bUseInner ? YawDifference : (360 - YawDifference);
+	if (DistanceToRotateYaw < CameraLockDeadzoneSize)
+	{
+		return;
+	}
+	float RotateSpeed = (DistanceToRotateYaw / 180) * 2;
+	float DirectionYaw;
+	if (DesiredYaw > ActualYaw)
+	{
+		// Turn right for inner, left for outer
+		DirectionYaw = bUseInner ? 1.0f : -1.0f;
+	}
+	else
+	{
+		// turn left for inner, right for outer
+		DirectionYaw = bUseInner ? -1.0f : 1.0f;
+	}
+	AddControllerYawInput(RotateSpeed * DirectionYaw);
+
+	// Pitch
+	// This keeps pitch roughly between -4 and 0 when locked on target
+	float ActualPitch = CameraRotation.Pitch;
+	float DesiredPitch = -4.0f;
+	float PitchDifference = fabs(ActualPitch - DesiredPitch);
+	if (PitchDifference > 4.0f)
+	{
+		// positive change looks down
+		float DirectionPitch = (ActualPitch > DesiredPitch) ? 0.5 : -0.5;
+		AddControllerPitchInput(DirectionPitch);
+	}
 }
 
 void ACPlayerCharacter::ToggleCameraLock(const FInputActionValue& Value)
@@ -233,6 +277,7 @@ void ACPlayerCharacter::ToggleCameraLock(const FInputActionValue& Value)
 	if (!bCameraIsLocked)
 	{
 		LockedTarget = nullptr;
+		UpdateLockedTargetCounter = 0.0f;
 	}
 	else
 	{
