@@ -56,6 +56,8 @@ ACPlayerCharacter::ACPlayerCharacter()
 	UpdateLockedTargetCounter = 0.0f;
 	TimeToUpdateLockedTarget = 1.0f;
 	KeepTargetLockDistance = 1000.0f;
+	YawSensitivity = 1.0f;
+	PitchSensitivity = 1.0f;
 
 	// Pickups
 
@@ -211,13 +213,12 @@ void ACPlayerCharacter::Look(const FInputActionValue& Value)
 	if (Controller != nullptr)
 	{
 		// add yaw input to controller
-		float YawSensitivity = 1.5f;
 		AddControllerYawInput(LookAxisVector.X * YawSensitivity);
 
 		float CameraPitch = FollowCamera->GetComponentRotation().Pitch;
 		if (CameraPitch < LookPitchCeiling && CameraPitch > LookPitchFloor)
 		{
-			AddControllerPitchInput(LookAxisVector.Y);
+			AddControllerPitchInput(LookAxisVector.Y * PitchSensitivity);
 		}
 		// looking too far upwards
 		else if (CameraPitch >= LookPitchCeiling)

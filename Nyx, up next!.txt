@@ -1,0 +1,7 @@
+Nyx, up next!
+----
+* refine speed and acceleration
+* add lil impulse to end of dash
+* refine dash and super dash
+* go back to tom loomans.  Begin by revising the AI stuff.  Repeat if needed.
+

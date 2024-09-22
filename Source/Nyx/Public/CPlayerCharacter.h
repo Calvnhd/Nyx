@@ -83,10 +83,15 @@ protected:
 	void BeginLook(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EndLook(const FInputActionValue& Value);
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look")
 	float LookPitchFloor;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look")
 	float LookPitchCeiling;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look")
+	float YawSensitivity;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look")
+	float PitchSensitivity;
+
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Player|Abilities")
 	FVector GetMuzzleLocation() const;
