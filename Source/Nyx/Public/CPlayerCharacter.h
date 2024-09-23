@@ -80,6 +80,8 @@ protected:
 	/* Actions */
 
 	void Move(const FInputActionValue& Value);
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Move")
+	float MoveSensitivity;
 	void BeginLook(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EndLook(const FInputActionValue& Value);
@@ -93,59 +95,59 @@ protected:
 	float PitchSensitivity;
 
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Player|Abilities")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Player|Abilities|Position")
 	FVector GetMuzzleLocation() const;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Position")
 	float MaxBarrelPitch = 160.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Position")
 	float MinBarrelPitch = 80.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Position")
 	float NeutralBarrelPitch = 90.0f;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities|Position")
 	float CalculateBarrelPitch() const;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities|Position")
 	float CalculateTurretRotation() const;
 
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass);
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect);
 
 	FTimerHandle AttackPrimaryTimerHandle;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Attack")
 	float AttackPrimaryFireRate;
 	void AttackPrimary(const FInputActionValue& Value);
 	void AttackPrimaryFireOnce();
 	void AttackPrimaryBegin();
 	void AttackPrimaryEnd();
 	void AttackPrimaryResetLoop();
-	UPROPERTY(EditAnywhere, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditAnywhere, Category = "Nyx|Player|Abilities|Attack")
 	TSubclassOf<AActor> ProjectileClassPrimary;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Attack")
 	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
 
 	void ToggleCameraLock(const FInputActionValue& Value);
 	void SetCameraLock(const FInputActionValue& Value);
 	void SetLockedTarget();
 	void CheckLockedTarget();
-	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities|Camera & Targeting")
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities|Look|Targeting")
 	bool bCameraIsLocked;
 	bool bLookLockOverride;
 	UPROPERTY(BlueprintReadOnly)
 	AActor* LockedTarget;
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Camera & Targeting")
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Look|Targeting")
 	void RotateCameraToLockedTarget();
 	FVector GetCrosshairTargetLocation() const;
 	AActor* FindNewLockedTarget();
 	FTransform GetTargetTM() const;
 	AActor* SortEnemiesHit(TArray<FHitResult> EnemiesHit);
 	TArray<FHitResult> TraceForTargets(float ViewStartDistance = 100.0f, float Radius = 500.0f);
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Camera & Targeting")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look|Targeting")
 	float TargetLockVelocityModifier;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Camera & Targeting")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look|Targeting")
 	float CameraLockDeadzoneSize;
 	float UpdateLockedTargetCounter;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Camera & Targeting")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look|Targeting")
 	float TimeToUpdateLockedTarget;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|AbilitiesCamera & Targeting")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look|Targeting")
 	float KeepTargetLockDistance;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Dash")
@@ -154,30 +156,31 @@ protected:
 	void OnDashComplete();
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Dash")
 	float PowerDashMultiplier;
-	void MakeTempInvincibile();
+	void MakeTempInvincible();
 	void ExpireTempInvincible();
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Dash")
 	float TempInvincibleTime;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Dash")
 	float DashStrength;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Dash")
 	float DashTime;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Dash")
 	float DashDecelerationPercent;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Dash")
 	float DashDecelerationRate;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Move")
 	float MaxSpeed;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Dash")
 	float EndDashSpeedModifier;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities|Dash")
 	void ReduceSpeedToMax();
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities|Move")
 	float GetSpeed() const;
 	FTimerHandle ReduceSpeedToMaxTimerHandle;
 	FTimerHandle DashTimerHandle;
 	FTimerHandle TempInvincibleTimerHandle;
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Shield")
 	void Shield(const FInputActionValue& Value);
 
 	/* Events */
@@ -202,14 +205,14 @@ protected:
 	UFUNCTION(Exec)
 	void HealSelf(float Amount = 1000);
 	/// WIP pickup stuff
-	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities|Pickup")
 	ACSkillPointsPickup* HeldPickup;
 	UPROPERTY()
 	TArray<ACSkillPointsPickup*> OrbitingPickups;
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities")
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Pickup")
 	void AttackSpecial(const FInputActionValue& Value);
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Pickup")
 	float HeldPickupHeight;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Pickup")
 	float PickupLaunchImpulseStrength;
 };

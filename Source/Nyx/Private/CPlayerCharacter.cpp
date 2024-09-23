@@ -21,6 +21,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "KismetTraceUtils.h"
 
+#pragma region Character
+
 ACPlayerCharacter::ACPlayerCharacter()
 {
 	// Don't rotate when the controller rotates. Let that just affect the camera.
@@ -58,6 +60,8 @@ ACPlayerCharacter::ACPlayerCharacter()
 	KeepTargetLockDistance = 1000.0f;
 	YawSensitivity = 1.0f;
 	PitchSensitivity = 1.0f;
+
+	MoveSensitivity = 1.0f;
 
 	// Pickups
 
@@ -176,6 +180,8 @@ void ACPlayerCharacter::Tick(float DeltaSeconds)
 	}
 }
 
+#pragma endregion
+
 void ACPlayerCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -194,8 +200,8 @@ void ACPlayerCharacter::Move(const FInputActionValue& Value)
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
 		// add movement
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
+		AddMovementInput(ForwardDirection, MovementVector.Y * MoveSensitivity);
+		AddMovementInput(RightDirection, MovementVector.X * MoveSensitivity);
 	}
 }
 
@@ -570,7 +576,7 @@ void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)
 	float ThisDashStrength = DashStrength;
 	if (HeldPickup)
 	{
-		MakeTempInvincibile();
+		MakeTempInvincible();
 		ThisDashStrength = DashStrength * PowerDashMultiplier;
 		if (HeldPickup->Implements<UCBombInterface>())
 		{
@@ -587,7 +593,7 @@ void ACPlayerCharacter::OnDashComplete_Implementation()
 	ReduceSpeedToMax();
 }
 
-void ACPlayerCharacter::MakeTempInvincibile()
+void ACPlayerCharacter::MakeTempInvincible()
 {
 	SetCanBeDamaged(false);
 	GetWorldTimerManager().SetTimer(TempInvincibleTimerHandle, this, &ACPlayerCharacter::ExpireTempInvincible, TempInvincibleTime);
