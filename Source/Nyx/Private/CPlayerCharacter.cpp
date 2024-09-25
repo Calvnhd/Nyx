@@ -80,7 +80,11 @@ ACPlayerCharacter::ACPlayerCharacter()
 	DashDecelerationRate = 0.1f;
 	EndDashSpeedModifier = 0.0f;
 	PowerDashMultiplier = 5.0f;
-	TempInvincibleTime = 1.0f;
+
+	// Jump
+
+	PowerJumpMultiplier = 5.0f;
+	JumpStrength = 800.0f;
 
 	// Other Components
 
@@ -114,6 +118,7 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Started, this, &ACPlayerCharacter::SetCameraLock);
 		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Completed, this, &ACPlayerCharacter::SetCameraLock);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Dash);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::LaunchUp);
 		EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Shield);
 	}
 	else
@@ -264,10 +269,10 @@ void ACPlayerCharacter::RotateCameraToLockedTarget_Implementation()
 	float YawDifference = fabs(DesiredYaw - ActualYaw);
 	bool bUseInner = YawDifference < 180;
 	float DistanceToRotateYaw = bUseInner ? YawDifference : (360 - YawDifference);
-	if (DistanceToRotateYaw < CameraLockDeadzoneSize)
-	{
-		return;
-	}
+	// if (DistanceToRotateYaw < CameraLockDeadzoneSize)
+	//{
+	//	return;
+	// }
 	float RotateSpeed = (DistanceToRotateYaw / 180) * 2;
 	float DirectionYaw;
 	if (DesiredYaw > ActualYaw)
@@ -284,15 +289,15 @@ void ACPlayerCharacter::RotateCameraToLockedTarget_Implementation()
 
 	// Pitch
 	// This keeps pitch roughly between -4 and 0 when locked on target
-	// float ActualPitch = CameraRotation.Pitch;
-	// float DesiredPitch = -4.0f;
-	// float PitchDifference = fabs(ActualPitch - DesiredPitch);
-	// if (PitchDifference > 4.0f)
-	//{
-	//	// positive change looks down
-	//	float DirectionPitch = (ActualPitch > DesiredPitch) ? 0.5 : -0.5;
-	//	AddControllerPitchInput(DirectionPitch);
-	//}
+	float ActualPitch = CameraRotation.Pitch;
+	float DesiredPitch = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedTarget->GetActorLocation()).Pitch;
+	float PitchDifference = fabs(ActualPitch - DesiredPitch);
+	if (PitchDifference > CameraLockDeadzoneSize)
+	{
+		// positive change looks down
+		float DirectionPitch = (ActualPitch > DesiredPitch) ? 0.1 : -0.1;
+		AddControllerPitchInput(DirectionPitch);
+	}
 }
 
 void ACPlayerCharacter::ToggleCameraLock(const FInputActionValue& Value)
@@ -576,7 +581,7 @@ void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)
 	float ThisDashStrength = DashStrength;
 	if (HeldPickup)
 	{
-		MakeTempInvincible();
+		MakeTempInvincible(DashTime);
 		ThisDashStrength = DashStrength * PowerDashMultiplier;
 		if (HeldPickup->Implements<UCBombInterface>())
 		{
@@ -593,10 +598,26 @@ void ACPlayerCharacter::OnDashComplete_Implementation()
 	ReduceSpeedToMax();
 }
 
-void ACPlayerCharacter::MakeTempInvincible()
+void ACPlayerCharacter::LaunchUp_Implementation(const FInputActionValue& Value)
+{
+	float ThisJumpStrength = JumpStrength;
+	if (HeldPickup)
+	{
+		MakeTempInvincible(DashTime);
+		ThisJumpStrength = JumpStrength * PowerJumpMultiplier;
+		if (HeldPickup->Implements<UCBombInterface>())
+		{
+			ICBombInterface::Execute_Detonate(HeldPickup);
+		}
+		HeldPickup = nullptr;
+	}
+	LaunchCharacter(GetActorForwardVector() + FVector(0, 0, ThisJumpStrength), false, false);
+}
+
+void ACPlayerCharacter::MakeTempInvincible(float Time)
 {
 	SetCanBeDamaged(false);
-	GetWorldTimerManager().SetTimer(TempInvincibleTimerHandle, this, &ACPlayerCharacter::ExpireTempInvincible, TempInvincibleTime);
+	GetWorldTimerManager().SetTimer(TempInvincibleTimerHandle, this, &ACPlayerCharacter::ExpireTempInvincible, Time);
 }
 
 void ACPlayerCharacter::ExpireTempInvincible()

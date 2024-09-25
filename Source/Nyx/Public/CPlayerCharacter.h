@@ -73,6 +73,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> DashAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
+	TObjectPtr<UInputAction> JumpAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> ShieldAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> CameraLockAction;
@@ -93,7 +95,6 @@ protected:
 	float YawSensitivity;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look")
 	float PitchSensitivity;
-
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Player|Abilities|Position")
 	FVector GetMuzzleLocation() const;
@@ -151,15 +152,21 @@ protected:
 	float KeepTargetLockDistance;
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Dash")
+	void LaunchUp(const FInputActionValue& Value);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Jump")
+	float JumpStrength;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Jump")
+	float PowerJumpMultiplier;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Dash")
 	void Dash(const FInputActionValue& Value);
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Dash")
 	void OnDashComplete();
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Dash")
 	float PowerDashMultiplier;
-	void MakeTempInvincible();
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities|Dash")
+	void MakeTempInvincible(float Time);
 	void ExpireTempInvincible();
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Dash")
-	float TempInvincibleTime;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Dash")
 	float DashStrength;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Dash")

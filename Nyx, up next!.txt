@@ -5,3 +5,11 @@ Nyx, up next!
 * refine dash and super dash
 * go back to tom loomans.  Begin by revising the AI stuff.  Repeat if needed.
 
+* boost and jump resource management.  Recharges.  Acts like a cooldown.
+* super strength depends on this resource.
+* fix super dash end impulse physics.  add explosion.
+* super dash while targeting goes towards target
+* cool down on picking up another pickup
+* kill stunned gets health pick ups that fly straight to you
+* trails from pickups should persist for some time
+
