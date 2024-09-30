@@ -25,10 +25,26 @@ public:
 	void AddSkillPoints(float PointsToAdd);
 	float GetSkillPoints() const;
 
+	float ConsumeDashBoost();
+	float ConsumeJumpBoost();
+
 	UPROPERTY(BlueprintAssignable, Category = "Nyx|AttributeComponent|Events")
 	FOnSkillPointsChangedSignature OnSkillPointsChanged;
 
 protected:
 	float SkillPoints;
 	bool bIsInvulnerable;
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|AttributeComponent|Boost")
+	float CurrentBoost;
+	float MaxBoost;
+	float BoostToDash;
+	float BoostToJump;
+	float BoostRecoveryIncrement;
+	float BoostRecoveryRate;
+
+	float BoostRecoveryCooldownTime;
+	FTimerHandle BoostRecoveryCooldownTimerHandle;
+	FTimerHandle BoostRecoveryTimerHandle;
+
+	void RecoverBoost();
 };

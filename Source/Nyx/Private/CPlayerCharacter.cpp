@@ -119,7 +119,6 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(CameraLockAction, ETriggerEvent::Completed, this, &ACPlayerCharacter::SetCameraLock);
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Dash);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::LaunchUp);
-		EnhancedInputComponent->BindAction(ShieldAction, ETriggerEvent::Triggered, this, &ACPlayerCharacter::Shield);
 	}
 	else
 	{
@@ -209,6 +208,8 @@ void ACPlayerCharacter::Move(const FInputActionValue& Value)
 		AddMovementInput(RightDirection, MovementVector.X * MoveSensitivity);
 	}
 }
+
+#pragma region Camera & Targeting
 
 void ACPlayerCharacter::BeginLook(const FInputActionValue& Value)
 {
@@ -494,6 +495,10 @@ float ACPlayerCharacter::CalculateTurretRotation() const
 	return FollowCamera->GetComponentRotation().Yaw;
 }
 
+#pragma endregion
+
+#pragma region Attack
+
 void ACPlayerCharacter::AttackPrimary(const FInputActionValue& Value)
 {
 	if (Value.Get<bool>())
@@ -571,14 +576,17 @@ void ACPlayerCharacter::AttackSpecial_Implementation(const FInputActionValue& Va
 	}
 }
 
-void ACPlayerCharacter::Shield_Implementation(const FInputActionValue& Value)
-{
-	// todo
-}
+#pragma endregion
+
+#pragma region Dash & Jump
 
 void ACPlayerCharacter::Dash_Implementation(const FInputActionValue& Value)
 {
-	float ThisDashStrength = DashStrength;
+	float ThisDashStrength = DashStrength * PlayerAttributeComp->ConsumeDashBoost();
+	if (ThisDashStrength <= 0)
+	{
+		return;
+	}
 	if (HeldPickup)
 	{
 		MakeTempInvincible(DashTime);
@@ -600,7 +608,11 @@ void ACPlayerCharacter::OnDashComplete_Implementation()
 
 void ACPlayerCharacter::LaunchUp_Implementation(const FInputActionValue& Value)
 {
-	float ThisJumpStrength = JumpStrength;
+	float ThisJumpStrength = JumpStrength * PlayerAttributeComp->ConsumeJumpBoost();
+	if (ThisJumpStrength <= 0)
+	{
+		return;
+	}
 	if (HeldPickup)
 	{
 		MakeTempInvincible(DashTime);
@@ -645,6 +657,8 @@ float ACPlayerCharacter::GetSpeed() const
 	FVector IgnoreZ = FVector(Velocity.X, Velocity.Y, 0);
 	return IgnoreZ.Length();
 }
+
+#pragma endregion
 
 void ACPlayerCharacter::NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta, float NewHealth)
 {

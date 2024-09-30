@@ -52,7 +52,7 @@ protected:
 	TObjectPtr<USpringArmComponent> CameraBoom;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
 	TObjectPtr<UCameraComponent> FollowCamera;
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Player|Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Nyx|Player|Components")
 	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
 	TObjectPtr<USphereComponent> PickupSphereComp;
@@ -74,8 +74,6 @@ protected:
 	TObjectPtr<UInputAction> DashAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> JumpAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
-	TObjectPtr<UInputAction> ShieldAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> CameraLockAction;
 
@@ -186,9 +184,6 @@ protected:
 	FTimerHandle ReduceSpeedToMaxTimerHandle;
 	FTimerHandle DashTimerHandle;
 	FTimerHandle TempInvincibleTimerHandle;
-
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Shield")
-	void Shield(const FInputActionValue& Value);
 
 	/* Events */
 
