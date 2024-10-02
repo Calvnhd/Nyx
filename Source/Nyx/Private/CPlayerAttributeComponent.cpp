@@ -16,6 +16,7 @@ UCPlayerAttributeComponent::UCPlayerAttributeComponent()
 	BoostRecoveryCooldownTime = 1.0f;
 	BoostRecoveryIncrement = 10.0f;
 	BoostRecoveryRate = 0.2f;
+	bIsInvulnerable = false;
 }
 
 void UCPlayerAttributeComponent::AddSkillPoints(float PointsToAdd)
@@ -31,55 +32,77 @@ float UCPlayerAttributeComponent::GetSkillPoints() const
 
 float UCPlayerAttributeComponent::ConsumeDashBoost()
 {
+	if (CurrentBoost <= 0)
+	{
+		return 0.0f;
+	}
 	float BoostModifier = 0.0f;
 	if (CurrentBoost >= BoostToDash)
 	{
 		BoostModifier = 1.0f;
-		CurrentBoost -= BoostToDash;
 	}
-	else if (CurrentBoost <= BoostToDash && CurrentBoost > 0)
+	else
 	{
 		BoostModifier = CurrentBoost / BoostToDash;
-		CurrentBoost = 0.0f;
 	}
-	if (BoostModifier > 0)
-	{
-		GetWorld()->GetTimerManager().SetTimer(BoostRecoveryCooldownTimerHandle, this, &UCPlayerAttributeComponent::RecoverBoost,
-											   BoostRecoveryCooldownTime);
-	}
+	UpdateBoost(-BoostToDash);
+	GetWorld()->GetTimerManager().ClearTimer(BoostRecoveryTimerHandle);
+	GetWorld()->GetTimerManager().SetTimer(BoostRecoveryCooldownTimerHandle, this, &UCPlayerAttributeComponent::RecoverBoost,
+										   BoostRecoveryCooldownTime);
+
 	return BoostModifier;
 }
 float UCPlayerAttributeComponent::ConsumeJumpBoost()
 {
+	if (CurrentBoost <= 0)
+	{
+		return 0.0f;
+	}
 	float BoostModifier = 0.0f;
 	if (CurrentBoost >= BoostToJump)
 	{
 		BoostModifier = 1.0f;
-		CurrentBoost -= BoostToJump;
 	}
-	else if (CurrentBoost <= BoostToJump && CurrentBoost > 0)
+	else
 	{
 		BoostModifier = CurrentBoost / BoostToJump;
-		CurrentBoost = 0.0f;
 	}
-	if (BoostModifier > 0)
-	{
-		GetWorld()->GetTimerManager().ClearTimer(BoostRecoveryTimerHandle);
-		GetWorld()->GetTimerManager().SetTimer(BoostRecoveryCooldownTimerHandle, this, &UCPlayerAttributeComponent::RecoverBoost,
-											   BoostRecoveryCooldownTime);
-	}
+	UpdateBoost(-BoostToJump);
+	GetWorld()->GetTimerManager().ClearTimer(BoostRecoveryTimerHandle);
+	GetWorld()->GetTimerManager().SetTimer(BoostRecoveryCooldownTimerHandle, this, &UCPlayerAttributeComponent::RecoverBoost,
+										   BoostRecoveryCooldownTime);
+
 	return BoostModifier;
+}
+
+float UCPlayerAttributeComponent::GetBoostPercent() const
+{
+	return CurrentBoost / MaxBoost;
 }
 
 void UCPlayerAttributeComponent::RecoverBoost()
 {
-	float NewBoost = CurrentBoost + BoostRecoveryIncrement;
-	if (NewBoost > MaxBoost)
+	if (CurrentBoost < MaxBoost)
+	{
+		UpdateBoost(BoostRecoveryIncrement);
+		GetWorld()->GetTimerManager().SetTimer(BoostRecoveryTimerHandle, this, &UCPlayerAttributeComponent::RecoverBoost, BoostRecoveryRate);
+	}
+}
+
+void UCPlayerAttributeComponent::UpdateBoost(float Delta)
+{
+	float NewBoost = CurrentBoost + Delta;
+	if (NewBoost < 0.0f)
+	{
+		CurrentBoost = 0.0f;
+	}
+	else if (NewBoost > MaxBoost)
 	{
 		CurrentBoost = MaxBoost;
-		return;
 	}
-	CurrentBoost = NewBoost;
-	GetWorld()->GetTimerManager().SetTimer(BoostRecoveryTimerHandle, this, &UCPlayerAttributeComponent::RecoverBoost,
-										   BoostRecoveryRate);
+	else
+	{
+		CurrentBoost = NewBoost;
+	}
+	OnBoostChanged.Broadcast(this, CurrentBoost);
 }
