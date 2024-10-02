@@ -38,6 +38,9 @@ public:
 	FOnBoostChangedSignature OnBoostChanged;
 
 protected:
+
+	virtual void BeginPlay() override;
+
 	float SkillPoints;
 	bool bIsInvulnerable;
 	float CurrentBoost;

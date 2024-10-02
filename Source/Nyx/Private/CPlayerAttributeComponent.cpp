@@ -80,6 +80,12 @@ float UCPlayerAttributeComponent::GetBoostPercent() const
 	return CurrentBoost / MaxBoost;
 }
 
+void UCPlayerAttributeComponent::BeginPlay()
+{
+	Super::BeginPlay();
+	CurrentBoost = MaxBoost;
+}
+
 void UCPlayerAttributeComponent::RecoverBoost()
 {
 	if (CurrentBoost < MaxBoost)

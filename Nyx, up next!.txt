@@ -13,3 +13,6 @@ Nyx, up next!
 * kill stunned gets health pick ups that fly straight to you
 * trails from pickups should persist for some time
 
+* The only way is up
+* Destroy orbs to collect item to increase jump power
+* jump power to platform upwards
