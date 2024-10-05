@@ -2,8 +2,6 @@
 
 #include "CPlayerAttributeComponent.h"
 
-#include "CSkillPointsPickup.h"
-
 UCPlayerAttributeComponent::UCPlayerAttributeComponent()
 {
 	HealthMax = 1000.0f;
@@ -14,7 +12,9 @@ UCPlayerAttributeComponent::UCPlayerAttributeComponent()
 	BoostToDash = 100.0f;
 	BoostToJump = 100.0f;
 	BoostRecoveryCooldownTime = 1.0f;
-	BoostRecoveryIncrement = 10.0f;
+	BoostRecoveryIncrementBase = 10.0f;
+	CurrentBoostRecoveryIncrement = BoostRecoveryIncrementBase;
+	BoostRecoveryIncrementModifier = 1.05;
 	BoostRecoveryRate = 0.2f;
 	bIsInvulnerable = false;
 }
@@ -45,6 +45,7 @@ float UCPlayerAttributeComponent::ConsumeDashBoost()
 	{
 		BoostModifier = CurrentBoost / BoostToDash;
 	}
+	CurrentBoostRecoveryIncrement = BoostRecoveryIncrementBase;
 	UpdateBoost(-BoostToDash);
 	GetWorld()->GetTimerManager().ClearTimer(BoostRecoveryTimerHandle);
 	GetWorld()->GetTimerManager().SetTimer(BoostRecoveryCooldownTimerHandle, this, &UCPlayerAttributeComponent::RecoverBoost,
@@ -67,6 +68,7 @@ float UCPlayerAttributeComponent::ConsumeJumpBoost()
 	{
 		BoostModifier = CurrentBoost / BoostToJump;
 	}
+	CurrentBoostRecoveryIncrement = BoostRecoveryIncrementBase;
 	UpdateBoost(-BoostToJump);
 	GetWorld()->GetTimerManager().ClearTimer(BoostRecoveryTimerHandle);
 	GetWorld()->GetTimerManager().SetTimer(BoostRecoveryCooldownTimerHandle, this, &UCPlayerAttributeComponent::RecoverBoost,
@@ -84,14 +86,20 @@ void UCPlayerAttributeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentBoost = MaxBoost;
+	CurrentBoostRecoveryIncrement = BoostRecoveryIncrementBase;
 }
 
 void UCPlayerAttributeComponent::RecoverBoost()
 {
 	if (CurrentBoost < MaxBoost)
 	{
-		UpdateBoost(BoostRecoveryIncrement);
+		UpdateBoost(CurrentBoostRecoveryIncrement);
+		CurrentBoostRecoveryIncrement = CurrentBoostRecoveryIncrement * BoostRecoveryIncrementModifier;
 		GetWorld()->GetTimerManager().SetTimer(BoostRecoveryTimerHandle, this, &UCPlayerAttributeComponent::RecoverBoost, BoostRecoveryRate);
+	}
+	else
+	{
+		CurrentBoostRecoveryIncrement = BoostRecoveryIncrementBase;
 	}
 }
 

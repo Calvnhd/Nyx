@@ -51,7 +51,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float BoostToJump;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
-	float BoostRecoveryIncrement;
+	float BoostRecoveryIncrementBase;
+	float CurrentBoostRecoveryIncrement;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
+	float BoostRecoveryIncrementModifier;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float BoostRecoveryRate;
 
