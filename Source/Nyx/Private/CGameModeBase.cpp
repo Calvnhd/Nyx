@@ -32,49 +32,49 @@ void ACGameModeBase::StartPlay()
 	Super::StartPlay();
 
 	// Continuous timer to spawn in more bots
-	//GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ACGameModeBase::SpawnBotTimerElapsed,
-	//								SpawnTimerInterval, true);
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ACGameModeBase::SpawnBotTimerElapsed,
+									SpawnTimerInterval, true);
 }
-void ACGameModeBase::SpawnBotTimerElapsed()
+void ACGameModeBase::SpawnBotTimerElapsed_Implementation()
 {
-	int32 NumAliveBots = 0;
-	// TActorIterator is like a better version of get actors of class
-	// It lets us grab any instance of a current class in the current level
-	// You can pass in whatever! And it'll return everything derived from that class
-	for (TActorIterator<ACEnemyBase> It(GetWorld()); It; ++It)
-	{
-		ACEnemyBase* Bot = *It;
+	//int32 NumAliveBots = 0;
+	//// TActorIterator is like a better version of get actors of class
+	//// It lets us grab any instance of a current class in the current level
+	//// You can pass in whatever! And it'll return everything derived from that class
+	//for (TActorIterator<ACEnemyBase> It(GetWorld()); It; ++It)
+	//{
+	//	ACEnemyBase* Bot = *It;
 
-		/*
-			You could also go...
-			ACAttributeComp* AttributeComp = ACAttributeComp::GetAttributes(Bot);
-			if (ensure(AttributeComp) && ...) ...
-		*/
-		if (Bot->IsAlive())
-		{
-			NumAliveBots++;
-		}
-	}
-	UE_LOG(LogTemp, Log, TEXT("Found %i alive bots"), NumAliveBots);
-	const float MaxBotCount = 10.0f;
-	if (DifficultyCurve)
-	{
-		// Expects a time.  Something for X axis.
-		DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);
-	}
-	if (NumAliveBots >= MaxBotCount)
-	{
-		UE_LOG(LogTemp, Log, TEXT("At maximum bot capacity.  Skipping bot spawn."))
-		return;
-	}
+	//	/*
+	//		You could also go...
+	//		ACAttributeComp* AttributeComp = ACAttributeComp::GetAttributes(Bot);
+	//		if (ensure(AttributeComp) && ...) ...
+	//	*/
+	//	if (Bot->IsAlive())
+	//	{
+	//		NumAliveBots++;
+	//	}
+	//}
+	//UE_LOG(LogTemp, Log, TEXT("Found %i alive bots"), NumAliveBots);
+	//const float MaxBotCount = 10.0f;
+	//if (DifficultyCurve)
+	//{
+	//	// Expects a time.  Something for X axis.
+	//	DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);
+	//}
+	//if (NumAliveBots >= MaxBotCount)
+	//{
+	//	UE_LOG(LogTemp, Log, TEXT("At maximum bot capacity.  Skipping bot spawn."))
+	//	return;
+	//}
 
-	// This is a bit weird in some ways because it's designed for BP
-	UEnvQueryInstanceBlueprintWrapper* QueryInstance =
-		UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
-	if (ensure(QueryInstance))
-	{
-		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ACGameModeBase::OnQueryCompletedResponse);
-	}
+	//// This is a bit weird in some ways because it's designed for BP
+	//UEnvQueryInstanceBlueprintWrapper* QueryInstance =
+	//	UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
+	//if (ensure(QueryInstance))
+	//{
+	//	QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ACGameModeBase::OnQueryCompletedResponse);
+	//}
 }
 void ACGameModeBase::OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper* QueryInstance,
 											  EEnvQueryStatus::Type QueryStatus)

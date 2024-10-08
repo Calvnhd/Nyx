@@ -6,79 +6,92 @@ UCAsteroidAttributeComponent::UCAsteroidAttributeComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
-	BaseHealth = 100.0f;
-	BasePower = 100.0f;
-
-	// These default values will be overwritten on init based on BP values
 	Size = EAsteroidSize::Base;
 	SizeMultiplier = 1.0f;
+
+	State = EAsteroidState::Dormant;
+
+	BaseHealth = 100.0f;
+	BaseDamagePower = 10.0f;
+	BasePhysicalPower = 50.0f;
+
+	ChanceToSpawnItem = 1.0f;
+	TimeToActivate = 5;
+	NumberOfAsteroidsToSpawn = 3;
+
+	AttributeModifier = 1.0f;
 	Health = -1.0f;
-	Power = -1.0f;
-}
-
-UCAsteroidAttributeComponent* UCAsteroidAttributeComponent::GetAttributes(AActor* FromActor)
-{
-	if (FromActor)
-	{
-		return Cast<UCAsteroidAttributeComponent>(
-			FromActor->GetComponentByClass(UCAsteroidAttributeComponent::StaticClass()));
-	}
-	return nullptr;
-}
-
-bool UCAsteroidAttributeComponent::IsAsteroidAlive(AActor* Actor)
-{
-	if (UCAsteroidAttributeComponent* AttributeComp = GetAttributes(Actor))
-	{
-		return AttributeComp->IsAlive();
-	}
-	// This implies that having no attribute component is the equivalent of being dead
-	return false;
+	DamagePower = -1.0f;
+	InitializeAttributes();
 }
 void UCAsteroidAttributeComponent::InitializeAttributes()
 {
 	SizeMultiplier = Size.GetIntValue();
-	HealthMax = BaseHealth * SizeMultiplier;
+	HealthMax = BaseHealth * SizeMultiplier * AttributeModifier;
 	Health = HealthMax;
-	Power = BasePower * SizeMultiplier;
+	DamagePower = BaseDamagePower * SizeMultiplier * AttributeModifier;
+	State = EAsteroidState::Dormant;
 }
-bool UCAsteroidAttributeComponent::IsAlive() const
+void UCAsteroidAttributeComponent::ModifyAttributes(float NewModifier)
 {
-	return Health > 0;
-}
-float UCAsteroidAttributeComponent::GetHealth() const
-{
-	return Health;
+	AttributeModifier = NewModifier;
+	InitializeAttributes();
 }
 
-float UCAsteroidAttributeComponent::GetHealthPercent() const
+float UCAsteroidAttributeComponent::GetDamagePower() const
 {
-	return Health / HealthMax;
+	return DamagePower;
 }
 
-float UCAsteroidAttributeComponent::GetPower() const
+float UCAsteroidAttributeComponent::GetScaledPhysicalPower()
 {
-	return Power;
+	return Size.GetIntValue() * BasePhysicalPower;
 }
-void UCAsteroidAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
-{
-	if (!GetOwner()->CanBeDamaged() || Health <= 0)
-	{
-		return;
-	}
 
-	float NewHealth = Health + Delta;
-	if (NewHealth <= 0)
+EAsteroidSize UCAsteroidAttributeComponent::GetSize() const
+{
+	return Size;
+}
+
+EAsteroidState UCAsteroidAttributeComponent::GetState() const
+{
+	return State;
+}
+
+void UCAsteroidAttributeComponent::SetState(EAsteroidState NewState)
+{
+	State = NewState;
+}
+
+uint8 UCAsteroidAttributeComponent::GetNumberOfAsteroidsToSpawn() const
+{
+	return NumberOfAsteroidsToSpawn;
+}
+
+void UCAsteroidAttributeComponent::SetNumberOfAsteroidsToSpawn(uint8 Num)
+{
+	NumberOfAsteroidsToSpawn = Num;
+}
+
+float UCAsteroidAttributeComponent::GetChanceToSpawnItem() const
+{
+	return ChanceToSpawnItem;
+}
+
+float UCAsteroidAttributeComponent::GetAttributeModifier() const
+{
+	return AttributeModifier;
+}
+
+bool UCAsteroidAttributeComponent::TrySpawnItem() const
+{
+	if (ChanceToSpawnItem == 1)
 	{
-		Health = 0;
+		return true;
 	}
-	else if (NewHealth >= HealthMax)
+	if (ChanceToSpawnItem == 0)
 	{
-		Health = HealthMax;
+		return false;
 	}
-	else
-	{
-		Health = NewHealth;
-	}
-	OnHealthChanged.Broadcast(InstigatorActor, this, Delta, Health);
+	return (FMath::RandRange(0.0f, 1.0f) <= ChanceToSpawnItem);
 }

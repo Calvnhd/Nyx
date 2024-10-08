@@ -26,7 +26,7 @@ bool UCAttributeComponentBase::IsActorAlive(AActor* Actor)
 	// This implies that having no attribute component is the equivalent of being dead
 	return false;
 }
-bool UCAttributeComponentBase::IsAlive()
+bool UCAttributeComponentBase::IsAlive() const
 {
 	return (Health > 0);
 }
@@ -36,7 +36,6 @@ void UCAttributeComponentBase::ApplyHealthChange(AActor* InstigatorActor, float 
 	{
 		return;
 	}
-
 	float NewHealth = Health + Delta;
 	if (NewHealth <= 0)
 	{
@@ -50,17 +49,17 @@ void UCAttributeComponentBase::ApplyHealthChange(AActor* InstigatorActor, float 
 	{
 		Health = NewHealth;
 	}
-	OnHealthChangedDelegate.Broadcast(InstigatorActor, this, Delta, Health);
+	OnHealthChanged.Broadcast(InstigatorActor, this, Delta, Health);
 }
-float UCAttributeComponentBase::GetHealth()
+float UCAttributeComponentBase::GetHealth() const
 {
 	return Health;
 }
-float UCAttributeComponentBase::GetHealthMax()
+float UCAttributeComponentBase::GetHealthMax() const
 {
 	return HealthMax;
 }
-float UCAttributeComponentBase::GetHealthPercent()
+float UCAttributeComponentBase::GetHealthPercent() const
 {
 	return (Health / HealthMax);
 }

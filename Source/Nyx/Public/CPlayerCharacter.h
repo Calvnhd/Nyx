@@ -7,10 +7,13 @@
 
 #include "CPlayerCharacter.generated.h"
 
+class USphereComponent;
 class UCameraComponent;
+class ACSkillPointsPickup;
 class USpringArmComponent;
 class UCPlayerAttributeComponent;
 class UInputMappingContext;
+class UCAttributeComponentBase;
 class UInputAction;
 struct FInputActionValue;
 
@@ -36,92 +39,182 @@ protected:
 	 * --
 	 */
 
+	/* Overrides */
+
 	virtual void PostInitializeComponents() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	/* Components */
 
-	// Epic recommends TObjectPtr over raw pointers in header files with UPROPERTY for UE5
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
 	TObjectPtr<USpringArmComponent> CameraBoom;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
 	TObjectPtr<UCameraComponent> FollowCamera;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
-	TObjectPtr<UInputMappingContext> DefaultMappingContext;
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Nyx|Player|Components")
 	TObjectPtr<UCPlayerAttributeComponent> PlayerAttributeComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Components")
+	TObjectPtr<USphereComponent> PickupSphereComp;
 
-	/* Input Actions */
+	/* Input */
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
+	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> MoveAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> LookAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> AttackPrimaryAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> AttackSpecialAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
 	TObjectPtr<UInputAction> DashAction;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Input")
-	TObjectPtr<UInputAction> ShieldAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
+	TObjectPtr<UInputAction> JumpAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Nyx|Player|Input")
+	TObjectPtr<UInputAction> CameraLockAction;
 
 	/* Actions */
 
-	void DoNothing();
-
 	void Move(const FInputActionValue& Value);
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Move")
+	float MoveSensitivity;
+	void BeginLook(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void EndLook(const FInputActionValue& Value);
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look")
+	float LookPitchFloor;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look")
+	float LookPitchCeiling;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look")
+	float YawSensitivity;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look")
+	float PitchSensitivity;
 
-	FVector GetCameraTargetLocation() const;
-	FTransform GetCrosshairTargetTM() const;
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Abilities")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Player|Abilities|Position")
 	FVector GetMuzzleLocation() const;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Position")
 	float MaxBarrelPitch = 160.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Position")
 	float MinBarrelPitch = 80.0f;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Position")
 	float NeutralBarrelPitch = 90.0f;
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Abilities")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities|Position")
 	float CalculateBarrelPitch() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities|Position")
+	float CalculateTurretRotation() const;
 
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass);
 	void SpawnProjectile(TSubclassOf<AActor> ProjectileClass, TObjectPtr<UParticleSystem> MuzzleEffect);
 
 	FTimerHandle AttackPrimaryTimerHandle;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
-	float AttackPrimaryFireRate = 1.0f;
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Attack")
+	float AttackPrimaryFireRate;
 	void AttackPrimary(const FInputActionValue& Value);
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
 	void AttackPrimaryFireOnce();
 	void AttackPrimaryBegin();
 	void AttackPrimaryEnd();
 	void AttackPrimaryResetLoop();
-	// TSubclassOf<> lets us assign some class in editor and edit it wherever
-	UPROPERTY(EditAnywhere, Category = "Nyx|Abilities")
+	UPROPERTY(EditAnywhere, Category = "Nyx|Player|Abilities|Attack")
 	TSubclassOf<AActor> ProjectileClassPrimary;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Abilities")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Attack")
 	TObjectPtr<UParticleSystem> MuzzleFlashPrimary;
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
-	void AttackSpecial(const FInputActionValue& Value);
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
-	void Dash(const FInputActionValue& Value);
-	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Abilities")
-	void Shield(const FInputActionValue& Value);
+	void ToggleCameraLock(const FInputActionValue& Value);
+	void SetCameraLock(const FInputActionValue& Value);
+	void SetLockedTarget();
+	void CheckLockedTarget();
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities|Look|Targeting")
+	bool bCameraIsLocked;
+	bool bLookLockOverride;
+	UPROPERTY(BlueprintReadOnly)
+	AActor* LockedTarget;
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Look|Targeting")
+	void RotateCameraToLockedTarget();
+	FVector GetCrosshairTargetLocation() const;
+	AActor* FindNewLockedTarget();
+	FTransform GetTargetTM() const;
+	AActor* SortEnemiesHit(TArray<FHitResult> EnemiesHit);
+	TArray<FHitResult> TraceForTargets(float ViewStartDistance = 100.0f, float Radius = 500.0f);
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look|Targeting")
+	float TargetLockVelocityModifier;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look|Targeting")
+	float CameraLockDeadzoneSize;
+	float UpdateLockedTargetCounter;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look|Targeting")
+	float TimeToUpdateLockedTarget;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Look|Targeting")
+	float KeepTargetLockDistance;
 
-	/* Attributes */
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Dash")
+	void LaunchUp(const FInputActionValue& Value);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Jump")
+	float JumpStrength;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Jump")
+	float PowerJumpMultiplier;
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Dash")
+	void Dash(const FInputActionValue& Value);
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Dash")
+	void OnDashComplete();
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Dash")
+	float PowerDashMultiplier;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities|Dash")
+	void MakeTempInvincible(float Time);
+	void ExpireTempInvincible();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Dash")
+	float DashStrength;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Dash")
+	float DashTime;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Dash")
+	float DashDecelerationPercent;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Dash")
+	float DashDecelerationRate;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Move")
+	float MaxSpeed;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Player|Abilities|Dash")
+	float EndDashSpeedModifier;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities|Dash")
+	void ReduceSpeedToMax();
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Player|Abilities|Move")
+	float GetSpeed() const;
+	FTimerHandle ReduceSpeedToMaxTimerHandle;
+	FTimerHandle DashTimerHandle;
+	FTimerHandle TempInvincibleTimerHandle;
+
+	/* Events */
 
 	UFUNCTION()
-	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
-								 float NewHealth);
+	void NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta, float NewHealth);
+	UFUNCTION()
+	void NativeSkillPointsChangedHandler(UCAttributeComponentBase* OwningComp, float Delta, float NewPoints);
+	UFUNCTION()
+	void NativeCapsuleCompOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+										 int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void NativePickupSphereOverlapHandler(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+										  int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Events")
+	void OnDeath();
+
+	/* Misc */
+	void CollectPickup(ACSkillPointsPickup* NewPickup);
 
 	// Exec turns it into a console command on a Character (or Player Controller, GameMode, Cheat Manager)
 	UFUNCTION(Exec)
 	void HealSelf(float Amount = 1000);
+	/// WIP pickup stuff
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Player|Abilities|Pickup")
+	ACSkillPointsPickup* HeldPickup;
+	UPROPERTY()
+	TArray<ACSkillPointsPickup*> OrbitingPickups;
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Pickup")
+	void AttackSpecial(const FInputActionValue& Value);
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Pickup")
+	float HeldPickupHeight;
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Player|Abilities|Pickup")
+	float PickupLaunchImpulseStrength;
 };

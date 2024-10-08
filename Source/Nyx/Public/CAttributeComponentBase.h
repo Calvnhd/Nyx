@@ -8,8 +8,8 @@
 #include "CAttributeComponentBase.generated.h"
 
 // Dynamic allows BP assignment, Multicast allows multiple listeners
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChangedSignature, AActor*, InstigatorActor,
-											  UCAttributeComponentBase*, OwningComp, float, Delta, float, NewHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChangedSignature, AActor*, InstigatorActor, UCAttributeComponentBase*, OwningComp, float,
+											  Delta, float, NewHealth);
 
 /*
  * Base class for storing and managing attributes
@@ -22,33 +22,28 @@ class NYX_API UCAttributeComponentBase : public UActorComponent
 public:
 	UCAttributeComponentBase();
 
-	// Static functions can be called anywhere, without an instance of the class
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes")
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
 	static UCAttributeComponentBase* GetAttributes(AActor* FromActor);
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes", meta = (DisplayName = "IsAlive"))
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters", meta = (DisplayName = "IsAlive"))
 	static bool IsActorAlive(AActor* Actor);
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
+	bool IsAlive() const;
 
-	bool IsAlive();
-	void ApplyHealthChange(AActor* InstigatorActor, float Delta);
-	UFUNCTION(BlueprintCallable)
-	float GetHealth();
-	UFUNCTION(BlueprintCallable)
-	float GetHealthMax();
-	UFUNCTION(BlueprintCallable)
-	float GetHealthPercent();
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Setters")
+	virtual void ApplyHealthChange(AActor* InstigatorActor, float Delta);
+	UPROPERTY(BlueprintAssignable, Category = "Nyx|AttributeComponent|Events")
+	FOnHealthChangedSignature OnHealthChanged;
 
-	UPROPERTY(BlueprintAssignable, Category = "Nyx|Attributes")
-	FOnHealthChangedSignature OnHealthChangedDelegate;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
+	float GetHealth() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
+	float GetHealthMax() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|AttributeComponent|Getters")
+	float GetHealthPercent() const;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float Health;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AttributeComponent|Attributes")
 	float HealthMax;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
-	float ThrustPercent;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
-	float ThrustPercentMax;
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|Attributes")
-	float SpeedMax;
 };

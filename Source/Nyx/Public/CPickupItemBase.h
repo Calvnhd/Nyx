@@ -1,0 +1,35 @@
+// Copyright (C) 2024 - Calvin Davidson
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "CPickupInterface.h"
+#include "GameFramework/Actor.h"
+
+#include "CPickupItemBase.generated.h"
+
+UCLASS()
+class NYX_API ACPickupItemBase : public AActor, public ICPickupInterface
+{
+	GENERATED_BODY()
+	
+public:	
+	ACPickupItemBase();
+	UStaticMeshComponent* GetMesh() const;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Nyx|Pickup|Components")
+	UStaticMeshComponent* MeshComp;
+	UPROPERTY(BlueprintReadWrite, Category = "Nyx|Pickup|Behaviour")
+	bool bIsSuctionActive;
+
+	virtual void Tick(float DeltaSeconds) override;
+	virtual void ConsumePickup_Implementation(APawn* InstigatorPawn) override;
+	virtual void BeginSuction_Implementation(APawn* InstigatorPawn) override;
+	virtual void StopSuction_Implementation(APawn* InstigatorPawn) override;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Nyx|Pickup|Awareness")
+	APawn* PlayerRef;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Pickup|Behaviour")
+	float SuctionForceMultiplier;
+};

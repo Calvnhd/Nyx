@@ -21,25 +21,23 @@ class NYX_API ACGameModeBase : public AGameModeBase
 	GENERATED_BODY()
 
 protected:
+
+	//--- begin TL stuff I think?
 	FTimerHandle TimerHandle_SpawnBots;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AI")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|GameMode|AI")
 	float SpawnTimerInterval;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AI")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|GameMode|AI")
 	UEnvQuery* SpawnBotQuery;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AI")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|GameMode|AI")
 	TSubclassOf<AActor> EnemyClass;
-
-	UFUNCTION()
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|GameMode|Events")
 	void SpawnBotTimerElapsed();
-
 	UFUNCTION()
 	void OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
-
-	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AI")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|GameMode|AI")
 	UCurveFloat* DifficultyCurve;
+	//--- end TL
+
 
 public:
 	// Doesn't BeginPlay(). Responsible for calling BeginPlay()!

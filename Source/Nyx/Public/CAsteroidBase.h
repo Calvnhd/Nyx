@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CAsteroidAttributeComponent.h"
+#include "CStunInterface.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
@@ -33,7 +34,7 @@ Collision with ship weapon
 */
 
 UCLASS()
-class NYX_API ACAsteroidBase : public AActor
+class NYX_API ACAsteroidBase : public AActor, public ICStunInterface
 {
 	GENERATED_BODY()
 
@@ -41,29 +42,79 @@ public:
 	ACAsteroidBase();
 
 protected:
-	virtual void PreInitializeComponents() override;
+	/* Overrides */
+
 	virtual void PostInitializeComponents() override;
+	virtual void Tick(float DeltaSeconds) override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Components")
+	/* Components */
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Nyx|Asteroid|Components")
 	TObjectPtr<UCAsteroidAttributeComponent> AttributeComp;
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Components")
+	UStaticMeshComponent* GetStaticMeshComponent() const;
+
+	/* Events */
 
 	UFUNCTION()
-	void HealthChangedHandler(AActor* InstigatorActor, UCAsteroidAttributeComponent* OwningComp, float Delta,
-						 float NewHealth);
+	void NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
+									float NewHealth);
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Events")
+	void SpawnSmallerAsteroids();
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Events")
+	void SpawnItem();
+	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Events")
+	void Explode();
 
-	UFUNCTION(BlueprintCallable)
+	/* Attributes */
+
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Attributes")
 	float GetHealthPercent();
-
-	UFUNCTION()
-	void OnCollision(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-					 FVector NormalImpulse, const FHitResult& Hit);
-
-	void OnCollisionWithAsteroid();
-	void OnCollisionWithPlayer();
-	UFUNCTION(BlueprintCallable, Category = "Nyx|Attributes")
-
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Attributes")
 	bool IsAlive();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Projectile|Behaviour")
-	void Explode();
+	/* Classes */
+
+	TSubclassOf<AActor> GetAsteroidClassToSpawn() const;
+
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> AsteroidClass_Base;
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> AsteroidClass_Small;
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> AsteroidClass_Medium;
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> AsteroidClass_Large;
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> AsteroidClass_Largest;
+	UPROPERTY(EditAnywhere, Category = "Nyx|Asteroid|Classes")
+	TSubclassOf<AActor> ItemDropClass;
+
+	/* Behaviour */
+
+	UPROPERTY(BlueprintReadWrite, Category = "Nyx|Asteroid|Behaviour")
+	bool bTickPhysicsHomingForce;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Behaviour")
+	void AddForceInPlayerDirection(AActor* Player);
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Behaviour")
+	void EnablePhysicsAndGravity();
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Behaviour")
+	void DisablePhysicsAndGravity();
+
+	FTimerHandle StunTimerHandle;
+	void OnStunTimerComplete();
+
+	/* Awareness */
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Nyx|Asteroid|Awareness")
+	AActor* GetPlayerRef() const;
+	UFUNCTION(BlueprintCallable, Category = "Nyx|Asteroid|Awareness")
+	FVector GetPlayerDirection(AActor* Player) const;
+
+	/* Interfaces */
+
+	virtual void Stun_Implementation(float StunTime) override;
+	virtual void Recover_Implementation() override;
+
+	EAsteroidState RecoverToState;
 };
