@@ -4,8 +4,8 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "GameFramework/Character.h"
 #include "CAttributeComponentBase.h"
+#include "GameFramework/Character.h"
 
 EBTNodeResult::Type UCBTT_RangedAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -18,9 +18,9 @@ EBTNodeResult::Type UCBTT_RangedAttack::ExecuteTask(UBehaviorTreeComponent& Owne
 			return EBTNodeResult::Failed;
 		}
 		// This is not valid for your current basic enemy... but might be in the future
-		// FVector MuzzleLocation = MyPawn->GetMesh()->GetSocketLocation("Muzzle_01");
+		FVector MuzzleLocation = MyPawn->GetMesh()->GetSocketLocation("Muzzle_01");
 		// This should spawn the projectile somewhere just up above the enemy
-		FVector MuzzleLocation = MyPawn->GetMesh()->GetComponentLocation() + FVector(0, 0, 300);
+		// FVector MuzzleLocation = MyPawn->GetMesh()->GetComponentLocation() + FVector(0, 0, 300);
 
 		// Hardcoding TargetActor for the moment still I think?
 		AActor* TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("TargetActor"));

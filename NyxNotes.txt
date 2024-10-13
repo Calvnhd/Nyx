@@ -12,5 +12,37 @@ Nyx, up next!
 * cool down on picking up another pickup
 * kill stunned gets health pick ups that fly straight to you
 * trails from pickups should persist for some time
+----
+How tf does AI work?
+* Navigation mesh - pathfinding.  Hit P to show in editor
+* Character class - same stuff as player character class.  Assign an AI controller.
+* AI Controller - analagous to the player controller
+	- Stores and runs behaviour trees
+* BT - Behaviour Tree - "Brain" - Flow chart to determine action. top to bottom and left to right
+	- Nodes
+		- Selector - pick one child node based on decorator conditions, evaluating left to right
+		- Sequence - run all sequentially, evaluating left to right
+	- Task - Actions
+		- Subclass BTTaskNode in C++ -- e.g. ranged attack
+	- Service - Runs repeatedly for background tasks
+		- Subclass BTService in C++ -- e.g. check attack range range
+	- Decorator - flow control condition checks
+* Blackboard - "Memory" - Data. No logic.
+* EQ - Environment Query - generates location points based on some criteria -- e.g. find nearby location.  Used in BT. This is what you're up to in LT-L11-2
+* PawnSensing and AIPerception
+* Debugging - hit apostrophe in game '.  Look at an actor for extra detail on that actor.
+
+----
+Some AI types.  Consider movement, actions, attack(s), state(s)
+* Projectile Ball
+	- Moves towards you at a steady pace used projectile homing
+	- Damage and impulse on contact
+* Physics ball
+	- Constantly accelerating in your direction
+	- Damage and impulse on contact
+* Basic ranged enemy
+	- Walks to be in some range
+	- Fire projectile
+
 
 

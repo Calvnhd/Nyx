@@ -23,11 +23,11 @@ void UCBTS_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 		{
 			// need to get AI Pawn
 			// We have easy access to AAIController
-			AAIController* MyController = OwnerComp.GetAIOwner();
-			if (ensure(MyController))
+			AAIController* AIController = OwnerComp.GetAIOwner();
+			if (ensure(AIController))
 			{
 				// which we can get the Pawn from
-				APawn* AIPawn = MyController->GetPawn();
+				APawn* AIPawn = AIController->GetPawn();
 				// should also always be true
 				if (ensure(AIPawn))
 				{
@@ -39,7 +39,7 @@ void UCBTS_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 					if (bWithinRange)
 					{
 						// Checks visibility channel
-						bHasLOS = MyController->LineOfSightTo(TargetActor);
+						bHasLOS = AIController->LineOfSightTo(TargetActor);
 					}
 
 					// Blackboard is the memory for AI
