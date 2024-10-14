@@ -29,8 +29,9 @@ How tf does AI work?
 	- Decorator - flow control condition checks
 * Blackboard - "Memory" - Data. No logic.
 * EQ - Environment Query - generates location points based on some criteria -- e.g. find nearby location.  Used in BT. This is what you're up to in LT-L11-2
-* PawnSensing and AIPerception
-* Debugging - hit apostrophe in game '.  Look at an actor for extra detail on that actor.
+* EQC - Environment Query Context - Make in BP (the C++ isn't great apparently).  Additional info for EQ e.g. set target actor which points will generate around.
+* PawnSensing and AIPerception - components to attach to your AI characters to "see" and "hear"
+* Debugging - hit apostrophe in game '.  Look at an actor for extra detail on that actor. Visual logger records info for playback on timeline.
 
 ----
 Some AI types.  Consider movement, actions, attack(s), state(s)

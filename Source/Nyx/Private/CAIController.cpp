@@ -15,10 +15,4 @@ void ACAIController::BeginPlay()
 	{
 		RunBehaviorTree(EnemyBaseBehaviourTree);
 	}
-
-	//if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0))
-	//{
-	//	GetBlackboardComponent()->SetValueAsVector("MoveToLocation", PlayerPawn->GetActorLocation());
-	//	GetBlackboardComponent()->SetValueAsObject("TargetActor", PlayerPawn);
-	//}
 }
