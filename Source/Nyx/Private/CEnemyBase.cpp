@@ -17,6 +17,7 @@ ACEnemyBase::ACEnemyBase()
 	EnemyAttributeComp = CreateDefaultSubobject<UCEnemyAttributeComponent>("EnemyAttributeComp");
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("EnemySensingComp");
 
+	// This ensures the ai controller will always possess it 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 void ACEnemyBase::PostInitializeComponents()

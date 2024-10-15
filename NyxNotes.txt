@@ -44,6 +44,15 @@ Some AI types.  Consider movement, actions, attack(s), state(s)
 * Basic ranged enemy
 	- Walks to be in some range
 	- Fire projectile
+----
+Assignment 4 - New AI Behaviour: flee and heal
+- Service: Check for low health periodically
+- EQS Find a hidden position
+- BT Task: Heal
+- 60 second cooldown
+
+Also you need to fix up collision and damage on the bot
+
 
 
 

@@ -39,7 +39,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
 	TObjectPtr<UCEnemyAttributeComponent> EnemyAttributeComp;
 
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
+	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components|AI")
 	TObjectPtr<UPawnSensingComponent> PawnSensingComp;
 
 	UFUNCTION()

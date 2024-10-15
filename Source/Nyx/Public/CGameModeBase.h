@@ -22,7 +22,6 @@ class NYX_API ACGameModeBase : public AGameModeBase
 
 protected:
 
-	//--- begin TL stuff I think?
 	FTimerHandle TimerHandle_SpawnBots;
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|GameMode|AI")
 	float SpawnTimerInterval;
@@ -33,10 +32,9 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|GameMode|Events")
 	void SpawnBotTimerElapsed();
 	UFUNCTION()
-	void OnQueryCompletedResponse(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+	void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|GameMode|AI")
 	UCurveFloat* DifficultyCurve;
-	//--- end TL
 
 
 public:
