@@ -1,7 +1,5 @@
 Nyx, up next!
 ----
-* go back to tom loomans.  Begin by revising the AI stuff.  Repeat if needed.
-----
 * The only way is up
 * Destroy orbs to collect item to increase jump power
 * jump power to platform upwards
@@ -46,7 +44,7 @@ Some AI types.  Consider movement, actions, attack(s), state(s)
 	- Fire projectile
 ----
 Assignment 4 - New AI Behaviour: flee and heal
-- Service: Check for low health periodically
+- Service: Check for low health periodically -- Done (CBTS_CheckHealth)
 - EQS Find a hidden position
 - BT Task: Heal
 - 60 second cooldown

@@ -8,7 +8,7 @@
 #include "CBTS_CheckHealth.generated.h"
 
 /**
- *
+ * Periodically check health
  */
 UCLASS()
 class NYX_API UCBTS_CheckHealth : public UBTService
