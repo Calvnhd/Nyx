@@ -31,7 +31,7 @@ void ACGameModeBase::StartPlay()
 	Super::StartPlay();
 
 	// Continuous timer to spawn in more bots
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ACGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
+	//GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ACGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
 }
 void ACGameModeBase::SpawnBotTimerElapsed_Implementation()
 {

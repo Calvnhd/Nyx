@@ -49,7 +49,7 @@ Assignment 4 - New AI Behaviour: flee and heal
 - BT Task: Heal
 - 60 second cooldown
 
-Also you need to fix up collision and damage on the bot
+Also you need to fix up collision and damage on the bot!  Do this next so you can test the check health thing.
 
 
 
