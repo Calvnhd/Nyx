@@ -66,8 +66,12 @@ void ACProjectileBase::NativeProjectileHitHandler(UPrimitiveComponent* HitCompon
 {
 	if (OtherActor && OtherActor != GetInstigator())
 	{
-		if (UCAsteroidAttributeComponent* AttributeComp =
-				Cast<UCAsteroidAttributeComponent>(UCAttributeComponentBase::GetAttributes(OtherActor)))
+		//if (UCAsteroidAttributeComponent* AttributeComp =
+		//		Cast<UCAsteroidAttributeComponent>(UCAttributeComponentBase::GetAttributes(OtherActor)))
+		//{
+		//	AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
+		//}
+		if (UCAttributeComponentBase* AttributeComp = UCAttributeComponentBase::GetAttributes(OtherActor))
 		{
 			AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
 		}
