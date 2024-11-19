@@ -5,20 +5,20 @@
 #include "BehaviorTree/BTService.h"
 #include "CoreMinimal.h"
 
-#include "CBTS_CheckAttackRange.generated.h"
+#include "CBTS_CheckHealth.generated.h"
 
 /**
- *
+ * Periodically check health
  */
 UCLASS()
-class NYX_API UCBTS_CheckAttackRange : public UBTService
+class NYX_API UCBTS_CheckHealth : public UBTService
 {
 	GENERATED_BODY()
 
 protected:
 	// Handles dropdown keys in BT
 	UPROPERTY(EditAnywhere, Category = "Nyx|AI")
-	FBlackboardKeySelector AttackRangeKey;
+	FBlackboardKeySelector HealthKey;
 
 	/** update next tick interval
 	 * parent has interval variable

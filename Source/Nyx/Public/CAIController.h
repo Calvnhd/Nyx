@@ -20,6 +20,6 @@ class NYX_API ACAIController : public AAIController
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	UPROPERTY(EditDefaultsOnly, Category = "Nyx|AI")
 	UBehaviorTree* EnemyBaseBehaviourTree;
 };

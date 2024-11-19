@@ -39,19 +39,19 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
 	TObjectPtr<UCEnemyAttributeComponent> EnemyAttributeComp;
 
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
+	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components|AI")
 	TObjectPtr<UPawnSensingComponent> PawnSensingComp;
 
 	UFUNCTION()
-	void OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
+	void HealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
 								 float NewHealth);
 
 	UFUNCTION()
-	void OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	void CollisionHandler(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 							 FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION()
-	void OnPawnSeenResponse(APawn* Pawn);
+	void PawnSeenHandler(APawn* Pawn);
 
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent();

@@ -17,6 +17,7 @@ ACEnemyBase::ACEnemyBase()
 	EnemyAttributeComp = CreateDefaultSubobject<UCEnemyAttributeComponent>("EnemyAttributeComp");
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("EnemySensingComp");
 
+	// This ensures the ai controller will always possess it
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 void ACEnemyBase::PostInitializeComponents()
@@ -24,12 +25,11 @@ void ACEnemyBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Delegate bindings
-	EnemyAttributeComp->OnHealthChanged.AddDynamic(this, &ACEnemyBase::OnHealthChangedResponse);
-	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ACEnemyBase::OnCollisionResponse);
-	PawnSensingComp->OnSeePawn.AddDynamic(this, &ACEnemyBase::OnPawnSeenResponse);
+	EnemyAttributeComp->OnHealthChanged.AddDynamic(this, &ACEnemyBase::HealthChangedHandler);
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &ACEnemyBase::CollisionHandler);
+	PawnSensingComp->OnSeePawn.AddDynamic(this, &ACEnemyBase::PawnSeenHandler);
 }
-void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
-										  float NewHealth)
+void ACEnemyBase::HealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta, float NewHealth)
 {
 	if (Delta < 0.0f)
 	{
@@ -68,8 +68,8 @@ void ACEnemyBase::OnHealthChangedResponse(AActor* InstigatorActor, UCAttributeCo
 		}
 	}
 }
-void ACEnemyBase::OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-									  UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ACEnemyBase::CollisionHandler(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+								   const FHitResult& Hit)
 {
 	if (OtherActor)
 	{
@@ -79,9 +79,9 @@ void ACEnemyBase::OnCollisionResponse(UPrimitiveComponent* HitComponent, AActor*
 		}
 	}
 }
-void ACEnemyBase::OnPawnSeenResponse(APawn* Pawn)
+void ACEnemyBase::PawnSeenHandler(APawn* Pawn)
 {
-	//DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.0f, true);
+	// DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.0f, true);
 	SetTargetActor(Pawn);
 }
 float ACEnemyBase::GetHealthPercent()

@@ -39,6 +39,8 @@ ACPlayerCharacter::ACPlayerCharacter()
 	// Camera & Targeting
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	// Components that derive from SceneComponent need to be attached.
+	// Components that derive from ActorComponent do not.
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 500.0f; // The camera follows at this distance behind the character
 	CameraBoom->SocketOffset = FVector(0, 0, 150.0f); // with this offset

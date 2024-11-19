@@ -1,7 +1,5 @@
 Nyx, up next!
 ----
-* go back to tom loomans.  Begin by revising the AI stuff.  Repeat if needed.
-----
 * The only way is up
 * Destroy orbs to collect item to increase jump power
 * jump power to platform upwards
@@ -12,5 +10,47 @@ Nyx, up next!
 * cool down on picking up another pickup
 * kill stunned gets health pick ups that fly straight to you
 * trails from pickups should persist for some time
+----
+How tf does AI work?
+* Navigation mesh - pathfinding.  Hit P to show in editor
+* Character class - same stuff as player character class.  Assign an AI controller.
+* AI Controller - analagous to the player controller
+	- Stores and runs behaviour trees
+* BT - Behaviour Tree - "Brain" - Flow chart to determine action. top to bottom and left to right
+	- Nodes
+		- Selector - pick one child node based on decorator conditions, evaluating left to right
+		- Sequence - run all sequentially, evaluating left to right
+	- Task - Actions
+		- Subclass BTTaskNode in C++ -- e.g. ranged attack
+	- Service - Runs repeatedly for background tasks
+		- Subclass BTService in C++ -- e.g. check attack range range
+	- Decorator - flow control condition checks
+* Blackboard - "Memory" - Data. No logic.
+* EQ - Environment Query - generates location points based on some criteria -- e.g. find nearby location.  Used in BT. This is what you're up to in LT-L11-2
+* EQC - Environment Query Context - Make in BP (the C++ isn't great apparently).  Additional info for EQ e.g. set target actor which points will generate around.
+* PawnSensing and AIPerception - components to attach to your AI characters to "see" and "hear"
+* Debugging - hit apostrophe in game '.  Look at an actor for extra detail on that actor. Visual logger records info for playback on timeline.
+
+----
+Some AI types.  Consider movement, actions, attack(s), state(s)
+* Projectile Ball
+	- Moves towards you at a steady pace used projectile homing
+	- Damage and impulse on contact
+* Physics ball
+	- Constantly accelerating in your direction
+	- Damage and impulse on contact
+* Basic ranged enemy
+	- Walks to be in some range
+	- Fire projectile
+----
+Assignment 4 - New AI Behaviour: flee and heal
+- Service: Check for low health periodically -- Done (CBTS_CheckHealth)
+- EQS Find a hidden position
+- BT Task: Heal
+- 60 second cooldown
+
+Also you need to fix up collision and damage on the bot!  Do this next so you can test the check health thing.
+
+
 
 
