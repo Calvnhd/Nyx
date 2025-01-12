@@ -30,7 +30,6 @@ How tf does AI work?
 * EQC - Environment Query Context - Make in BP (the C++ isn't great apparently).  Additional info for EQ e.g. set target actor which points will generate around.
 * PawnSensing and AIPerception - components to attach to your AI characters to "see" and "hear"
 * Debugging - hit apostrophe in game '.  Look at an actor for extra detail on that actor. Visual logger records info for playback on timeline.
-
 ----
 Some AI types.  Consider movement, actions, attack(s), state(s)
 * Projectile Ball
@@ -48,8 +47,20 @@ Assignment 4 - New AI Behaviour: flee and heal
 - EQS Find a hidden position
 - BT Task: Heal
 - 60 second cooldown
-
+----
 Also you need to fix up collision and damage on the bot!  Do this next so you can test the check health thing.
+(I left it too long and now I'm not sure what this means)
+----
+NewBot - Making a new enemy type from scratch
+	- Simple body shape that's similar to my ship. Main body plus a turret.  Maybe don't worry about the turret turning independently.
+
+Behaviour
+	- Able to find some location to move to near player
+		- Somewhere within some distance of player, similar to the existing bot
+	- launch a ProjectileBall
+		- Start off with a small size, but add the ability to decide on a particular size
+	- Assignment 4 behaviour - find cover and heal
+----
 
 
 
