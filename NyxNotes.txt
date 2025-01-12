@@ -60,6 +60,17 @@ Behaviour
 	- launch a ProjectileBall
 		- Start off with a small size, but add the ability to decide on a particular size
 	- Assignment 4 behaviour - find cover and heal
+
+Todo
+	- New bot class TankBase
+		- Give it a mesh
+		- takes damage
+		- hitflash
+		- health bar
+		- explodes on death
+	- bot movement to selected place
+	- bot fire in a direction
+	- Flee and health recovery
 ----
 
 
