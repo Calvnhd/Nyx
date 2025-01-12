@@ -1,6 +1,6 @@
 // Copyright (C) 2024 - Calvin Davidson
 
-#include "CEnemyAttributeComponent.h"
+#include "AI/CEnemyAttributeComponent.h"
 
 #include "Math/UnrealMathUtility.h"
 

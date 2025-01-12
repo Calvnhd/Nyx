@@ -2,9 +2,9 @@
 
 #pragma once
 
+#include "CAttributeComponentBase.h"
 #include "Components/ActorComponent.h"
 #include "CoreMinimal.h"
-#include "CAttributeComponentBase.h"
 
 #include "CEnemyAttributeComponent.generated.h"
 

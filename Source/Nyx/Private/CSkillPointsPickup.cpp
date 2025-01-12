@@ -2,7 +2,7 @@
 
 #include "CSkillPointsPickup.h"
 
-#include "CAsteroidBase.h"
+#include "AI/CAsteroidBase.h"
 #include "CPlayerAttributeComponent.h"
 #include "Components/SphereComponent.h"
 

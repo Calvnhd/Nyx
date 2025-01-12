@@ -1,6 +1,6 @@
 // Copyright (C) 2024 - Calvin Davidson
 
-#include "CAsteroidAttributeComponent.h"
+#include "AI/CAsteroidAttributeComponent.h"
 
 UCAsteroidAttributeComponent::UCAsteroidAttributeComponent()
 {

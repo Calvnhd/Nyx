@@ -2,7 +2,7 @@
 
 #include "CPlayerCharacter.h"
 
-#include "CAsteroidBase.h"
+#include "AI/CAsteroidBase.h"
 #include "CCommonDefines.h"
 #include "CPickupInterface.h"
 #include "CPlayerAttributeComponent.h"

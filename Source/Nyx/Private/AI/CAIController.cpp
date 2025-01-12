@@ -1,9 +1,9 @@
 // Copyright (C) 2024 - Calvin Davidson
 
-#include "CAIController.h"
+#include "AI/CAIController.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
-#include <Kismet/GameplayStatics.h>
+#include "Kismet/GameplayStatics.h"
 
 void ACAIController::BeginPlay()
 {

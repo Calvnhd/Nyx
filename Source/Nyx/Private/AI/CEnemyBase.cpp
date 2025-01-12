@@ -1,12 +1,12 @@
 // Copyright (C) 2024 - Calvin Davidson
 
-#include "CEnemyBase.h"
+#include "AI/CEnemyBase.h"
 
+#include "AI/CAIController.h"
+#include "AI/CEnemyAttributeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BrainComponent.h"
-#include "CAIController.h"
 #include "CCommonDefines.h"
-#include "CEnemyAttributeComponent.h"
 #include "CWorldUserWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "DrawDebugHelpers.h" // this is a useful include to refer to again!

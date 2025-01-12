@@ -2,8 +2,8 @@
 
 #include "CProjectileBase.h"
 
-#include "CAsteroidAttributeComponent.h"
-#include "CEnemyAttributeComponent.h"
+#include "AI/CAsteroidAttributeComponent.h"
+#include "AI/CEnemyAttributeComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"

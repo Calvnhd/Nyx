@@ -1,6 +1,6 @@
 // Copyright (C) 2024 - Calvin Davidson
 
-#include "CBTT_RangedAttack.h"
+#include "AI/CBTT_RangedAttack.h"
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"

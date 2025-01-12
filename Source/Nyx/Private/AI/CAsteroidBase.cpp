@@ -1,9 +1,9 @@
 // Copyright (C) 2024 - Calvin Davidson
 
-#include "CAsteroidBase.h"
+#include "AI/CAsteroidBase.h"
 
-#include "CAsteroidAttributeComponent.h"
-#include "CAttributeComponentBase.h"
+#include "AI/CAsteroidAttributeComponent.h"
+// #include "AttributeComponentBase.h"
 #include "Kismet/KismetMathLibrary.h"
 
 ACAsteroidBase::ACAsteroidBase()
@@ -30,8 +30,7 @@ void ACAsteroidBase::Tick(float DeltaSeconds)
 	}
 }
 
-void ACAsteroidBase::NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp,
-												float Delta, float NewHealth)
+void ACAsteroidBase::NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta, float NewHealth)
 {
 	if (NewHealth <= 0.0f)
 	{
@@ -139,8 +138,8 @@ void ACAsteroidBase::SpawnSmallerAsteroids_Implementation()
 	{
 		if (AActor* NewActor = GetWorld()->SpawnActor<AActor>(AsteroidClass, SpawnTM, SpawnParams))
 		{
-			if (UCAsteroidAttributeComponent* AsteroidAttributeComp = Cast<UCAsteroidAttributeComponent>(
-					NewActor->GetComponentByClass(UCAsteroidAttributeComponent::StaticClass())))
+			if (UCAsteroidAttributeComponent* AsteroidAttributeComp =
+					Cast<UCAsteroidAttributeComponent>(NewActor->GetComponentByClass(UCAsteroidAttributeComponent::StaticClass())))
 			{
 				// Pass on own attributes to children
 				AsteroidAttributeComp->SetNumberOfAsteroidsToSpawn(AttributeComp->GetNumberOfAsteroidsToSpawn());

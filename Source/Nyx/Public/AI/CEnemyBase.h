@@ -25,7 +25,6 @@ public:
 	ACEnemyBase();
 
 protected:
-
 	UCWorldUserWidget* ActiveHealthBar;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|UI")
@@ -43,12 +42,11 @@ protected:
 	TObjectPtr<UPawnSensingComponent> PawnSensingComp;
 
 	UFUNCTION()
-	void HealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
-								 float NewHealth);
+	void HealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta, float NewHealth);
 
 	UFUNCTION()
-	void CollisionHandler(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-							 FVector NormalImpulse, const FHitResult& Hit);
+	void CollisionHandler(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
+						  const FHitResult& Hit);
 
 	UFUNCTION()
 	void PawnSeenHandler(APawn* Pawn);

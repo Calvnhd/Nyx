@@ -2,7 +2,7 @@
 
 #include "CBallSpawner.h"
 
-#include "CAsteroidBase.h"
+#include "AI/CAsteroidBase.h"
 
 // Sets default values
 ACBallSpawner::ACBallSpawner()

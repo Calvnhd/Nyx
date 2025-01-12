@@ -1,6 +1,6 @@
 // Copyright (C) 2024 - Calvin Davidson
 
-#include "CBTS_CheckAttackRange.h"
+#include "AI/CBTS_CheckAttackRange.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"

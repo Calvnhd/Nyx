@@ -7,10 +7,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
+#include "CAsteroidBase.generated.h"
+
 class UCAttributeComponentBase;
 class UCAsteroidAttributeComponent;
-
-#include "CAsteroidBase.generated.h"
 
 /*
 
@@ -57,8 +57,7 @@ protected:
 	/* Events */
 
 	UFUNCTION()
-	void NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta,
-									float NewHealth);
+	void NativeHealthChangedHandler(AActor* InstigatorActor, UCAttributeComponentBase* OwningComp, float Delta, float NewHealth);
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Events")
 	void SpawnSmallerAsteroids();
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Asteroid|Events")

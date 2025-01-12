@@ -24,5 +24,4 @@ protected:
 	// in degrees
 	UPROPERTY(EditAnywhere, Category = "Nyx|AI")
 	float BulletSpread = 2.0f;
-
 };

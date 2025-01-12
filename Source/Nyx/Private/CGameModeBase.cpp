@@ -1,8 +1,8 @@
 // Copyright (C) 2024 - Calvin Davidson
 
 #include "CGameModeBase.h"
-#include "CEnemyAttributeComponent.h"
-#include "CEnemyBase.h"
+#include "AI/CEnemyAttributeComponent.h"
+#include "AI/CEnemyBase.h"
 #include "DrawDebugHelpers.h"
 #include "EngineUtils.h"
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
