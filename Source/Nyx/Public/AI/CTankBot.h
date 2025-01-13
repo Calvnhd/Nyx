@@ -5,13 +5,13 @@
 #include "AI/CEnemyBase.h"
 #include "CoreMinimal.h"
 
-#include "TankBot.generated.h"
+#include "CTankBot.generated.h"
 
 /**
  *
  */
 UCLASS()
-class NYX_API ATankBot : public ACEnemyBase
+class NYX_API ACTankBot : public ACEnemyBase
 {
 	GENERATED_BODY()
 };
