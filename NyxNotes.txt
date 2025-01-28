@@ -81,6 +81,7 @@ NEXT!
 - fix up health bar -- it needs to be readable
 - understand AI framework
 - add health awareness stuff
+- is collision working properly for everyone?
 
 
 
