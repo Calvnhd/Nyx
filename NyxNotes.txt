@@ -71,7 +71,16 @@ Todo
 	- bot movement to selected place
 	- bot fire in a direction
 	- Flee and health recovery
+
+You don't need to make a new TankBot
+You're over complicating things
+Finish off the regular lil enemy
+And make a giant enemy capable of spawning the multi ball enemy
 ----
+NEXT! 
+- fix up health bar -- it needs to be readable
+- understand AI framework
+- add health awareness stuff
 
 
 

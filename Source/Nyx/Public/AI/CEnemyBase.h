@@ -25,15 +25,16 @@ public:
 	ACEnemyBase();
 
 protected:
-	UCWorldUserWidget* ActiveHealthBar;
+	virtual void PostInitializeComponents() override;
 
+	// The class we'll use for the pop up health bar, to be assigned in BP
 	UPROPERTY(EditDefaultsOnly, Category = "Nyx|UI")
 	TSubclassOf<UUserWidget> HealthBarWidgetClass;
+	// Actual reference to the pop up health bar for use in code
+	UCWorldUserWidget* ActiveHealthBar;
 
-	UPROPERTY(VisibleAnywhere, Category = "Nyx|Effects")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Nyx|Effects")
 	FName TimeToHitParamName;
-
-	virtual void PostInitializeComponents() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Nyx|Components")
 	TObjectPtr<UCEnemyAttributeComponent> EnemyAttributeComp;

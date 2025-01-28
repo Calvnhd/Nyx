@@ -33,10 +33,12 @@ void ACEnemyBase::HealthChangedHandler(AActor* InstigatorActor, UCAttributeCompo
 {
 	if (Delta < 0.0f)
 	{
+		// Target whoever damaged enemy
 		if (InstigatorActor != this && InstigatorActor != nullptr)
 		{
 			SetTargetActor(InstigatorActor);
 		}
+		// Display pop up health bar if it doesn't already exist
 		if (ActiveHealthBar == nullptr)
 		{
 			// CreateWidget is available anywhere
@@ -50,6 +52,7 @@ void ACEnemyBase::HealthChangedHandler(AActor* InstigatorActor, UCAttributeCompo
 				ActiveHealthBar->AddToViewport();
 			}
 		}
+		// Death
 		if (NewHealth <= 0.0f)
 		{
 			// need the AI controller.  It's controlling everything!
@@ -71,7 +74,7 @@ void ACEnemyBase::HealthChangedHandler(AActor* InstigatorActor, UCAttributeCompo
 void ACEnemyBase::CollisionHandler(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse,
 								   const FHitResult& Hit)
 {
-	if (OtherActor)
+	if (OtherActor && EnemyAttributeComp->GetCollisionDamageAmount() != 0)
 	{
 		if (UCAttributeComponentBase* PlayerAttributeComp = UCAttributeComponentBase::GetAttributes(OtherActor))
 		{
@@ -81,7 +84,7 @@ void ACEnemyBase::CollisionHandler(UPrimitiveComponent* HitComponent, AActor* Ot
 }
 void ACEnemyBase::PawnSeenHandler(APawn* Pawn)
 {
-	// DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.0f, true);
+	DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 1.0f, true);
 	SetTargetActor(Pawn);
 }
 float ACEnemyBase::GetHealthPercent()
