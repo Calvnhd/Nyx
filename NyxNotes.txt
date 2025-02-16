@@ -51,8 +51,6 @@ Assignment 4 - New AI Behaviour: flee and heal
 Also you need to fix up collision and damage on the bot!  Do this next so you can test the check health thing.
 (I left it too long and now I'm not sure what this means)
 ----
-NewBot - Making a new enemy type from scratch
-	- Simple body shape that's similar to my ship. Main body plus a turret.  Maybe don't worry about the turret turning independently.
 
 Behaviour
 	- Able to find some location to move to near player
@@ -61,24 +59,13 @@ Behaviour
 		- Start off with a small size, but add the ability to decide on a particular size
 	- Assignment 4 behaviour - find cover and heal
 
-Todo
-	- New bot class TankBase
-		- Give it a mesh
-		- takes damage
-		- hitflash
-		- health bar
-		- explodes on death
-	- bot movement to selected place
-	- bot fire in a direction
-	- Flee and health recovery
-
 You don't need to make a new TankBot
 You're over complicating things
 Finish off the regular lil enemy
 And make a giant enemy capable of spawning the multi ball enemy
 ----
 NEXT! 
-- fix up health bar -- it needs to be readable
+- fix up health bar -- it needs to be readable to accurately test AI behaviour
 - understand AI framework
 - add health awareness stuff
 - is collision working properly for everyone?
