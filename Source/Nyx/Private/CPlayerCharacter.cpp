@@ -51,7 +51,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	bCameraIsLocked = false;
-	LockedTarget = nullptr;
+	LockedTargetActor = nullptr;
 	bLookLockOverride = false;
 	LookPitchCeiling = 20.0f;
 	LookPitchFloor = -30.0f;
@@ -161,11 +161,11 @@ void ACPlayerCharacter::Tick(float DeltaSeconds)
 		CheckLockedTarget();
 
 		// get a new target if we don't have one
-		if (!LockedTarget)
+		if (!LockedTargetActor)
 		{
 			SetLockedTarget();
 		}
-		else if (GetDistanceTo(LockedTarget) > KeepTargetLockDistance && UpdateLockedTargetCounter > TimeToUpdateLockedTarget)
+		else if (GetDistanceTo(LockedTargetActor) > KeepTargetLockDistance && UpdateLockedTargetCounter > TimeToUpdateLockedTarget)
 		{
 			SetLockedTarget();
 		}
@@ -260,14 +260,14 @@ void ACPlayerCharacter::EndLook(const FInputActionValue& Value)
 
 void ACPlayerCharacter::RotateCameraToLockedTarget_Implementation()
 {
-	if (!LockedTarget)
+	if (!LockedTargetActor)
 	{
 		return;
 	}
 	FRotator CameraRotation = FollowCamera->GetComponentRotation();
 
 	// Yaw
-	float DesiredYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedTarget->GetActorLocation()).Yaw;
+	float DesiredYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedTargetActor->GetActorLocation()).Yaw;
 	float ActualYaw = CameraRotation.Yaw;
 	float YawDifference = fabs(DesiredYaw - ActualYaw);
 	bool bUseInner = YawDifference < 180;
@@ -293,7 +293,7 @@ void ACPlayerCharacter::RotateCameraToLockedTarget_Implementation()
 	// Pitch
 	// This keeps pitch roughly between -4 and 0 when locked on target
 	float ActualPitch = CameraRotation.Pitch;
-	float DesiredPitch = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedTarget->GetActorLocation()).Pitch;
+	float DesiredPitch = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedTargetActor->GetActorLocation()).Pitch;
 	float PitchDifference = fabs(ActualPitch - DesiredPitch);
 	if (PitchDifference > CameraLockDeadzoneSize)
 	{
@@ -308,7 +308,7 @@ void ACPlayerCharacter::ToggleCameraLock(const FInputActionValue& Value)
 	bCameraIsLocked = !bCameraIsLocked;
 	if (!bCameraIsLocked)
 	{
-		LockedTarget = nullptr;
+		LockedTargetActor = nullptr;
 		UpdateLockedTargetCounter = 0.0f;
 	}
 	else
@@ -322,7 +322,7 @@ void ACPlayerCharacter::SetCameraLock(const FInputActionValue& Value)
 	bCameraIsLocked = Value.Get<bool>();
 	if (!bCameraIsLocked)
 	{
-		LockedTarget = nullptr;
+		LockedTargetActor = nullptr;
 		UpdateLockedTargetCounter = 0.0f;
 	}
 	else
@@ -333,23 +333,19 @@ void ACPlayerCharacter::SetCameraLock(const FInputActionValue& Value)
 
 void ACPlayerCharacter::SetLockedTarget()
 {
-	LockedTarget = nullptr;
-	if (ACAsteroidBase* TargetEnemy = Cast<ACAsteroidBase>(FindNewLockedTarget()))
-	{
-		LockedTarget = TargetEnemy;
-		// bind to on death event?
-	}
+	LockedTargetActor = FindNewLockedTarget();
+	// bind to on death event?
 }
 
 void ACPlayerCharacter::CheckLockedTarget()
 {
-	if (!LockedTarget)
+	if (!LockedTargetActor)
 	{
 		return;
 	}
-	if (!UCAttributeComponentBase ::IsActorAlive(LockedTarget))
+	if (!UCAttributeComponentBase ::IsActorAlive(LockedTargetActor))
 	{
-		LockedTarget = nullptr;
+		LockedTargetActor = nullptr;
 	}
 }
 
@@ -388,11 +384,13 @@ FVector ACPlayerCharacter::GetCrosshairTargetLocation() const
 
 AActor* ACPlayerCharacter::FindNewLockedTarget()
 {
-	if (AActor* Target = SortEnemiesHit(TraceForTargets(100, 500)))
+	AActor* Target = SortEnemiesHit(TraceForTargets(100, 500));
+	if (Target)
 	{
 		return Target;
 	}
-	if (AActor* Target = SortEnemiesHit(TraceForTargets(1000, 1000)))
+	Target = SortEnemiesHit(TraceForTargets(1000, 1000));
+	if (Target)
 	{
 		return Target;
 	}
@@ -425,40 +423,62 @@ AActor* ACPlayerCharacter::SortEnemiesHit(TArray<FHitResult> EnemiesHit)
 	// How to prioritize targets?
 	// Some combination of size, health, and proximity
 	// maybe that's up to the player
-	if (!EnemiesHit.IsEmpty())
+
+	if (EnemiesHit.IsEmpty())
 	{
-		AActor* ClosestEnemy = EnemiesHit.Pop().GetActor();
-		FVector EnemyToPlayer = ClosestEnemy->GetActorLocation() - GetActorLocation();
-		float ShortestDistance = fabs(EnemyToPlayer.Length());
+		return nullptr;
+	}
 
-		for (auto& Enemy : EnemiesHit)
+	// find first valid enemy
+	AActor* PriorityEnemy = nullptr;
+	for (auto& Enemy : EnemiesHit)
+	{
+		if (UCAttributeComponentBase::IsActorAlive(Enemy.GetActor()))
 		{
-			FVector NextEnemyLocation = Enemy.GetActor()->GetActorLocation();
-			FVector NextEnemyToPlayer = NextEnemyLocation - GetActorLocation();
-			float Distance = fabs(NextEnemyToPlayer.Length());
+			PriorityEnemy = Enemy.GetActor();
+			break;
+		}
+	}
+	if (!PriorityEnemy)
+	{
+		return nullptr;
+	}
 
-			if (Distance < ShortestDistance)
+	// distance
+	FVector EnemyToPlayer = PriorityEnemy->GetActorLocation() - GetActorLocation();
+	float ShortestDistance = fabs(EnemyToPlayer.Length());
+
+	// anyone closer?
+	for (auto& Enemy : EnemiesHit)
+	{
+		if (!UCAttributeComponentBase::IsActorAlive(Enemy.GetActor()))
+		{
+			continue;
+		}
+		FVector NextEnemyLocation = Enemy.GetActor()->GetActorLocation();
+		FVector NextEnemyToPlayer = NextEnemyLocation - GetActorLocation();
+		float Distance = fabs(NextEnemyToPlayer.Length());
+
+		if (Distance < ShortestDistance)
 			{
-				ClosestEnemy = Enemy.GetActor();
+			PriorityEnemy = Enemy.GetActor();
 				ShortestDistance = Distance;
 			}
-		}
-		return ClosestEnemy;
 	}
-	return nullptr;
+	return PriorityEnemy;
 }
 
 FTransform ACPlayerCharacter::GetTargetTM() const
 {
 	const FVector SpawnLocation = GetMuzzleLocation();
 	FRotator SpawnRotation;
-	if (bCameraIsLocked && LockedTarget)
+	if (bCameraIsLocked && LockedTargetActor)
 	{
 		// @TODO
 		// calculate TargetLockVelocityModifier based on some combination of target velocity and distance
-		FVector TargetMovementDirection = LockedTarget->GetVelocity();
+		FVector TargetMovementDirection = LockedTargetActor->GetVelocity();
 		TargetMovementDirection.Normalize();
-		FVector TargetLocation = LockedTarget->GetActorLocation() + TargetMovementDirection * TargetLockVelocityModifier;
+		FVector TargetLocation = LockedTargetActor->GetActorLocation() + TargetMovementDirection * TargetLockVelocityModifier;
 		////////////////////////
 
 		DrawDebugSphere(GetWorld(), TargetLocation, 50, 8, FColor::Red, false, 1, 0, 1);
@@ -475,9 +495,9 @@ FTransform ACPlayerCharacter::GetTargetTM() const
 float ACPlayerCharacter::CalculateBarrelPitch() const
 {
 	FVector MuzzleToTargetVector;
-	if (bCameraIsLocked && LockedTarget)
+	if (bCameraIsLocked && LockedTargetActor)
 	{
-		MuzzleToTargetVector = LockedTarget->GetActorLocation() - GetMuzzleLocation();
+		MuzzleToTargetVector = LockedTargetActor->GetActorLocation() - GetMuzzleLocation();
 	}
 	else
 	{
@@ -489,9 +509,9 @@ float ACPlayerCharacter::CalculateBarrelPitch() const
 
 float ACPlayerCharacter::CalculateTurretRotation() const
 {
-	if (bCameraIsLocked && LockedTarget)
+	if (bCameraIsLocked && LockedTargetActor)
 	{
-		FRotator RotationToTarget = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedTarget->GetActorLocation());
+		FRotator RotationToTarget = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockedTargetActor->GetActorLocation());
 		return RotationToTarget.Yaw;
 	}
 	return FollowCamera->GetComponentRotation().Yaw;

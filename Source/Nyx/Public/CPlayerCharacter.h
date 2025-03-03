@@ -131,7 +131,7 @@ protected:
 	bool bCameraIsLocked;
 	bool bLookLockOverride;
 	UPROPERTY(BlueprintReadOnly)
-	AActor* LockedTarget;
+	AActor* LockedTargetActor;
 	UFUNCTION(BlueprintNativeEvent, Category = "Nyx|Player|Abilities|Look|Targeting")
 	void RotateCameraToLockedTarget();
 	FVector GetCrosshairTargetLocation() const;
