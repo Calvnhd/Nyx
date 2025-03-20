@@ -48,10 +48,6 @@ Assignment 4 - New AI Behaviour: flee and heal
 - BT Task: Heal
 - 60 second cooldown
 ----
-Also you need to fix up collision and damage on the bot!  Do this next so you can test the check health thing.
-(I left it too long and now I'm not sure what this means)
-----
-
 Behaviour
 	- Able to find some location to move to near player
 		- Somewhere within some distance of player, similar to the existing bot
@@ -65,10 +61,8 @@ Finish off the regular lil enemy
 And make a giant enemy capable of spawning the multi ball enemy
 ----
 NEXT! 
-- fix up health bar -- it needs to be readable to accurately test AI behaviour
 - understand AI framework
 - add health awareness stuff
-- is collision working properly for everyone?
 
 
 
